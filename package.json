@@ -1,0 +1,15 @@
+{
+  "name": "clockwise_clockware_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2",
+    "pg": "^8.7.1"
+  }
+}
