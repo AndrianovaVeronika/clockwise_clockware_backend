@@ -17,8 +17,8 @@ app.get('/', (request, response) => {
 })
 
 app.get('/orders', db.getOrders)
-// app.get('/orders/:id', db.getOrderById)
-// app.post('/orders', db.createOrder)
+app.get('/orders/:id', db.getOrderById)
+app.post('/orders', db.createOrder)
 // app.put('/orders/:id', db.updateOrder)
 // app.delete('/orders/:id', db.deleteOrder)
 
