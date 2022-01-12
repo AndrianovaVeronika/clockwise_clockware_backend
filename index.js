@@ -23,10 +23,15 @@ app.get('/orders', db.getOrders)
 app.get('/orders/:id', db.getOrderById)
 app.post('/orders', db.createOrder)
 // app.put('/orders/:id', db.updateOrder)
-// app.delete('/orders/:id', db.deleteOrder)
+app.delete('/orders/:id', db.deleteOrder)
 
 app.get('/masters', db.getMasters)
 app.post('/masters', db.createMaster)
+app.delete('/masters/:id', db.deleteMaster)
+
+app.get('/cities', db.getCities)
+app.post('/cities', db.createCity)
+app.delete('/cities/:id', db.deleteCity)
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

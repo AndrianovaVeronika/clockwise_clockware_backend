@@ -8,7 +8,20 @@ const pool = new Pool({
 })
 
 const getOrders = (req, res) => {
-    pool.query('SELECT orders.id, orders.name as client_name, login, clock_type, city, datetime, masters.name as master_name FROM orders LEFT OUTER JOIN masters ON masters.id = master_id ORDER BY id ASC', (error, result) => {
+    pool.query('SELECT ' +
+        'orders.id, ' +
+        'orders.name as client_name, ' +
+        'orders.login, ' +
+        'orders.clock_type, ' +
+        'orders.date, ' +
+        'orders.time, ' +
+        'masters.name as master_name, ' +
+        'cities.name as city ' +
+        'FROM orders ' +
+        'LEFT OUTER JOIN masters ON masters.id = master_id ' +
+        'LEFT OUTER JOIN cities ON cities.id = city_id ' +
+        'ORDER BY id ASC',
+        (error, result) => {
         if (error) {
             res.status(500).send(error)
         }
@@ -19,7 +32,8 @@ const getOrders = (req, res) => {
 const getOrderById = (req, res) => {
     const id = parseInt(req.params.id)
     console.log(id);
-    pool.query('SELECT * FROM orders WHERE id = $1', [id], (error, result) => {
+    pool.query('SELECT * FROM orders WHERE id = $1', [id],
+        (error, result) => {
         if (error) {
             res.status(500).send(error)
         }
@@ -28,24 +42,24 @@ const getOrderById = (req, res) => {
 }
 
 const createOrder = (req, res) => {
-    const {name, login, clock_type, city, datetime, master_id} = req.body
-    pool.query('INSERT INTO orders (name, login, clock_type, city, dateTime, master_id) ' +
-        'VALUES ($1, $2, $3, $4, $5, $6)', [name, login, clock_type, city, datetime, master_id], (error, result) => {
+    const {name, login, clock_type, master_id, city_id, date, time} = req.body
+    pool.query('INSERT INTO orders (name, login, clock_type, master_id, city_id, date, time) ' +
+        'VALUES ($1, $2, $3, $4, $5, $6, $7)', [name, login, clock_type, master_id, city_id, date, time],
+        (error, result) => {
         if (error) {
             res.status(500).send(error)
         }
-        res.status(201).send('User added')
+        res.status(201).send('Order added')
     })
 }
 
 const deleteOrder = (req, res) => {
     const id = parseInt(req.params.id)
-    console.log(req.params.id)
-    pool.query('DELETE FROM users WHERE id = $1', [id], (error, result) => {
+    pool.query('DELETE FROM orders WHERE id = $1', [id], (error, result) => {
         if (error) {
             res.status(500).send(error)
         }
-        res.status(200).send('User deleted')
+        res.status(200).send('Order deleted')
     })
 }
 
@@ -65,10 +79,49 @@ const createMaster = (req, res) => {
         if (error) {
             res.status(500).send(error)
         }
-        res.status(201).send('User added')
+        res.status(201).send('Master added')
     })
 }
 
+const deleteMaster = (req, res) => {
+    const id = parseInt(req.params.id)
+    pool.query('DELETE FROM masters WHERE id = $1', [id], (error, result) => {
+        if (error) {
+            res.status(500).send(error)
+        }
+        res.status(200).send('Master deleted')
+    })
+}
+
+const getCities = (req, res) => {
+    pool.query('SELECT * FROM cities ORDER BY id ASC', (error, result) => {
+        if (error) {
+            res.status(500).send(error)
+        }
+        res.status(200).send(result.rows)
+    })
+}
+
+const createCity = (req, res) => {
+    const {name} = req.body
+    pool.query('INSERT INTO cities (name) ' +
+        'VALUES ($1)', [name], (error, result) => {
+        if (error) {
+            res.status(500).send(error)
+        }
+        res.status(201).send('City added')
+    })
+}
+
+const deleteCity = (req, res) => {
+    const id = parseInt(req.params.id)
+    pool.query('DELETE FROM cities WHERE id = $1', [id], (error, result) => {
+        if (error) {
+            res.status(500).send(error)
+        }
+        res.status(200).send('City deleted')
+    })
+}
 // const updateOrder = (req, res) => {
 //     const id = parseInt(req.params.id)
 //     const {name, login, clocktype, city, datetime, masterid} = req.body
@@ -93,4 +146,8 @@ module.exports = {
     // updateOrder,
     getMasters,
     createMaster,
+    deleteMaster,
+    getCities,
+    createCity,
+    deleteCity
 }
