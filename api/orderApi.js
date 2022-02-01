@@ -22,15 +22,27 @@ const getOrders = (req, res) => {
         })
 }
 
+const getOrdersByDateAndMaster = (req, res) => {
+    const {date, master_id} = req.params;
+    pool.query('SELECT clock_type, time FROM orders WHERE date = $1 AND master_id = $2',
+        [date, master_id],
+        (error, result) => {
+            if (error) {
+                res.status(500).send(error);
+            }
+            res.status(200).send(result.rows);
+        })
+}
+
 const getOrderById = (req, res) => {
-    const id = parseInt(req.params.id)
+    const id = parseInt(req.params.id);
     console.log(id);
     pool.query('SELECT * FROM orders WHERE id = $1', [id],
         (error, result) => {
             if (error) {
-                res.status(500).send(error)
+                res.status(500).send(error);
             }
-            res.status(200).json(result.rows)
+            res.status(200).json(result.rows);
         })
 }
 
@@ -75,6 +87,7 @@ const deleteOrder = (req, res) => {
 module.exports = {
     getOrders,
     getOrderById,
+    getOrdersByDateAndMaster,
     createOrder,
     deleteOrder,
 }
