@@ -9,6 +9,17 @@ const getMasters = (req, res) => {
     })
 }
 
+const getMasterById = (req, res) => {
+    const id = parseInt(req.params.id);
+    pool.query('SELECT * FROM masters WHERE id = $1', [id],
+        (error, result) => {
+            if (error) {
+                res.status(500).send(error);
+            }
+            res.status(200).json(result.rows);
+        })
+}
+
 const createMaster = (req, res) => {
     const {name, rating} = req.body
     pool.query('INSERT INTO masters (name, rating) ' +
@@ -32,6 +43,7 @@ const deleteMaster = (req, res) => {
 
 module.exports = {
     getMasters,
+    getMasterById,
     createMaster,
     deleteMaster
 }

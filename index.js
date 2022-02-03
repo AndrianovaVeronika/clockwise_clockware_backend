@@ -21,6 +21,6 @@ app.get('/', (request, response) => {
 
 app.use(router);
 
-app.listen(process.env.DB_PORT, () => {
-    console.log(`App running on port ${process.env.DB_PORT}.`)
+app.listen(process.env.PORT, () => {
+    console.log(`App running on port ${process.env.PORT}.`)
 });

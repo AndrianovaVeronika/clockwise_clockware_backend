@@ -9,6 +9,17 @@ const getCities = (req, res) => {
     })
 }
 
+const getCityById = (req, res) => {
+    const id = parseInt(req.params.id);
+    pool.query('SELECT * FROM cities WHERE id = $1', [id],
+        (error, result) => {
+            if (error) {
+                res.status(500).send(error);
+            }
+            res.status(200).json(result.rows);
+        })
+}
+
 const createCity = (req, res) => {
     const {name} = req.body
     pool.query('INSERT INTO cities (name) ' +
@@ -32,6 +43,7 @@ const deleteCity = (req, res) => {
 
 module.exports = {
     getCities,
+    getCityById,
     createCity,
     deleteCity,
 }

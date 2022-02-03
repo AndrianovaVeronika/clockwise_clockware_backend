@@ -1,6 +1,6 @@
 const {getOrders, getOrderById, getOrdersByDateAndMaster, createOrder, deleteOrder} = require("./orderApi");
-const {getCities, createCity, deleteCity} = require("./cityApi");
-const {getMasters, createMaster, deleteMaster} = require("./masterApi");
+const {getCities, getCityById, createCity, deleteCity} = require("./cityApi");
+const {getMasters, getMasterById, createMaster, deleteMaster} = require("./masterApi");
 
 module.exports = {
     getOrders,
@@ -9,9 +9,11 @@ module.exports = {
     createOrder,
     deleteOrder,
     getCities,
+    getCityById,
     createCity,
     deleteCity,
     getMasters,
+    getMasterById,
     createMaster,
     deleteMaster
 }
