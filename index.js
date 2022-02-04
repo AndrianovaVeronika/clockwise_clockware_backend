@@ -32,5 +32,5 @@ app.use((req,res,next) => {
 // Run the server
 app.listen(process.env.PORT, () => {
     console.log(`App running on port ${process.env.PORT}.`);
-    logger.info(`Server started and running on http://${process.env.DB_HOST}:${process.env.PORT}`)
+    logger.info(`Server started and running on http://${process.env.HOST}:${process.env.PORT}`)
 });

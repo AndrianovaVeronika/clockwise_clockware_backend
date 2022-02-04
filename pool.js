@@ -1,4 +1,5 @@
-const Pool = require('pg').Pool
+const { Client, Pool } = require('pg');
+
 require('dotenv').config();
 const logger = require('./utils/logger');
 
@@ -8,7 +9,17 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    url: process.env.DATABASE_URL
 })
+
+// const client = new Client({
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: {
+//         rejectUnauthorized: false
+//     }
+// });
+//
+// client.connect();
 
 // pool.query('CREATE TABLE IF NOT EXISTS cities (id integer NOT NULL PRIMARY KEY,name varchar NOT NULL)', (error, result) => {
 //     if (error) {
