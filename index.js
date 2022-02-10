@@ -1,36 +1,31 @@
-const express = require('express');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const app = express();
-const bodyParser = require('body-parser');
-const router = require('./routes');
-const cors = require('cors');
-require('dotenv').config();
+const db = require("./app/models");
 const logger = require('./utils/logger');
+require('dotenv').config();
+
+db.sequelize.sync();
 
 app.use(cors());
 
+// parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-app.use(
-    bodyParser.urlencoded({
-        extended: true,
-    })
-);
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
-app.get('/', (request, response) => {
-    response.json({info: 'Clockwise Clockware backend API'});
-    logger.info('Home request send api name');
+// index route
+app.get("/", (req, res) => {
+    res.json({ message: "Clockwise Clockware App" });
 });
 
-app.use(router);
+require('./app/routes')(app);
 
-// Capture 404 erors
-app.use((req,res,next) => {
-    res.status(404).send("PAGE NOT FOUND");
-    logger.error(`400 || ${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-})
-
-// Run the server
+// listen for requests
 app.listen(process.env.PORT, () => {
-    console.log(`App running on port ${process.env.PORT}.`);
-    logger.info(`Server started and running on http://${process.env.HOST}:${process.env.PORT}`)
+    logger.info(`Server is running on port ${process.env.PORT}.`);
 });

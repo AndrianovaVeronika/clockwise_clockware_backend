@@ -1,4 +1,4 @@
-const {pool} = require("../pool");
+const {pool} = require("../app/middleware/pool");
 
 const getOrders = (req, res) => {
     pool.query('SELECT ' +

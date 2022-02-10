@@ -1,11 +1,11 @@
-const {pool} = require("../pool");
+const {pool} = require("../app/middleware/pool");
 
 const getCities = (req, res) => {
     pool.query('SELECT * FROM cities ORDER BY id ASC', (error, result) => {
         if (error) {
             res.status(500).send(error)
         }
-        res.status(200).send(result.rows)
+        res.status(200).send(result.rows);
     })
 }
 
