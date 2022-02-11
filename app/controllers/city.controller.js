@@ -1,4 +1,4 @@
-const db = require('../models');
+const {db} = require('../models');
 const logger = require("../../utils/logger");
 const City = db.city;
 
@@ -35,7 +35,9 @@ exports.create = (req, res) => {
 // Retrieve all from the database.
 exports.findAll = (req, res) => {
     logger.info('Retrieving all cities...');
-    City.findAll()
+    City.findAll({
+        include: db.master
+    })
         .then(data => {
             logger.info('Cities retrieved');
             res.send(data);

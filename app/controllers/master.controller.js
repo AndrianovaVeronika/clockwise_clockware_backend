@@ -1,4 +1,4 @@
-const db = require('../models');
+const {db} = require('../models');
 const logger = require("../../utils/logger");
 const Master = db.master;
 const City = db.city;
@@ -26,8 +26,8 @@ exports.create = (req, res) => {
     Master.create(master)
         .then(master => {
             City.findAll({
-                where:{
-                    name:{
+                where: {
+                    name: {
                         [Op.or]: req.body.cities
                     }
                 }
@@ -49,7 +49,9 @@ exports.create = (req, res) => {
 // Retrieve all from the database.
 exports.findAll = (req, res) => {
     logger.info('Retrieving all masters...');
-    Master.findAll()
+    Master.findAll({
+        include: db.city
+    })
         .then(data => {
             logger.info('Masters retrieved');
             res.send(data);
@@ -98,7 +100,7 @@ exports.update = (req, res) => {
     }
 
     Master.update(req.body, {
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             if (num === 1) {
@@ -128,7 +130,7 @@ exports.delete = (req, res) => {
     logger.info(`Deleting master with id=${id}...`);
 
     Master.destroy({
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             if (num === 1) {

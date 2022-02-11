@@ -1,4 +1,4 @@
-const db = require('../models');
+const {db} = require('../models');
 const logger = require("../../utils/logger");
 const Order = db.order;
 
@@ -13,10 +13,10 @@ exports.create = (req, res) => {
     const order = {
         date: req.body.date,
         time: req.body.time,
-        user_id: req.body.user_id,
-        city_id: req.body.city_id,
-        clock_type_id: req.body.clock_type_id,
-        master_id: req.body.master_id,
+        userId: req.body.userId,
+        cityId: req.body.cityId,
+        clockTypeId: req.body.clockTypeId,
+        masterId: req.body.masterId,
     };
     logger.info('New order: ');
     for (const orderKey in order) {
@@ -40,7 +40,9 @@ exports.create = (req, res) => {
 // Retrieve all from the database.
 exports.findAll = (req, res) => {
     logger.info('Retrieving all orders...');
-    Order.findAll()
+    Order.findAll({
+        include: [db.user, db.clock_type, db.city, db.master]
+    })
         .then(data => {
             logger.info('Orders retrieved');
             res.send(data);

@@ -6,18 +6,6 @@ module.exports = (sequelize, Sequelize) => {
         time: {
             type: Sequelize.TIME
         },
-        user_id: {
-            type: Sequelize.INTEGER
-        },
-        city_id: {
-            type: Sequelize.INTEGER
-        },
-        clock_type_id: {
-            type: Sequelize.INTEGER
-        },
-        master_id: {
-            type: Sequelize.INTEGER
-        }
     });
     return Order;
 };

@@ -1,10 +1,10 @@
 const logger = require("../../utils/logger");
-const db = require('../models');
-const Type = db.clock_type;
+const {db} = require('../models');
+const ClockType = db.clock_type;
 
 exports.findAll = (req, res) => {
     logger.info('Retrieving all clock_types...');
-    Type.findAll()
+    ClockType.findAll()
         .then(data => {
             logger.info('Clock_types retrieved');
             res.send(data);

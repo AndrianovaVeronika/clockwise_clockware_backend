@@ -1,4 +1,4 @@
-const controller = require("../controllers/clock_type.controller");
+const controller = require("../controllers/clockType.controller");
 const router = require('express').Router();
 
 module.exports = app => {

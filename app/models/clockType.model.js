@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const Clock_type = sequelize.define("clock_types", {
+    const ClockType = sequelize.define("clock_types", {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true
@@ -8,5 +8,5 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         }
     });
-    return Clock_type;
+    return ClockType;
 };
