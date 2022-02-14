@@ -53,21 +53,13 @@ db.master.belongsToMany(db.city, {
     otherKey: "city_id"
 });
 
-db.order.belongsTo(db.user, {
-    foreignKey: "user_id"
-});
+db.order.belongsTo(db.user);
 db.user.hasOne(db.order);
-db.order.belongsTo(db.city, {
-    foreignKey: "city_id"
-});
+db.order.belongsTo(db.city);
 db.city.hasOne(db.order);
-db.order.belongsTo(db.master, {
-    foreignKey: "master_id"
-});
+db.order.belongsTo(db.master);
 db.master.hasOne(db.order);
-db.order.belongsTo(db.clock_type, {
-    foreignKey: "clock_type_id"
-});
+db.order.belongsTo(db.clock_type);
 db.clock_type.hasOne(db.order);
 
 db.ROLES = ["user", "admin"];

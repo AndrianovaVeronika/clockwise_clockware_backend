@@ -13,10 +13,10 @@ exports.create = (req, res) => {
     const order = {
         date: req.body.date,
         time: req.body.time,
-        user_id: req.body.user_id,
-        city_id: req.body.city_id,
-        clock_type_id: req.body.clock_type_id,
-        master_id: req.body.master_id,
+        userId: req.body.userId,
+        cityId: req.body.cityId,
+        clockTypeId: req.body.clockTypeId,
+        masterId: req.body.masterId,
     };
     logger.info('New order: ');
     for (const orderKey in order) {
