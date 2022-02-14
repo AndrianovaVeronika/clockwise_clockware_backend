@@ -56,7 +56,9 @@ db.master.belongsToMany(db.city, {
 db.order.belongsTo(db.user, {
     foreignKey: "user_id"
 });
-db.user.hasOne(db.order);
+db.user.hasOne(db.order, {
+    foreignKey: "user_id"
+});
 db.order.belongsTo(db.city, {
     foreignKey: "city_id"
 });
