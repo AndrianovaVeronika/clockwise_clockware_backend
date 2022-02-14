@@ -62,15 +62,21 @@ db.user.hasOne(db.order, {
 db.order.belongsTo(db.city, {
     foreignKey: "city_id"
 });
-db.city.hasOne(db.order);
+db.city.hasOne(db.order, {
+    foreignKey: "city_id"
+});
 db.order.belongsTo(db.master, {
     foreignKey: "master_id"
 });
-db.master.hasOne(db.order);
+db.master.hasOne(db.order, {
+    foreignKey: "master_id"
+});
 db.order.belongsTo(db.clock_type, {
     foreignKey: "clock_type_id"
 });
-db.clock_type.hasOne(db.order);
+db.clock_type.hasOne(db.order, {
+    foreignKey: "clock_type_id"
+});
 
 db.ROLES = ["user", "admin"];
 
