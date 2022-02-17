@@ -43,6 +43,7 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
+    logger.info('Signing in...');
     User.findOne({
         where: {
             username: req.body.username
@@ -72,6 +73,7 @@ exports.signin = (req, res) => {
                 for (let i = 0; i < roles.length; i++) {
                     authorities.push("ROLE_" + roles[i].name.toUpperCase());
                 }
+                logger.info('Signed in successfully!');
                 res.status(200).send({
                     id: user.id,
                     username: user.username,
@@ -101,3 +103,4 @@ exports.findAll = (req, res) => {
             });
         });
 };
+
