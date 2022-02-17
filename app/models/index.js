@@ -10,12 +10,12 @@ const sequelize = new Sequelize(
         dialect: config.dialect,
         operatorsAliases: false,
         pool: config.pool,
-        // dialectOptions: {
-        //     ssl: {
-        //         require: true,
-        //         rejectUnauthorized: false
-        //     }
-        // }
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false
+            }
+        }
     }
 );
 
