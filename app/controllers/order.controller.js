@@ -94,17 +94,10 @@ exports.update = (req, res) => {
         where: { id: id }
     })
         .then(num => {
-            if (num === 1) {
-                logger.info("Order was updated successfully");
-                res.status(200).send({
-                    message: "Order was updated successfully"
-                });
-            } else {
-                logger.info(`Cannot update order with id=${id}!`);
-                res.status(200).send({
-                    message: `Cannot update order with id=${id}!`
-                });
-            }
+            logger.info("Order was updated successfully");
+            res.status(200).send({
+                message: "Order was updated successfully"
+            });
         })
         .catch(err => {
             logger.info("Error updating order with id=" + id);

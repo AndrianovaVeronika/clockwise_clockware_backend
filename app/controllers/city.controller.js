@@ -35,9 +35,7 @@ exports.create = (req, res) => {
 // Retrieve all from the database.
 exports.findAll = (req, res) => {
     logger.info('Retrieving all cities...');
-    City.findAll({
-        include: db.master
-    })
+    City.findAll()
         .then(data => {
             logger.info('Cities retrieved');
             res.send(data);
@@ -74,7 +72,7 @@ exports.findOne = (req, res) => {
         });
 };
 
-// Update a Tutorial by the id in the request
+// Update a city by the id in the request
 exports.update = (req, res) => {
     const id = req.params.id;
     logger.info(`Updating city with id=${id}...`);
@@ -89,17 +87,10 @@ exports.update = (req, res) => {
         where: { id: id }
     })
         .then(num => {
-            if (num === 1) {
-                logger.info("City was updated successfully");
-                res.status(200).send({
-                    message: "City was updated successfully"
-                });
-            } else {
-                logger.info(`Cannot update city with id=${id}!`);
-                res.status(200).send({
-                    message: `Cannot update city with id=${id}!`
-                });
-            }
+            logger.info("City was updated successfully");
+            res.status(200).send({
+                message: "City was updated successfully"
+            });
         })
         .catch(err => {
             logger.info("Error updating city with id=" + id);
@@ -119,17 +110,10 @@ exports.delete = (req, res) => {
         where: { id: id }
     })
         .then(num => {
-            if (num === 1) {
-                logger.info("City was deleted successfully!");
-                res.status(200).send({
-                    message: "City was deleted successfully!"
-                });
-            } else {
-                logger.info(`Cannot delete city with id=${id}. Maybe city was not found!`);
-                res.status(200).send({
-                    message: `Cannot delete city with id=${id}. Maybe city was not found!`
-                });
-            }
+            logger.info("City was deleted successfully!");
+            res.status(200).send({
+                message: "City was deleted successfully!"
+            });
         })
         .catch(err => {
             logger.info("Could not delete city with id=");

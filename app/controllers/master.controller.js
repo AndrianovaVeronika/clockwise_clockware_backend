@@ -50,11 +50,24 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
     logger.info('Retrieving all masters...');
     Master.findAll({
-        include: db.city
+        include: db.city,
     })
-        .then(data => {
+        .then(masters => {
             logger.info('Masters retrieved');
-            res.send(data);
+            const mastersList = masters.map(master => {
+                return {
+                    id: master.id,
+                    name: master.name,
+                    rating: master.rating,
+                    cities: master.cities.map(city => {
+                        return {
+                            id: city.id,
+                            name: city.name
+                        }
+                    }),
+                }
+            });
+            res.send(mastersList);
         })
         .catch(err => {
             logger.info('Master find all: failure');
@@ -103,17 +116,10 @@ exports.update = (req, res) => {
         where: {id: id}
     })
         .then(num => {
-            if (num === 1) {
-                logger.info("Master was updated successfully");
-                res.status(200).send({
-                    message: "Master was updated successfully"
-                });
-            } else {
-                logger.info(`Cannot update master with id=${id}!`);
-                res.status(200).send({
-                    message: `Cannot update master with id=${id}!`
-                });
-            }
+            logger.info("Master was updated successfully");
+            res.status(200).send({
+                message: "Master was updated successfully"
+            });
         })
         .catch(err => {
             logger.info("Error updating master with id=" + id);
