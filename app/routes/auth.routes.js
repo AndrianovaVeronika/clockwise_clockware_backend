@@ -13,16 +13,6 @@ router.post(
 
 router.post("/auth/signin", controller.signin);
 
-router.get(
-    "/test/user",
-    [authJwt.verifyToken],
-    controller.userBoard
-);
-
-router.get(
-    "/test/admin",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.adminBoard
-);
+router.get('/test/user', [authJwt.verifyToken], controller.userBoard);
 
 module.exports = router;

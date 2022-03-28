@@ -5,9 +5,11 @@ const User = db.user;
 const logger = require('../../utils/logger');
 
 verifyToken = (req, res, next) => {
+    logger.info('Verifying token...')
     let token = req.headers["x-access-token"];
     if (!token) {
         logger.info('No token provided!');
+
         return res.status(403).send({
             message: "No token provided!"
         });

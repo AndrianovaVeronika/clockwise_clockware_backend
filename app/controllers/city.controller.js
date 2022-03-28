@@ -4,6 +4,7 @@ const City = db.city;
 
 exports.create = (req, res) => {
 // Validate request
+
     logger.info('Creating city...');
     if (!req.body) {
         res.status(400).send({message: 'City add failure: body undefined'});

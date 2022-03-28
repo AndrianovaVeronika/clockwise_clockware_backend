@@ -1,6 +1,11 @@
 const {db} = require('../models');
 const logger = require("../../utils/logger");
+const {sendMail} = require("../services/mail.service");
 const Order = db.order;
+const User = db.user;
+const City = db.city;
+const ClockType = db.clock_type;
+const Master = db.master;
 
 exports.create = (req, res) => {
 // Validate request
@@ -16,8 +21,9 @@ exports.create = (req, res) => {
         userId: req.body.userId,
         cityId: req.body.cityId,
         clockTypeId: req.body.clockTypeId,
-        masterId: req.body.masterId,
+        masterId: req.body.masterId
     };
+
     logger.info('New order: ');
     for (const orderKey in order) {
         logger.info(orderKey + ': ' + order[orderKey]);
@@ -26,8 +32,37 @@ exports.create = (req, res) => {
     // Save in the database
     Order.create(order)
         .then(data => {
-            logger.info('Order added');
-            res.status(201).send(data);
+            logger.info('Order `ve been added');
+            User.findByPk(order.userId).then(user => {
+                City.findByPk(order.cityId).then(city => {
+                    ClockType.findByPk(order.clockTypeId).then(clockType => {
+                        Master.findByPk(order.masterId).then(master => {
+                            logger.info('Building up mail...')
+                            const mailData = {
+                                username: user.username,
+                                email: user.email,
+                                clockType: clockType.name,
+                                master: master.name,
+                                city: city.name,
+                                date: order.date,
+                                time: order.time
+                            };
+                            let mail = '';
+                            for (const key in mailData) {
+                                logger.info(key + ': ' + mailData[key]);
+                                mail += '\n' + key + ': ' + mailData[key];
+                            }
+                            sendMail({
+                                to: mailData.email,
+                                subject: 'Order `ve been registered successfully',
+                                text: 'Your order: ' + mail,
+                            })
+                            logger.info('Mail `ve been sent');
+                            res.status(201).send(data);
+                        })
+                    })
+                })
+            })
         })
         .catch(err => {
             logger.info('Order add failure');
@@ -91,7 +126,7 @@ exports.update = (req, res) => {
     }
 
     Order.update(req.body, {
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             logger.info("Order was updated successfully");
@@ -114,7 +149,7 @@ exports.delete = (req, res) => {
     logger.info(`Deleting order with id=${id}...`);
 
     Order.destroy({
-        where: { id: id }
+        where: {id: id}
     })
         .then(num => {
             if (num === 1) {

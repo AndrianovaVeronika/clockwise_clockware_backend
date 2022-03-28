@@ -6,7 +6,6 @@ const db = require("./app/models");
 const cities = require('./app/routes/city.routes');
 const auth = require('./app/routes/auth.routes');
 const clockTypes = require('./app/routes/clock_type.routes');
-const mail = require('./app/routes/mail.routes');
 const masters = require('./app/routes/master.routes');
 const orders = require('./app/routes/order.routes');
 const users = require('./app/routes/user.routes');
@@ -33,7 +32,6 @@ app.get("/", (req, res) => {
 app.use('/api/cities', cities);
 app.use('/api', auth);
 app.use('/api/clock_types', clockTypes);
-app.use('/api/mail', mail);
 app.use('/api/masters', masters);
 app.use('/api/orders', orders);
 app.use('/api/users', users);
