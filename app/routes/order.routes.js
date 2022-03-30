@@ -1,5 +1,5 @@
 const controller = require("../controllers/order.controller");
-const {authJwt} = require("../middleware");
+const {authJwt} = require("../validators");
 const router = require('express').Router();
 
 router.get("/", controller.findAll);

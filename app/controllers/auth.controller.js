@@ -7,124 +7,117 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../../utils/logger');
 
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
     // Save User to Database
-    User.create({
+    const user = await User.create({
         username: req.body.username,
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 8)
-    })
-        .then(user => {
-            if (req.body.roles) {
-                Role.findAll({
-                    where: {
-                        name: {
-                            [Op.or]: req.body.roles
-                        }
+    });
+    try {
+        if (req.body.roles) {
+            const roles = await Role.findAll({
+                where: {
+                    name: {
+                        [Op.or]: req.body.roles
                     }
-                }).then(roles => {
-                    user.setRoles(roles).then(() => {
-                        logger.info('New user created');
-                        res.status(200).send({message: "User was registered successfully!"});
-                    });
-                });
-            } else {
-                // user role = 1
-                logger.info('New user created');
-                user.setRoles([1]).then(() => {
-                    res.status(200).send({message: "User was registered successfully!"});
-                });
-            }
-        })
-        .catch(err => {
-            logger.info('Error in signup');
-            res.status(500).send({message: err.message});
-        });
+                }
+            });
+            await user.setRoles(roles);
+            logger.info('New user created');
+            res.status(200).send({message: "User was registered successfully!"});
+        } else {
+            // user role = 1
+            logger.info('New user created');
+            await user.setRoles([1]);
+            res.status(200).send({message: "User was registered successfully!"});
+        }
+    } catch (e) {
+        logger.info('Error in signup');
+        res.status(500).send({message: e.message});
+    }
 };
 
-exports.signin = (req, res) => {
+exports.signin = async (req, res) => {
     logger.info('Signing in...');
-    User.findOne({
+    const user = await User.findOne({
         where: {
             username: req.body.username
         }
-    })
-        .then(user => {
-            if (!user) {
-                logger.info('User not found');
-                return res.status(404).send({message: "User Not found."});
-            }
-            const passwordIsValid = bcrypt.compareSync(
-                req.body.password,
-                user.password
-            );
-            if (!passwordIsValid) {
-                logger.info('Password is not valid');
-                return res.status(401).send({
-                    accessToken: null,
-                    message: "Invalid Password!"
-                });
-            }
-            const token = jwt.sign({id: user.id}, config.secret, {
-                expiresIn: 86400 // 24 hours
+    });
+    try {
+        if (!user) {
+            logger.info('User not found');
+            return res.status(404).send({message: "User Not found."});
+        }
+        const passwordIsValid = bcrypt.compareSync(
+            req.body.password,
+            user.password
+        );
+        if (!passwordIsValid) {
+            logger.info('Password is not valid');
+            return res.status(401).send({
+                accessToken: null,
+                message: "Invalid Password!"
             });
-            const authorities = [];
-            user.getRoles().then(roles => {
-                for (let i = 0; i < roles.length; i++) {
-                    authorities.push("ROLE_" + roles[i].name.toUpperCase());
-                }
-                logger.info('Signed in successfully!');
-                res.status(200).send({
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    roles: authorities,
-                    accessToken: token
-                });
-            });
-        })
-        .catch(err => {
-            logger.info('Error in signin');
-            res.status(500).send({message: err.message});
+        }
+        const token = jwt.sign({id: user.id}, config.secret, {
+            expiresIn: 86400 // 24 hours
         });
+
+        const authorities = [];
+        const roles = await user.getRoles();
+        for (let i = 0; i < roles.length; i++) {
+            authorities.push("ROLE_" + roles[i].name.toUpperCase());
+        }
+        logger.info('Signed in successfully!');
+        res.status(200).send({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            roles: authorities,
+            accessToken: token
+        });
+    } catch (e) {
+        logger.info('Error in signin');
+        res.status(500).send({message: err.message});
+    }
 };
 
-exports.userBoard = (req, res) => {
+exports.userBoard = async (req, res) => {
     const id = req.userId;
     logger.info(`Finding user with id=${id}...`);
-    User.findByPk(id)
-        .then(user => {
-            if (user) {
-                logger.info('User found');
-                const authorities = [];
-                user.getRoles().then(roles => {
-                    for (let i = 0; i < roles.length; i++) {
-                        authorities.push("ROLE_" + roles[i].name.toUpperCase());
-                    }
-                    logger.info('Signed in successfully!');
-                    res.status(200).send({
-                        id: user.id,
-                        username: user.username,
-                        email: user.email,
-                        roles: authorities,
-                        password: user.password
-                    });
-                });
-            } else {
-                logger.info(`Cannot find user with id=${id}`);
-                res.status(404).send({
-                    message: `Cannot find user with id=${id}.`
-                });
+    const user = await User.findByPk(id);
+    try {
+        if (user) {
+            logger.info('User found');
+            const authorities = [];
+            const roles = await user.getRoles();
+            for (let i = 0; i < roles.length; i++) {
+                authorities.push("ROLE_" + roles[i].name.toUpperCase());
             }
-        })
-        .catch(err => {
-            logger.info("Error retrieving user with id=" + id);
-            res.status(500).send({
-                message: "Error retrieving user with id=" + id
+            logger.info('Signed in successfully!');
+            res.status(200).send({
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                roles: authorities,
+                password: user.password
             });
+        } else {
+            logger.info(`Cannot find user with id=${id}`);
+            res.status(404).send({
+                message: `Cannot find user with id=${id}.`
+            });
+        }
+    } catch (e) {
+        logger.info("Error retrieving user with id=" + id);
+        res.status(500).send({
+            message: "Error retrieving user with id=" + id
         });
+    }
 };
 
-exports.adminBoard = (req, res) => {
-    res.status(200).send("admin access");
-};
+// exports.adminBoard = (req, res) => {
+//     res.status(200).send("admin access");
+// };

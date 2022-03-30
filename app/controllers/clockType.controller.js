@@ -2,17 +2,16 @@ const logger = require("../../utils/logger");
 const {db} = require('../models');
 const ClockType = db.clock_type;
 
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
     logger.info('Retrieving all clock_types...');
-    ClockType.findAll()
-        .then(data => {
-            logger.info('Clock_types retrieved');
-            res.send(data);
-        })
-        .catch(err => {
-            logger.info('Clock_types find all: failure');
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving clock_types."
-            });
+    try {
+        const clockTypes = await ClockType.findAll();
+        logger.info('Clock_types retrieved');
+        res.send(clockTypes);
+    } catch (e) {
+        logger.info('Clock_types find all: failure');
+        res.status(500).send({
+            message: e.message || "Some error occurred while retrieving clock_types."
         });
+    }
 };
