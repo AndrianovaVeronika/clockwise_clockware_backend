@@ -3,12 +3,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 const db = require("./app/models");
-const cities = require('./app/routes/city.routes');
-const auth = require('./app/routes/auth.routes');
-const clockTypes = require('./app/routes/clock_type.routes');
-const masters = require('./app/routes/master.routes');
-const orders = require('./app/routes/order.routes');
-const users = require('./app/routes/user.routes');
+const adminRoutes = require('./app/routes/admin_access');
+const userRoutes = require('./app/routes/user_access');
+const auth = require('./app/routes/all_access/auth.routes');
 const logger = require('./utils/logger');
 require('dotenv').config();
 
@@ -29,12 +26,9 @@ app.get("/", (req, res) => {
     res.json({ message: "Clockwise Clockware App" });
 });
 
-app.use('/api/cities', cities);
-app.use('/api', auth);
-app.use('/api/clock_types', clockTypes);
-app.use('/api/masters', masters);
-app.use('/api/orders', orders);
-app.use('/api/users', users);
+app.use('/auth', auth);
+app.use('/', userRoutes);
+app.use('/', adminRoutes);
 
 // listen for requests
 app.listen(process.env.PORT, () => {
