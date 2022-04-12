@@ -5,7 +5,7 @@ const authJwt = require('../../validators/authJwt');
 
 router.use(authJwt.verifyToken);
 
-router.use('/get', getRouter);
-router.use('/post', postRouter);
+router.use('/', getRouter);
+router.use('/', postRouter);
 
 module.exports = router;

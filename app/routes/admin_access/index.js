@@ -8,9 +8,9 @@ const authJwt = require('../../validators/authJwt');
 router.use(authJwt.verifyToken);
 router.use(authJwt.isAdmin);
 
-router.use('/delete', deleteRouter);
-router.use('/get', getRouter);
-router.use('/post', postRouter);
-router.use('/put', putRouter);
+router.use('/', deleteRouter);
+router.use('/', getRouter);
+router.use('/', postRouter);
+router.use('/', putRouter);
 
 module.exports = router;

@@ -12,7 +12,7 @@ ifOrderExist = async (req, res, next) => {
             where: {
                 date: req.body.date,
                 time: (timeInNum + i) + ':00:00',
-                clockTypeId: i < 0 ? k : undefined,
+                clockTypeId: i < 0 ? k : null,
                 cityId: req.body.cityId,
                 masterId: req.body.masterId
             }
