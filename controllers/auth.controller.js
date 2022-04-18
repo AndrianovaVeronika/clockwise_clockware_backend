@@ -1,11 +1,11 @@
-const {db} = require("../models");
+const db = require("../models");
 const config = require("../config/auth.config");
 const User = db.user;
 const Role = db.role;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const logger = require('../../utils/logger');
+const logger = require('../utils/logger');
 
 exports.signup = async (req, res) => {
     // Save User to Database

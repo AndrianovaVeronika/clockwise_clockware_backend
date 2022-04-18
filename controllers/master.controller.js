@@ -1,5 +1,5 @@
-const {db} = require('../models');
-const logger = require("../../utils/logger");
+const db = require('../models');
+const logger = require("../utils/logger");
 const Master = db.master;
 const City = db.city;
 const Op = db.Sequelize.Op;
@@ -11,18 +11,18 @@ exports.create = async (req, res) => {
         res.status(400).send({message: 'Master add failure: body undefined'});
         return;
     }
-    const master = {
+    const newMaster = {
         name: req.body.name,
         rating: req.body.rating
     };
     logger.info('New master: ');
-    for (const masterKey in master) {
-        logger.info(masterKey + ': ' + master[masterKey]);
+    for (const masterKey in newMaster) {
+        logger.info(masterKey + ': ' + newMaster[masterKey]);
     }
 
     try {
         // Save in the database
-        await Master.create(master);
+        const master = await Master.create(newMaster);
         const cities = await City.findAll({
             where: {
                 name: {
@@ -103,10 +103,24 @@ exports.update = async (req, res) => {
         res.status(400).send({message: 'Master update failure: body undefined'});
         return;
     }
+
     try {
-        await Master.update(req.body, {
+        const master = await Master.update(req.body, {
             where: {id: id}
         })
+        const cities = await City.findAll({
+            where: {
+                name: {
+                    [Op.or]: req.body.cities
+                }
+            }
+        });
+
+        // for (const city of cities) {
+        //     logger.info(city)
+        // }
+        // // await master.removeCities(await master.hasCities());
+
         logger.info("Master was updated successfully");
         res.status(200).send({
             message: "Master was updated successfully"

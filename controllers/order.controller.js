@@ -1,5 +1,5 @@
-const {db} = require('../models');
-const logger = require("../../utils/logger");
+const db = require('../models');
+const logger = require("../utils/logger");
 const {sendMail} = require("../services/mail.service");
 const Order = db.order;
 const User = db.user;

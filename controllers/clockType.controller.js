@@ -1,6 +1,6 @@
-const logger = require("../../utils/logger");
-const {db} = require('../models');
-const ClockType = db.clock_type;
+const logger = require("../utils/logger");
+const db = require('../models');
+const ClockType = db.clockType;
 
 exports.findAll = async (req, res) => {
     logger.info('Retrieving all clock_types...');

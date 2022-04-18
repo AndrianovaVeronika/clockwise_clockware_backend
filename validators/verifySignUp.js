@@ -1,7 +1,7 @@
-const {db} = require("../models");
+const db = require("../models");
 const ROLES = db.ROLES;
 const User = db.user;
-const logger = require('../../utils/logger');
+const logger = require('../utils/logger');
 
 checkDuplicateUsernameOrEmail = async (req, res, next) => {
     // Username

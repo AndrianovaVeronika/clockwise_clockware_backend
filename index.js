@@ -2,10 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-const db = require("./app/models");
-const adminRoutes = require('./app/routes/admin_access');
-const userRoutes = require('./app/routes/user_access');
-const auth = require('./app/routes/all_access/auth.routes');
+const db = require("./models");
+const adminRoutes = require('./routes/admin_access');
+const userRoutes = require('./routes/user_access');
+const auth = require('./routes/all_access/auth.routes');
 const logger = require('./utils/logger');
 require('dotenv').config();
 

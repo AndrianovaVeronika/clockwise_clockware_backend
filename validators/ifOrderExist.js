@@ -1,5 +1,5 @@
-const logger = require("../../utils/logger");
-const {db} = require('../models');
+const logger = require("../utils/logger");
+const db = require('../models');
 const Order = db.order;
 
 ifOrderExist = async (req, res, next) => {

@@ -1,5 +1,5 @@
-const {db} = require('../models');
-const logger = require("../../utils/logger");
+const db = require('../models');
+const logger = require("../utils/logger");
 const City = db.city;
 
 exports.create = async (req, res) => {
@@ -22,7 +22,7 @@ exports.create = async (req, res) => {
     try {
         await City.create(city);
         logger.info('City added');
-        res.status(201).send(data);
+        res.status(201).send({message: "City added"});
     } catch (e) {
         logger.info('City add failure');
         res.status(500).send({
@@ -41,7 +41,7 @@ exports.findAll = async (req, res) => {
     } catch (e) {
         logger.info('City find all failure');
         res.status(500).send({
-            message: err.message || "Some error occurred while retrieving cities."
+            message: e.message || "Some error occurred while retrieving cities."
         });
     }
 };
