@@ -5,7 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
     class ClockType extends Model {
         static associate(models) {
-            ClockType.hasMany(models.Order)
+            ClockType.hasMany(models.Order, {foreignKey: 'clockTypeId'})
         }
     }
 

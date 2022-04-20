@@ -1,7 +1,7 @@
 const db = require('../models');
 const logger = require("../utils/logger");
-const Master = db.master;
-const City = db.city;
+const Master = db.Master;
+const City = db.City;
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
@@ -32,7 +32,7 @@ exports.create = async (req, res) => {
         })
         await master.setCities(cities);
         logger.info('Master added');
-        res.status(201).send({message: "User was registered successfully!"});
+        res.status(201).send({message: "Master was registered successfully!"});
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({
@@ -46,23 +46,25 @@ exports.findAll = async (req, res) => {
     try {
         logger.info('Retrieving all masters...');
         const masters = await Master.findAll({
-            include: db.city,
+            include: [City],
         });
         logger.info('Masters retrieved');
-        const mastersList = masters.map(master => {
-            return {
-                id: master.id,
-                name: master.name,
-                rating: master.rating,
-                cities: master.cities.map(city => {
-                    return {
-                        id: city.id,
-                        name: city.name
-                    }
-                }),
-            }
-        });
-        res.send(mastersList);
+        if (masters){
+            const mastersList = masters.map(master => {
+                return {
+                    id: master.id,
+                    name: master.name,
+                    rating: master.rating,
+                    cities: master.Cities.map(city => {
+                        return {
+                            id: city.id,
+                            name: city.name
+                        }
+                    }),
+                }
+            });
+            res.send(mastersList);
+        }
     } catch (e) {
         logger.info('Master find all: failure');
         res.status(500).send({

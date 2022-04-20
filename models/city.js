@@ -2,10 +2,11 @@
 const {
     Model
 } = require('sequelize');
+const logger = require("../utils/logger");
 module.exports = (sequelize, DataTypes) => {
     class City extends Model {
         static associate(models) {
-            City.hasMany(models.Order);
+            City.hasMany(models.Order, {foreignKey: 'cityId'});
             City.belongsToMany(models.Master, {through: 'MasterCities'});
         }
     }

@@ -1,7 +1,7 @@
 const logger = require("../utils/logger");
 const db = require('../models');
-const User = db.user;
-const Order = db.order;
+const User = db.User;
+const Order = db.Order;
 
 exports.findAll = async (req, res) => {
     logger.info('Retrieving all users...');

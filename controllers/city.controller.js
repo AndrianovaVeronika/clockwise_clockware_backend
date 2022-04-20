@@ -1,6 +1,6 @@
 const db = require('../models');
 const logger = require("../utils/logger");
-const City = db.city;
+const City = db.City;
 
 exports.create = async (req, res) => {
     // Validate request
