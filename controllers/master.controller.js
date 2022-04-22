@@ -107,9 +107,11 @@ exports.update = async (req, res) => {
     }
 
     try {
-        const master = await Master.update(req.body, {
+        await Master.update(req.body, {
             where: {id: id}
         })
+
+        const master = await Master.findByPk(id);
         const cities = await City.findAll({
             where: {
                 name: {
@@ -117,11 +119,7 @@ exports.update = async (req, res) => {
                 }
             }
         });
-
-        // for (const city of cities) {
-        //     logger.info(city)
-        // }
-        // // await master.removeCities(await master.hasCities());
+        master.setCities(cities);
 
         logger.info("Master was updated successfully");
         res.status(200).send({

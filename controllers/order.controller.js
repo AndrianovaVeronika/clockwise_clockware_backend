@@ -83,9 +83,9 @@ exports.findAll = async (req, res) => {
                 time: order.time,
                 username: order.User.username,
                 email: order.User.email,
-                clockType: ClockType.name,
-                city: City.name,
-                master: Master.name
+                clockType: order.ClockType.name,
+                city: order.City.name,
+                master: order.Master.name
             }
         });
         res.status(200).send(processedData);
