@@ -10,12 +10,11 @@ ifOrderExist = async (req, res, next) => {
     }
     const timeInNum = parseInt(req.body.time.substring(0, 2));
     //check if order exist
-    for (let i = -4, k = 3; i <= req.body.clockTypeId; i++, k--) {
+    for (let i = -4; i <= req.body.clockTypeId; i++) {
         const orders = await Order.findAll({
             where: {
                 date: req.body.date,
                 time: (timeInNum + i) + ':00:00',
-                clockTypeId: i < 0 ? k : null,
                 cityId: req.body.cityId,
                 masterId: req.body.masterId
             }
