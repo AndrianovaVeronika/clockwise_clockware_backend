@@ -20,7 +20,6 @@ ifOrderExist = async (req, res, next) => {
             }
         });
         if (orders.length > 0) {
-            logger.info('FUCK U ' + orders);
             res.status(400).send({MESSAGE: 'order exist'});
             return;
         }
