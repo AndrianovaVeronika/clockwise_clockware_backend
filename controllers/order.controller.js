@@ -10,10 +10,6 @@ const Master = db.Master;
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating order...');
-    if (!req.body) {
-        res.status(400).send({message: 'Order add failure: body undefined'});
-        return;
-    }
     const order = {
         date: req.body.date,
         time: req.body.time,
