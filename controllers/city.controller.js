@@ -1,6 +1,5 @@
-const db = require('../models');
+const {City, Order} = require('../models');
 const logger = require("../utils/logger");
-const City = db.City;
 
 exports.create = async (req, res) => {
     // Validate request
@@ -102,6 +101,9 @@ exports.delete = async (req, res) => {
     try {
         await City.destroy({
             where: {id: id}
+        });
+        await Order.destroy({
+           where: {cityId: id}
         });
         logger.info("City was deleted successfully!");
         res.status(200).send({

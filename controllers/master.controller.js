@@ -1,8 +1,6 @@
-const db = require('../models');
+const {Master, City, Order, Sequelize} = require('../models');
 const logger = require("../utils/logger");
-const Master = db.Master;
-const City = db.City;
-const Op = db.Sequelize.Op;
+const Op = Sequelize.Op;
 
 exports.create = async (req, res) => {
 // Validate request
@@ -49,7 +47,7 @@ exports.findAll = async (req, res) => {
             include: [City],
         });
         logger.info('Masters retrieved');
-        if (masters){
+        if (masters) {
             const mastersList = masters.map(master => {
                 return {
                     id: master.id,
@@ -140,20 +138,16 @@ exports.delete = async (req, res) => {
     logger.info(`Deleting master with id=${id}...`);
 
     try {
-        const num = await Master.destroy({
+        await Master.destroy({
             where: {id: id}
         });
-        if (num === 1) {
-            logger.info("Master was deleted successfully!");
-            res.status(200).send({
-                message: "Master was deleted successfully!"
-            });
-        } else {
-            logger.info(`Cannot delete master with id=${id}. Maybe master was not found!`);
-            res.status(200).send({
-                message: `Cannot delete master with id=${id}. Maybe master was not found!`
-            });
-        }
+        await Order.destroy({
+            where: {masterId: id}
+        });
+        logger.info("Master was deleted successfully!");
+        res.status(200).send({
+            message: "Master was deleted successfully!"
+        });
     } catch
         (e) {
         logger.info("Could not delete master with id=");
