@@ -9,19 +9,19 @@ exports.create = async (req, res) => {
         return;
     }
 
-    const city = {
+    const newCity = {
         name: req.body.name
     };
     logger.info('New City: ');
-    for (const cityKey in city) {
-        logger.info(cityKey + ': ' + city[cityKey]);
+    for (const cityKey in newCity) {
+        logger.info(cityKey + ': ' + newCity[cityKey]);
     }
 
     // Save in the database
     try {
-        await City.create(city);
+        const city = await City.create(newCity);
         logger.info('City added');
-        res.status(201).send({message: "City added"});
+        res.status(201).send(city);
     } catch (e) {
         logger.info('City add failure');
         res.status(500).send({

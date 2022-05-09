@@ -10,7 +10,7 @@ const Master = db.Master;
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating order...');
-    const order = {
+    const newOrder = {
         date: req.body.date,
         time: req.body.time,
         userId: req.body.userId,
@@ -19,19 +19,19 @@ exports.create = async (req, res) => {
         masterId: req.body.masterId
     };
     logger.info('New order: ');
-    for (const orderKey in order) {
-        logger.info(orderKey + ': ' + order[orderKey]);
+    for (const orderKey in newOrder) {
+        logger.info(orderKey + ': ' + newOrder[orderKey]);
     }
 
     try {
         // Save in the database
-        await Order.create(order);
+        const order = await Order.create(newOrder);
         logger.info('Order `ve been added');
 
-        const user = await User.findByPk(order.userId);
-        const city = await City.findByPk(order.cityId);
-        const clockType = await ClockType.findByPk(order.clockTypeId);
-        const master = await Master.findByPk(order.masterId);
+        const user = await User.findByPk(newOrder.userId);
+        const city = await City.findByPk(newOrder.cityId);
+        const clockType = await ClockType.findByPk(newOrder.clockTypeId);
+        const master = await Master.findByPk(newOrder.masterId);
         logger.info('Building up mail...')
         const mailData = {
             username: user.username,
@@ -39,8 +39,8 @@ exports.create = async (req, res) => {
             clockType: clockType.name,
             master: master.name,
             city: city.name,
-            date: order.date,
-            time: order.time
+            date: newOrder.date,
+            time: newOrder.time
         };
         let mail = '';
         for (const key in mailData) {
@@ -53,9 +53,7 @@ exports.create = async (req, res) => {
             text: 'Your order: ' + mail,
         })
         logger.info('Mail `ve been sent');
-        res.status(201).send({
-            message: 'Order `ve been registered successfully'
-        });
+        res.status(201).send(order);
     } catch (e) {
         logger.info('Order add failure');
         res.status(500).send({
@@ -149,21 +147,13 @@ exports.delete = async (req, res) => {
     logger.info(`Deleting order with id=${id}...`);
 
     try {
-        const num = await Order.destroy({
+        await Order.destroy({
             where: {id: id}
         });
-        logger.info('num? ' + num);
-        if (num === 1) {
-            logger.info("Order was deleted successfully!");
-            res.status(200).send({
-                message: "Order was deleted successfully!"
-            });
-        } else {
-            logger.info(`Cannot delete order with id=${id}. Maybe order was not found!`);
-            res.status(200).send({
-                message: `Cannot delete order with id=${id}. Maybe order was not found!`
-            });
-        }
+        logger.info("Order was deleted successfully!");
+        res.status(200).send({
+            message: "Order was deleted successfully!"
+        });
     } catch (e) {
         logger.info("Could not delete order with id=");
         logger.info(e.message);

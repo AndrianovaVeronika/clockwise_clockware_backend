@@ -9,11 +9,12 @@ const logger = require('../utils/logger');
 
 exports.signup = async (req, res) => {
     // Save User to Database
-    const user = await User.create({
+    const newUser = {
         username: req.body.username,
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 8)
-    });
+    }
+    const user = await User.create(newUser);
     try {
         if (req.body.roles) {
             const roles = await Role.findAll({
@@ -25,9 +26,11 @@ exports.signup = async (req, res) => {
             });
             await user.setRoles(roles);
             logger.info('New user created');
-            res.status(200).send({message: "User was registered successfully!"});
+
+            const createdUserWithRoles = await User.findByPk(user.id);
+
+            res.status(200).send(createdUserWithRoles);
         } else {
-            // user role = 1
             logger.info('New user created');
             await user.setRoles([1]);
             res.status(200).send({message: "User was registered successfully!"});

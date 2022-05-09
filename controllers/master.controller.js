@@ -30,7 +30,12 @@ exports.create = async (req, res) => {
         })
         await master.setCities(cities);
         logger.info('Master added');
-        res.status(201).send({message: "Master was registered successfully!"});
+
+        const createdMaster = Master.findByPk(master.id, {
+            include: [City]
+        });
+
+        res.status(201).send(createdMaster);
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({
@@ -77,6 +82,9 @@ exports.findOne = async (req, res) => {
     logger.info(`Finding master with id=${id}...`);
     try {
         const master = await Master.findByPk(id);
+
+        master.cities = master.getCities();
+
         if (master) {
             logger.info('Master found');
             res.status(200).send(master);
