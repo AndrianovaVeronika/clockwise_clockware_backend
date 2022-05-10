@@ -31,11 +31,14 @@ exports.create = async (req, res) => {
         await master.setCities(cities);
         logger.info('Master added');
 
-        const createdMaster = Master.findByPk(master.id, {
-            include: [City]
+        master.cities = cities.map(city =>{
+            return {
+                id: city.id,
+                name: city.name
+            }
         });
 
-        res.status(201).send(createdMaster);
+        res.status(201).send(master.cities);
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({
@@ -83,8 +86,15 @@ exports.findOne = async (req, res) => {
     try {
         const master = await Master.findByPk(id);
 
-        master.cities = master.getCities();
+        const cities = await master.getCities();
+        master.cities = cities.map(city =>{
+            return {
+                id: city.id,
+                name: city.name
+            }
+        });
 
+        console.log(master)
         if (master) {
             logger.info('Master found');
             res.status(200).send(master);
