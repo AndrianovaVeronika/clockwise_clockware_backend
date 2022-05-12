@@ -94,7 +94,6 @@ exports.findOne = async (req, res) => {
             }
         });
 
-        console.log(master)
         if (master) {
             logger.info('Master found');
             res.status(200).send(master);

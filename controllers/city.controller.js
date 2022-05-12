@@ -81,10 +81,9 @@ exports.update = async (req, res) => {
         await City.update(req.body, {
             where: {id: id}
         });
+        const city = await City.findByPk(id);
         logger.info("City was updated successfully");
-        res.status(200).send({
-            message: "City was updated successfully"
-        });
+        res.status(200).send(city);
     } catch (e) {
         logger.info("Error updating city with id=" + id);
         logger.info(e.message);
@@ -103,12 +102,10 @@ exports.delete = async (req, res) => {
             where: {id: id}
         });
         await Order.destroy({
-           where: {cityId: id}
+            where: {cityId: id}
         });
         logger.info("City was deleted successfully!");
-        res.status(200).send({
-            message: "City was deleted successfully!"
-        });
+        res.status(200).send({id: id});
     } catch (e) {
         logger.info("Could not delete city with id=" + id);
         logger.info(e.message);
