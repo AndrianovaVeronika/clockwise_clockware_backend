@@ -1,14 +1,12 @@
 const {Master, City, Order, Sequelize} = require('../models');
 const logger = require("../utils/logger");
+const {findOne} = require("./master.controller");
 const Op = Sequelize.Op;
 
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating master...');
-    if (!req.body) {
-        res.status(400).send({message: 'Master add failure: body undefined'});
-        return;
-    }
+
     const newMaster = {
         name: req.body.name,
         rating: req.body.rating
@@ -38,7 +36,7 @@ exports.create = async (req, res) => {
             }
         });
 
-        res.status(201).send(master.cities);
+        res.status(201).send(master);
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({
@@ -115,17 +113,10 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating master with id=${id}...`);
-    if (!req.body) {
-        logger.info('Master update failure: body undefined');
-        res.status(400).send({message: 'Master update failure: body undefined'});
-        return;
-    }
-
     try {
         await Master.update(req.body, {
             where: {id: id}
         })
-
         const master = await Master.findByPk(id);
         const cities = await City.findAll({
             where: {
@@ -135,11 +126,9 @@ exports.update = async (req, res) => {
             }
         });
         master.setCities(cities);
-
+        const updatedMaster = await findOne(id);
         logger.info("Master was updated successfully");
-        res.status(200).send({
-            message: "Master was updated successfully"
-        });
+        res.status(200).send(updatedMaster);
     } catch (e) {
         logger.info("Error updating master with id=" + id);
         logger.info(e.message);
@@ -153,7 +142,6 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     const id = req.params.id;
     logger.info(`Deleting master with id=${id}...`);
-
     try {
         await Master.destroy({
             where: {id: id}
@@ -162,9 +150,7 @@ exports.delete = async (req, res) => {
             where: {masterId: id}
         });
         logger.info("Master was deleted successfully!");
-        res.status(200).send({
-            message: "Master was deleted successfully!"
-        });
+        res.status(200).send({id: id});
     } catch
         (e) {
         logger.info("Could not delete master with id=");

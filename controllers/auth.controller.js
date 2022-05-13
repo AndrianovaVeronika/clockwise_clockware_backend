@@ -27,14 +27,15 @@ exports.signup = async (req, res) => {
             await user.setRoles(roles);
             logger.info('New user created');
 
-            const createdUserWithRoles = await User.findByPk(user.id);
 
-            res.status(200).send(createdUserWithRoles);
         } else {
             logger.info('New user created');
             await user.setRoles([1]);
-            res.status(200).send({message: "User was registered successfully!"});
         }
+
+        const createdUserWithRoles = await User.findByPk(user.id);
+        res.status(200).send(createdUserWithRoles);
+
     } catch (e) {
         logger.info('Error in signup');
         res.status(500).send({message: e.message});

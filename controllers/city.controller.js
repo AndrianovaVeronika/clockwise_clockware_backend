@@ -4,11 +4,6 @@ const logger = require("../utils/logger");
 exports.create = async (req, res) => {
     // Validate request
     logger.info('Creating city...');
-    if (!req.body) {
-        res.status(400).send({message: 'City add failure: body undefined'});
-        return;
-    }
-
     const newCity = {
         name: req.body.name
     };
@@ -73,11 +68,6 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating city with id=${id}...`);
     try {
-        if (!req.body) {
-            logger.info('City update failure: body undefined');
-            res.status(400).send({message: 'City update failure: body undefined'});
-            return;
-        }
         await City.update(req.body, {
             where: {id: id}
         });
@@ -114,4 +104,3 @@ exports.delete = async (req, res) => {
         });
     }
 };
-

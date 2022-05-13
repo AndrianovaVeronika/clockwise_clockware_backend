@@ -21,20 +21,13 @@ exports.findAll = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating user with id=${id}...`);
-    if (!req.body) {
-        logger.info('User update failure: body undefined');
-        res.status(400).send({message: 'User update failure: body undefined'});
-        return;
-    }
-
     try {
         await User.update(req.body, {
             where: {id: id}
         });
+        const user = User.findByPk(id);
         logger.info("User was updated successfully");
-        res.status(200).send({
-            message: "User was updated successfully"
-        });
+        res.status(200).send(user);
     } catch (e) {
         logger.info("Error updating user with id=" + id);
         logger.info(e.message);
@@ -56,9 +49,7 @@ exports.delete = async (req, res) => {
             where: {userId: id}
         })
         logger.info("User was deleted successfully!");
-        res.status(200).send({
-            message: "User was deleted successfully!"
-        });
+        res.status(200).send({id: id});
     } catch (e) {
         logger.info("Could not delete user with id=");
         logger.info(e.message);

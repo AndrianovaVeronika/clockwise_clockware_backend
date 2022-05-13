@@ -28,4 +28,4 @@ ifOrderExist = async (req, res, next) => {
     next();
 }
 
-module.exports = {ifOrderExist};
+module.exports = ifOrderExist;

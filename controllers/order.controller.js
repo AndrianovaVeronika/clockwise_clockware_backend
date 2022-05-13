@@ -1,6 +1,7 @@
 const db = require('../models');
 const logger = require("../utils/logger");
 const {sendMail} = require("../services/mail.service");
+const {findOne} = require("./order.controller");
 const Order = db.Order;
 const User = db.User;
 const City = db.City;
@@ -53,6 +54,7 @@ exports.create = async (req, res) => {
             text: 'Your order: ' + mail,
         })
         logger.info('Mail `ve been sent');
+
         res.status(201).send(order);
     } catch (e) {
         logger.info('Order add failure');
@@ -118,20 +120,13 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating order with id=${id}...`);
-    if (!req.body) {
-        logger.info('Order update failure: body undefined');
-        res.status(400).send({message: 'Order update failure: body undefined'});
-        return;
-    }
-
     try {
         await Order.update(req.body, {
             where: {id: id}
         });
+        const order = findOne(id);
         logger.info("Order was updated successfully");
-        res.status(200).send({
-            message: "Order was updated successfully"
-        });
+        res.status(200).send(order);
     } catch (e) {
         logger.info("Error updating order with id=" + id);
         logger.info(e.message);
@@ -145,15 +140,12 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     const id = req.params.id;
     logger.info(`Deleting order with id=${id}...`);
-
     try {
         await Order.destroy({
             where: {id: id}
         });
         logger.info("Order was deleted successfully!");
-        res.status(200).send({
-            message: "Order was deleted successfully!"
-        });
+        res.status(200).send({id: id});
     } catch (e) {
         logger.info("Could not delete order with id=");
         logger.info(e.message);
