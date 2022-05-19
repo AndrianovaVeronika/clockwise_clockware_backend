@@ -1,8 +1,10 @@
 const logger = require("../utils/logger");
 const db = require('../models');
+const {findOne} = require("./user.controller");
 const User = db.User;
 const Order = db.Order;
 
+// Find all users
 exports.findAll = async (req, res) => {
     logger.info('Retrieving all users...');
     try {
@@ -17,6 +19,30 @@ exports.findAll = async (req, res) => {
     }
 };
 
+// Find a user by the id in the request
+exports.findOne = async (req, res) => {
+    const id = req.params.id;
+    logger.info(`Finding user with id=${id}...`);
+    try {
+        const user = await User.findByPk(id);
+        user.roles = await user.getRoles();
+        if (user) {
+            logger.info('User found');
+            res.status(200).send(user);
+        } else {
+            logger.info(`Cannot find user with id=${id}`);
+            res.status(404).send({
+                message: `Cannot find user with id=${id}.`
+            });
+        }
+    } catch (e) {
+        logger.info("Error retrieving user with id=" + id);
+        res.status(500).send({
+            message: "Error retrieving user with id=" + id
+        });
+    }
+};
+
 // Update a user by the id in the request
 exports.update = async (req, res) => {
     const id = req.params.id;
@@ -25,7 +51,9 @@ exports.update = async (req, res) => {
         await User.update(req.body, {
             where: {id: id}
         });
-        const user = User.findByPk(id);
+        logger.info('User updated, trying to findOne...')
+        const user = await User.findByPk(id);
+        user.roles = await user.getRoles();
         logger.info("User was updated successfully");
         res.status(200).send(user);
     } catch (e) {
@@ -37,6 +65,7 @@ exports.update = async (req, res) => {
     }
 };
 
+// Delete a user by the id in the request
 exports.delete = async (req, res) => {
     const id = req.params.id;
     logger.info(`Deleting user with id=${id}...`);

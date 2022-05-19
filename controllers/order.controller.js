@@ -55,7 +55,13 @@ exports.create = async (req, res) => {
         })
         logger.info('Mail `ve been sent');
 
-        res.status(201).send(order);
+        const createdOrder = {
+            id: order?.id,
+            date: order?.date,
+            time: order?.time,
+            ...mailData
+        }
+        res.status(201).send(createdOrder);
     } catch (e) {
         logger.info('Order add failure');
         res.status(500).send({

@@ -1,21 +1,14 @@
 const {Master, City, Order, Sequelize} = require('../models');
 const logger = require("../utils/logger");
-const {findOne} = require("./master.controller");
 const Op = Sequelize.Op;
 
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating master...');
-
     const newMaster = {
         name: req.body.name,
         rating: req.body.rating
     };
-    logger.info('New master: ');
-    for (const masterKey in newMaster) {
-        logger.info(masterKey + ': ' + newMaster[masterKey]);
-    }
-
     try {
         // Save in the database
         const master = await Master.create(newMaster);
@@ -28,14 +21,12 @@ exports.create = async (req, res) => {
         })
         await master.setCities(cities);
         logger.info('Master added');
-
-        master.cities = cities.map(city =>{
+        master.cities = cities.map(city => {
             return {
                 id: city.id,
                 name: city.name
             }
         });
-
         res.status(201).send(master);
     } catch (e) {
         logger.info('Master add failure');
@@ -83,15 +74,13 @@ exports.findOne = async (req, res) => {
     logger.info(`Finding master with id=${id}...`);
     try {
         const master = await Master.findByPk(id);
-
         const cities = await master.getCities();
-        master.cities = cities.map(city =>{
+        master.cities = cities.map(city => {
             return {
                 id: city.id,
                 name: city.name
             }
         });
-
         if (master) {
             logger.info('Master found');
             res.status(200).send(master);
@@ -116,7 +105,7 @@ exports.update = async (req, res) => {
     try {
         await Master.update(req.body, {
             where: {id: id}
-        })
+        });
         const master = await Master.findByPk(id);
         const cities = await City.findAll({
             where: {
@@ -124,11 +113,20 @@ exports.update = async (req, res) => {
                     [Op.or]: req.body.cities
                 }
             }
-        });
-        master.setCities(cities);
-        const updatedMaster = await findOne(id);
+        })
+        await master.setCities(cities);
         logger.info("Master was updated successfully");
-        res.status(200).send(updatedMaster);
+        res.status(200).send({
+            id: master.id,
+            name: master.name,
+            rating: master.rating,
+            cities: cities.map(city => {
+                return {
+                    id: city.id,
+                    name: city.name
+                }
+            }),
+        });
     } catch (e) {
         logger.info("Error updating master with id=" + id);
         logger.info(e.message);

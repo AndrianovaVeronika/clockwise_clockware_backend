@@ -26,16 +26,12 @@ exports.signup = async (req, res) => {
             });
             await user.setRoles(roles);
             logger.info('New user created');
-
-
         } else {
             logger.info('New user created');
             await user.setRoles([1]);
         }
-
         const createdUserWithRoles = await User.findByPk(user.id);
         res.status(200).send(createdUserWithRoles);
-
     } catch (e) {
         logger.info('Error in signup');
         res.status(500).send({message: e.message});
@@ -82,7 +78,7 @@ exports.signin = async (req, res) => {
             roles: authorities,
             accessToken: token
         });
-    } catch (e) {
+    } catch (err) {
         logger.info('Error in signin');
         res.status(500).send({message: err.message});
     }
