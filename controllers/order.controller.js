@@ -1,7 +1,6 @@
 const db = require('../models');
 const logger = require("../utils/logger");
 const {sendMail} = require("../services/mail.service");
-const {findOne} = require("./order.controller");
 const Order = db.Order;
 const User = db.User;
 const City = db.City;
@@ -130,9 +129,20 @@ exports.update = async (req, res) => {
         await Order.update(req.body, {
             where: {id: id}
         });
-        const order = findOne(id);
         logger.info("Order was updated successfully");
-        res.status(200).send(order);
+        const order = await Order.findByPk(id, {
+            include: [User, ClockType, City, Master]
+        });
+        res.status(200).send({
+            id: order.id,
+            date: order.date,
+            time: order.time,
+            username: order.User.username,
+            email: order.User.email,
+            clockType: order.ClockType.name,
+            city: order.City.name,
+            master: order.Master.name
+        });
     } catch (e) {
         logger.info("Error updating order with id=" + id);
         logger.info(e.message);

@@ -19,4 +19,4 @@ validateOrder = async (req, res, next) => {
     next();
 }
 
-module.exports = {validateOrder};
+module.exports = validateOrder;

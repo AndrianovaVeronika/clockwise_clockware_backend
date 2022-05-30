@@ -12,7 +12,4 @@ router.get("/clocktypes", clockTypeController.findAll);
 router.get("/masters", masterController.findAll);
 router.get("/masters/:id", masterController.findOne);
 
-router.get("/orders", orderController.findAll);
-router.get("/orders/:id", orderController.findOne);
-
 module.exports = router;

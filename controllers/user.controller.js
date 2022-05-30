@@ -1,8 +1,7 @@
 const logger = require("../utils/logger");
-const db = require('../models');
-const {findOne} = require("./user.controller");
-const User = db.User;
-const Order = db.Order;
+const {User, Order, Role, Sequelize} = require('../models');
+const bcrypt = require("bcryptjs");
+const Op = Sequelize.Op;
 
 // Find all users
 exports.findAll = async (req, res) => {
@@ -87,3 +86,30 @@ exports.delete = async (req, res) => {
         });
     }
 };
+
+//Creates user with specified roles, such as 'admin'
+exports.createUserWithRoles = async (req, res) => {
+    logger.info('Creating user with specified roles...')
+    const newUser = {
+        username: req.body.username,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, 8)
+    }
+    try {
+        const user = await User.create(newUser);
+        const roles = await Role.findAll({
+            where: {
+                name: {
+                    [Op.or]: req.body.roles
+                }
+            }
+        });
+        await user.setRoles(roles);
+        logger.info('New user created');
+        const createdUserWithRoles = await User.findByPk(user.id);
+        res.status(200).send(createdUserWithRoles);
+    } catch (e) {
+        logger.info('Error in signup');
+        res.status(500).send({message: e.message});
+    }
+}

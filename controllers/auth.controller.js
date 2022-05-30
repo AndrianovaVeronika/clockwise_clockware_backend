@@ -1,8 +1,6 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const User = db.User;
-const Role = db.Role;
-const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
@@ -14,22 +12,10 @@ exports.signup = async (req, res) => {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 8)
     }
-    const user = await User.create(newUser);
     try {
-        if (req.body.roles) {
-            const roles = await Role.findAll({
-                where: {
-                    name: {
-                        [Op.or]: req.body.roles
-                    }
-                }
-            });
-            await user.setRoles(roles);
-            logger.info('New user created');
-        } else {
-            logger.info('New user created');
-            await user.setRoles([1]);
-        }
+        const user = await User.create(newUser);
+        await user.setRoles([1]);
+        logger.info('New user created');
         const createdUserWithRoles = await User.findByPk(user.id);
         res.status(200).send(createdUserWithRoles);
     } catch (e) {

@@ -1,5 +1,6 @@
-const {Master, City, Order, Sequelize} = require('../models');
+const {User, ClockType, Master, City, Order, Sequelize} = require('../models');
 const logger = require("../utils/logger");
+const moment = require("moment");
 const Op = Sequelize.Op;
 
 exports.create = async (req, res) => {
@@ -20,14 +21,13 @@ exports.create = async (req, res) => {
             }
         })
         await master.setCities(cities);
-        logger.info('Master added');
-        master.cities = cities.map(city => {
-            return {
-                id: city.id,
-                name: city.name
-            }
-        });
-        res.status(201).send(master);
+        const createdMaster = {
+            id: master.id,
+            name: master.name,
+            rating: master.rating,
+            cities: req.body.cities
+        }
+        res.status(201).send(createdMaster);
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({
@@ -50,15 +50,10 @@ exports.findAll = async (req, res) => {
                     id: master.id,
                     name: master.name,
                     rating: master.rating,
-                    cities: master.Cities.map(city => {
-                        return {
-                            id: city.id,
-                            name: city.name
-                        }
-                    }),
+                    cities: master.Cities.map(city => city.name),
                 }
             });
-            res.send(mastersList);
+            res.status(200).send(mastersList);
         }
     } catch (e) {
         logger.info('Master find all: failure');
@@ -120,16 +115,11 @@ exports.update = async (req, res) => {
             id: master.id,
             name: master.name,
             rating: master.rating,
-            cities: cities.map(city => {
-                return {
-                    id: city.id,
-                    name: city.name
-                }
-            }),
+            cities: cities.map(city => city.name),
         });
-    } catch (e) {
+    } catch (err) {
         logger.info("Error updating master with id=" + id);
-        logger.info(e.message);
+        logger.info(err.message);
         res.status(500).send({
             message: "Error updating master with id=" + id
         });
@@ -155,6 +145,86 @@ exports.delete = async (req, res) => {
         logger.info(e.message);
         res.status(500).send({
             message: e.message || "Could not delete master with id=" + id
+        });
+    }
+}
+
+// Return available masters
+exports.findAllMastersAvailable = async (req, res) => {
+    logger.info('Filtering all available masters...');
+    try {
+        const newOrder = {
+            date: req.body.date,
+            time: req.body.time,
+            cityId: req.body.cityId,
+            clockTypeId: req.body.clockTypeId
+        };
+        const incomeMasters = await Master.findAll({
+            include: [City]
+        });
+        const masters = incomeMasters.filter(master => {
+            for (const city of master.Cities) {
+                if (city.id === newOrder.cityId) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        const orders = await Order.findAll({
+            include: [User, ClockType, City, Master]
+        });
+
+        const ifOrdersInterogates = (newOrderStartTime, newOrderRepairingTime, existingOrderStartTime, existingOrderRepairingTime) => {
+            const existingOrderStartTimeInNum = parseInt(existingOrderStartTime.split(':')[0]);
+            const newOrderStartTimeInNum = parseInt(newOrderStartTime.split(':')[0]);
+            if (newOrderStartTimeInNum < existingOrderStartTimeInNum) {
+                if ((newOrderStartTimeInNum + newOrderRepairingTime) < existingOrderStartTimeInNum) {
+                    return false;
+                }
+            } else {
+                if (existingOrderStartTimeInNum + existingOrderRepairingTime < newOrderStartTimeInNum) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        const getRepairingHours = (type) => {
+            switch (type) {
+                case 'small':
+                    return 1;
+                case 'average':
+                    return 2;
+                case 'big':
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+
+        logger.info('Starting retrieving busy masters...')
+        const busyMasters = [];
+        for (const order of orders) {
+            logger.info('newOrder id =' + newOrder.cityId + ' existing order id =' + order.City.id)
+            logger.info('newOrder date =' + newOrder.date + ' existing order date =' + order.date)
+            if (newOrder.cityId !== order.City.id
+                || moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
+                continue;
+            }
+
+            logger.info(ifOrdersInterogates(newOrder.time, newOrder.clockTypeId, order.time, getRepairingHours(order.ClockType.name)))
+            //if chosed time interogates with existing order time add master to busy masters list
+            if (ifOrdersInterogates(newOrder.time, newOrder.clockTypeId, order.time, getRepairingHours(order.ClockType.name))) {
+                busyMasters.push(order.Master.name);
+            }
+        }
+
+        const availableMasters = masters.filter((master) => !busyMasters.includes(master.name));
+        res.status(200).send(availableMasters);
+    } catch (err) {
+        logger.info("Error retrieving all available masters");
+        logger.info(err.message);
+        res.status(500).send({
+            message: "Error retrieving all available masters"
         });
     }
 }
