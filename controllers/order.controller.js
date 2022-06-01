@@ -79,14 +79,14 @@ exports.findAll = async (req, res) => {
         logger.info('Orders retrieved');
         const processedData = orders.map(order => {
             return {
-                id: order.id,
-                date: order.date,
-                time: order.time,
-                username: order.User.username,
-                email: order.User.email,
-                clockType: order.ClockType.name,
-                city: order.City.name,
-                master: order.Master.name
+                id: order?.id,
+                date: order?.date,
+                time: order?.time,
+                username: order?.User?.username,
+                email: order?.User?.email,
+                clockType: order?.ClockType?.name,
+                city: order?.City?.name,
+                master: order?.Master?.name
             }
         });
         res.status(200).send(processedData);

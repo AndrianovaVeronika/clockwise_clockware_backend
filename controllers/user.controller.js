@@ -46,8 +46,15 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating user with id=${id}...`);
+    const userToUpdate = await User.findByPk(id);
+    const passwordNeedsToBeEncrypted = !(userToUpdate.password === req.body.password);
+    logger.info(passwordNeedsToBeEncrypted);
+    const userUpdateValues = {
+        ...req.body,
+        password: passwordNeedsToBeEncrypted? bcrypt.hashSync(req.body.password, 8) : req.body.password
+    }
     try {
-        await User.update(req.body, {
+        await User.update(userUpdateValues, {
             where: {id: id}
         });
         logger.info('User updated, trying to findOne...')
