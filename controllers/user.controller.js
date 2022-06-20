@@ -1,6 +1,7 @@
 const logger = require("../utils/logger");
 const {User, Role, Sequelize} = require('../models');
 const bcrypt = require("bcryptjs");
+const {getBcryptedPassword} = require("../services/bcrypt.service");
 const Op = Sequelize.Op;
 
 // Find all users
@@ -50,7 +51,7 @@ exports.update = async (req, res) => {
     logger.info(`Updating user with id=${id}...`);
     const userUpdateValues = {
         ...req.body,
-        password: req.body.password ? bcrypt.hashSync(req.body.password, 8) : undefined
+        password: req.body.password ? getBcryptedPassword(req.body.password, 8) : undefined
     }
     try {
         await User.update(userUpdateValues, {
@@ -96,7 +97,7 @@ exports.create = async (req, res) => {
     const newUser = {
         username: req.body.username,
         email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 8)
+        password: getBcryptedPassword(req.body.password, 8)
     }
     try {
         const user = await User.create(newUser);

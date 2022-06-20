@@ -4,13 +4,14 @@ const User = db.User;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
+const {getBcryptedPassword} = require("../services/bcrypt.service");
 
 exports.signup = async (req, res) => {
     // Save User to Database
     const newUser = {
         username: req.body.username,
         email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 8)
+        password: getBcryptedPassword(req.body.password, 8)
     }
     try {
         const userObj = await User.findOrCreate({
