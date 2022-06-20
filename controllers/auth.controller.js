@@ -37,12 +37,12 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
     logger.info('Signing in...');
-    const user = await User.findOne({
-        where: {
-            username: req.body.username
-        }
-    });
     try {
+        const user = await User.findOne({
+            where: {
+                email: req.body.email
+            }
+        });
         if (!user) {
             logger.info('User not found');
             return res.status(404).send({message: "User Not found."});
