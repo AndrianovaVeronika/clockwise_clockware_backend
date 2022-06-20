@@ -144,9 +144,6 @@ exports.delete = async (req, res) => {
         await Master.destroy({
             where: {id: id}
         });
-        await Order.destroy({
-            where: {masterId: id}
-        });
         logger.info("Master was deleted successfully!");
         res.status(200).send({id: id});
     } catch

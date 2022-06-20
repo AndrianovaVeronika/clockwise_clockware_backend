@@ -101,9 +101,6 @@ exports.delete = async (req, res) => {
         await City.destroy({
             where: {id: id}
         });
-        await Order.destroy({
-            where: {cityId: id}
-        });
         logger.info("City was deleted successfully!");
         res.status(200).send({id: id});
     } catch (e) {

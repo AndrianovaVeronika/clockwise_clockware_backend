@@ -1,5 +1,5 @@
 const logger = require("../utils/logger");
-const {User, Order, Role, Sequelize} = require('../models');
+const {User, Role, Sequelize} = require('../models');
 const bcrypt = require("bcryptjs");
 const Op = Sequelize.Op;
 
@@ -76,12 +76,9 @@ exports.delete = async (req, res) => {
     logger.info(`Deleting user with id=${id}...`);
 
     try {
-        User.destroy({
+        await User.destroy({
             where: {id: id}
         });
-        Order.destroy({
-            where: {userId: id}
-        })
         logger.info("User was deleted successfully!");
         res.status(200).send({id: id});
     } catch (e) {
@@ -102,8 +99,8 @@ exports.create = async (req, res) => {
         password: bcrypt.hashSync(req.body.password, 8)
     }
     try {
+        const user = await User.create(newUser);
         if (req.body.roles) {
-            const user = await User.create(newUser);
             const roles = await Role.findAll({
                 where: {
                     name: {
