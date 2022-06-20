@@ -12,7 +12,17 @@ exports.create = async (req, res) => {
     };
     try {
         // Save in the database
-        const master = await Master.create(newMaster);
+        const masterObj = await Master.findOrCreate({
+            where: newMaster,
+            defaults: newMaster
+        })
+        const [master, isMasterCreated] = masterObj;
+        if (!isMasterCreated) {
+            res.status(500).send({
+                message: 'Master is already exist'
+            });
+            return;
+        }
         const cities = await City.findAll({
             where: {
                 name: {
@@ -27,7 +37,7 @@ exports.create = async (req, res) => {
             rating: master.rating,
             cities: req.body.cities
         }
-        res.status(201).send(createdMaster);
+        res.status(201).send([createdMaster, true]);
     } catch (e) {
         logger.info('Master add failure');
         res.status(500).send({

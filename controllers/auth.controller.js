@@ -13,11 +13,21 @@ exports.signup = async (req, res) => {
         password: bcrypt.hashSync(req.body.password, 8)
     }
     try {
-        const user = await User.create(newUser);
+        const userObj = await User.findOrCreate({
+            where: newUser,
+            defaults: newUser
+        });
+        const [user, isUserCreated] = userObj;
+        if (isUserCreated) {
+            res.status(500).send({
+                message: 'User is already exist'
+            });
+            return;
+        }
         await user.setRoles([1]);
         logger.info('New user created');
         const createdUserWithRoles = await User.findByPk(user.id);
-        res.status(200).send(createdUserWithRoles);
+        res.status(200).send([createdUserWithRoles, true]);
     } catch (e) {
         logger.info('Error in signup');
         res.status(500).send({message: e.message});

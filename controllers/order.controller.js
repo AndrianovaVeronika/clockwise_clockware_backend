@@ -25,42 +25,53 @@ exports.create = async (req, res) => {
 
     try {
         // Save in the database
-        const order = await Order.create(newOrder);
-        logger.info('Order `ve been added');
-
-        const user = await User.findByPk(newOrder.userId);
-        const city = await City.findByPk(newOrder.cityId);
-        const clockType = await ClockType.findByPk(newOrder.clockTypeId);
-        const master = await Master.findByPk(newOrder.masterId);
-        logger.info('Building up mail...')
-        const mailData = {
-            username: user.username,
-            email: user.email,
-            clockType: clockType.name,
-            master: master.name,
-            city: city.name,
-            date: newOrder.date,
-            time: newOrder.time
-        };
-        let mail = '';
-        for (const key in mailData) {
-            logger.info(key + ': ' + mailData[key]);
-            mail += '\n' + key + ': ' + mailData[key];
-        }
-        await sendMail({
-            to: mailData.email,
-            subject: 'Order `ve been registered successfully',
-            text: 'Your order: ' + mail,
+        const orderObj = await Order.findOrCreate({
+            where: newOrder,
+            defaults: newOrder
         })
-        logger.info('Mail `ve been sent');
-
-        const createdOrder = {
-            id: order?.id,
-            date: order?.date,
-            time: order?.time,
-            ...mailData
+        logger.info('Order `ve been added');
+        const [order, isOrderCreated] = orderObj;
+        if (isOrderCreated) {
+            res.status(500).send({
+                message: 'Order is already exist'
+            });
+            return;
         }
-        res.status(201).send(createdOrder);
+        if (isOrderCreated) {
+            const user = await User.findByPk(newOrder.userId);
+            const city = await City.findByPk(newOrder.cityId);
+            const clockType = await ClockType.findByPk(newOrder.clockTypeId);
+            const master = await Master.findByPk(newOrder.masterId);
+            logger.info('Building up mail...')
+            const mailData = {
+                username: user.username,
+                email: user.email,
+                clockType: clockType.name,
+                master: master.name,
+                city: city.name,
+                date: newOrder.date,
+                time: newOrder.time
+            };
+            let mail = '';
+            for (const key in mailData) {
+                logger.info(key + ': ' + mailData[key]);
+                mail += '\n' + key + ': ' + mailData[key];
+            }
+            await sendMail({
+                to: mailData.email,
+                subject: 'Order `ve been registered successfully',
+                text: 'Your order: ' + mail,
+            })
+            logger.info('Mail `ve been sent');
+
+            const createdOrder = {
+                id: order?.id,
+                date: order?.date,
+                time: order?.time,
+                ...mailData
+            }
+            res.status(201).send([createdOrder, true]);
+        }
     } catch (e) {
         logger.info('Order add failure');
         res.status(500).send({

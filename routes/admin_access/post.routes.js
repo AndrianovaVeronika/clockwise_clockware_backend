@@ -7,6 +7,6 @@ const {validateIfBodyUndefined} = require('../../validators');
 router.use(validateIfBodyUndefined);
 router.post("/cities", cityController.create);
 router.post("/masters", masterController.create);
-router.post("/users/with_roles", userController.createUserWithRoles);
+router.post("/users", userController.create);
 
 module.exports = router;

@@ -14,7 +14,17 @@ exports.create = async (req, res) => {
 
     // Save in the database
     try {
-        const city = await City.create(newCity);
+        const cityObj = await City.findOrCreate({
+            where: newCity,
+            defaults: newCity
+        });
+        const [city, isCityCreated] = cityObj;
+        if (isCityCreated) {
+            res.status(500).send({
+                message: 'City is already exist'
+            });
+            return;
+        }
         logger.info('City added');
         res.status(201).send(city);
     } catch (e) {

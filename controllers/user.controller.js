@@ -7,7 +7,9 @@ const Op = Sequelize.Op;
 exports.findAll = async (req, res) => {
     logger.info('Retrieving all users...');
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes: {exclude: ['password']}
+        });
         logger.info('Users retrieved');
         res.status(200).send(users);
     } catch (e) {
@@ -46,12 +48,9 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating user with id=${id}...`);
-    const userToUpdate = await User.findByPk(id);
-    const passwordNeedsToBeEncrypted = !(userToUpdate.password === req.body.password);
-    logger.info(passwordNeedsToBeEncrypted);
     const userUpdateValues = {
         ...req.body,
-        password: passwordNeedsToBeEncrypted? bcrypt.hashSync(req.body.password, 8) : req.body.password
+        password: req.body.password ? bcrypt.hashSync(req.body.password, 8) : undefined
     }
     try {
         await User.update(userUpdateValues, {
@@ -95,7 +94,7 @@ exports.delete = async (req, res) => {
 };
 
 //Creates user with specified roles, such as 'admin'
-exports.createUserWithRoles = async (req, res) => {
+exports.create = async (req, res) => {
     logger.info('Creating user with specified roles...')
     const newUser = {
         username: req.body.username,
@@ -103,15 +102,20 @@ exports.createUserWithRoles = async (req, res) => {
         password: bcrypt.hashSync(req.body.password, 8)
     }
     try {
-        const user = await User.create(newUser);
-        const roles = await Role.findAll({
-            where: {
-                name: {
-                    [Op.or]: req.body.roles
+        if (req.body.roles) {
+            const user = await User.create(newUser);
+            const roles = await Role.findAll({
+                where: {
+                    name: {
+                        [Op.or]: req.body.roles
+                    }
                 }
-            }
-        });
-        await user.setRoles(roles);
+            });
+            await user.setRoles(roles);
+        } else {
+            await user.setRoles([1]);
+        }
+
         logger.info('New user created');
         const createdUserWithRoles = await User.findByPk(user.id);
         res.status(200).send(createdUserWithRoles);
