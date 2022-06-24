@@ -122,3 +122,45 @@ exports.create = async (req, res) => {
         res.status(500).send({message: e.message});
     }
 }
+
+exports.findUserOrCreate = async (req, res) => {
+    // Save User to Database
+    logger.info('Finding user...');
+    const userToFind = {
+        username: req.body.username,
+        email: req.body.email,
+        password: getBcryptedPassword(req.body.password, 8)
+    }
+    try {
+        const userObj = await User.findOrCreate({
+            where: {
+                username: req.body.username,
+                email: req.body.email,
+            },
+            defaults: userToFind
+        });
+        const [user, isUserCreated] = userObj;
+        if (!isUserCreated) {
+            logger.info('User has been found!...');
+            res.status(200).send(userObj);
+            return;
+        }
+        logger.info('User has not been found! Creating new one...');
+        const passwordIsValid = bcrypt.compareSync(
+            req.body.password,
+            user.password
+        );
+        logger.info('Password is matching? ' + passwordIsValid);
+        if (passwordIsValid) {
+            res.status(500).send({message: 'Password is not correct'});
+            return
+        }
+        await user.setRoles([1]);
+        logger.info('New user created');
+        const createdUserWithRoles = await User.findByPk(user.id);
+        res.status(200).send([createdUserWithRoles, true]);
+    } catch (e) {
+        logger.info('Error in signup');
+        res.status(500).send({message: e.message});
+    }
+};

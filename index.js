@@ -4,8 +4,7 @@ const cors = require("cors");
 const app = express();
 const db = require("./models");
 const adminRoutes = require('./routes/admin_access');
-const userRoutes = require('./routes/user_access');
-const auth = require('./routes/all_access/auth.routes');
+const allRoutes = require('./routes/all_access');
 const logger = require('./utils/logger');
 require('dotenv').config();
 
@@ -23,11 +22,10 @@ app.use(bodyParser.urlencoded({
 
 // index route
 app.get("/", (req, res) => {
-    res.json({ message: "Clockwise Clockware App" });
+    res.json({message: "Clockwise Clockware App"});
 });
 
-app.use('/auth', auth);
-app.use('/', userRoutes);
+app.use('/', allRoutes);
 app.use('/', adminRoutes);
 
 // listen for requests

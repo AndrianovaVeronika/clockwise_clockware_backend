@@ -8,6 +8,7 @@ const {getBcryptedPassword} = require("../services/bcrypt.service");
 
 exports.signup = async (req, res) => {
     // Save User to Database
+    logger.info('Signing up...');
     const newUser = {
         username: req.body.username,
         email: req.body.email,
