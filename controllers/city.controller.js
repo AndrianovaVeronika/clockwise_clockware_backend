@@ -2,36 +2,21 @@ const {City, Order} = require('../models');
 const logger = require("../utils/logger");
 
 exports.create = async (req, res) => {
-    // Validate request
     logger.info('Creating city...');
     const newCity = {
         name: req.body.name
     };
-    logger.info('New City: ');
-    for (const cityKey in newCity) {
-        logger.info(cityKey + ': ' + newCity[cityKey]);
-    }
-
-    // Save in the database
+    // logger.info('New City: ');
+    // for (const cityKey in newCity) {
+    //     logger.info(cityKey + ': ' + newCity[cityKey]);
+    // }
     try {
-        const cityObj = await City.findOrCreate({
-            where: newCity,
-            defaults: newCity
-        });
-        const [city, isCityCreated] = cityObj;
-        if (isCityCreated) {
-            res.status(500).send({
-                message: 'City is already exist'
-            });
-            return;
-        }
-        logger.info('City added');
+        const city = await City.create(newCity);
+        logger.info('City created');
         res.status(201).send(city);
     } catch (e) {
-        logger.info('City add failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while creating new city."
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -43,10 +28,8 @@ exports.findAll = async (req, res) => {
         logger.info('Cities retrieved');
         res.status(200).send(cities);
     } catch (e) {
-        logger.info('City find all failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while retrieving cities."
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -55,21 +38,18 @@ exports.findOne = async (req, res) => {
     const id = req.params.id;
     logger.info(`Finding city with id=${id}...`);
     try {
-        const city = await City.findByPk(id)
-        if (city) {
-            logger.info('City found');
-            res.status(200).send(city);
-        } else {
-            logger.info(`Cannot find City with id=${id}`);
+        const city = await City.findByPk(id);
+        if (!city) {
+            logger.error(`Cannot find City with id=${id}`);
             res.status(404).send({
                 message: `Cannot find City with id=${id}.`
             });
         }
+        logger.info('City found');
+        res.status(200).send(city);
     } catch (e) {
-        logger.info("Error retrieving Tutorial with id=" + id);
-        res.status(500).send({
-            message: "Error retrieving city with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -82,14 +62,11 @@ exports.update = async (req, res) => {
             where: {id: id}
         });
         const city = await City.findByPk(id);
-        logger.info("City was updated successfully");
+        logger.info("City has been updated successfully");
         res.status(200).send(city);
     } catch (e) {
-        logger.info("Error updating city with id=" + id);
-        logger.info(e.message);
-        res.status(500).send({
-            message: "Error updating city with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -101,13 +78,10 @@ exports.delete = async (req, res) => {
         await City.destroy({
             where: {id: id}
         });
-        logger.info("City was deleted successfully!");
+        logger.info("City has been deleted successfully");
         res.status(200).send({id: id});
     } catch (e) {
-        logger.info("Could not delete city with id=" + id);
-        logger.info(e.message);
-        res.status(500).send({
-            message: e.message || "Could not delete city with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };

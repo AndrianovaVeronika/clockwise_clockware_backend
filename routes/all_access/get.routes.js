@@ -2,7 +2,8 @@ const router = require('express').Router();
 const cityController = require("../../controllers/city.controller");
 const clockTypeController = require("../../controllers/clockType.controller");
 const masterController = require("../../controllers/master.controller");
-const orderController = require("../../controllers/order.controller");
+const {authJwt} = require("../../validators");
+const controller = require("../../controllers/auth.controller");
 
 router.get("/cities", cityController.findAll);
 router.get("/cities/:id", cityController.findOne);
@@ -11,5 +12,8 @@ router.get("/clocktypes", clockTypeController.findAll);
 
 router.get("/masters", masterController.findAll);
 router.get("/masters/:id", masterController.findOne);
+
+router.get('/auth/checktocken', [authJwt.verifyToken], controller.userBoard);
+
 
 module.exports = router;

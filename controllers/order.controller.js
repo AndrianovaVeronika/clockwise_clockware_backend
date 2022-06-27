@@ -18,25 +18,13 @@ exports.create = async (req, res) => {
         clockTypeId: req.body.clockTypeId,
         masterId: req.body.masterId
     };
-    logger.info('New order: ');
-    for (const orderKey in newOrder) {
-        logger.info(orderKey + ': ' + newOrder[orderKey]);
-    }
-
+    // logger.info('New order: ');
+    // for (const orderKey in newOrder) {
+    //     logger.info(orderKey + ': ' + newOrder[orderKey]);
+    // }
     try {
-        // Save in the database
-        const orderObj = await Order.findOrCreate({
-            where: newOrder,
-            defaults: newOrder
-        })
-        logger.info('Order `ve been added');
-        const [order, isOrderCreated] = orderObj;
-        if (!isOrderCreated) {
-            res.status(500).send({
-                message: 'Order is already exist'
-            });
-            return;
-        }
+        const order = await Order.create(newOrder);
+        logger.info('Order have been created');
         const user = await User.findByPk(newOrder.userId);
         const city = await City.findByPk(newOrder.cityId);
         const clockType = await ClockType.findByPk(newOrder.clockTypeId);
@@ -53,28 +41,24 @@ exports.create = async (req, res) => {
         };
         let mail = '';
         for (const key in mailData) {
-            logger.info(key + ': ' + mailData[key]);
+            // logger.info(key + ': ' + mailData[key]);
             mail += '\n' + key + ': ' + mailData[key];
         }
         await sendMail({
             to: mailData.email,
             subject: 'Order `ve been registered successfully',
-            text: 'Your order: ' + mail,
+            text: 'Your order:\n' + mail,
         })
-        logger.info('Mail `ve been sent');
-
-        const createdOrder = {
+        logger.info('Mail have been sent');
+        res.status(201).send({
             id: order?.id,
             date: order?.date,
             time: order?.time,
             ...mailData
-        }
-        res.status(201).send([createdOrder, true]);
-    } catch (e) {
-        logger.info('Order add failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while creating new order."
         });
+    } catch (e) {
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -86,7 +70,7 @@ exports.findAll = async (req, res) => {
             include: [User, ClockType, City, Master]
         });
         logger.info('Orders retrieved');
-        const processedData = orders.map(order => {
+        res.status(200).send(orders.map(order => {
             return {
                 id: order?.id,
                 date: order?.date,
@@ -97,13 +81,10 @@ exports.findAll = async (req, res) => {
                 city: order?.City?.name,
                 master: order?.Master?.name
             }
-        });
-        res.status(200).send(processedData);
+        }));
     } catch (e) {
-        logger.info('Order find all: failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while retrieving orders."
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -113,20 +94,17 @@ exports.findOne = async (req, res) => {
     logger.info(`Finding order with id=${id}...`);
     try {
         const order = await Order.findByPk(id);
-        if (order) {
-            logger.info('Order found');
-            res.status(200).send(order);
-        } else {
-            logger.info(`Cannot find order with id=${id}`);
+        if (!order) {
+            logger.error(`Cannot find order with id=${id}`);
             res.status(404).send({
                 message: `Cannot find order with id=${id}.`
             });
         }
+        logger.info('Order have been found');
+        res.status(200).send(order);
     } catch (e) {
-        logger.info("Error retrieving order with id=" + id);
-        res.status(500).send({
-            message: e.message || "Error retrieving order with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -138,10 +116,10 @@ exports.update = async (req, res) => {
         await Order.update(req.body, {
             where: {id: id}
         });
-        logger.info("Order was updated successfully");
         const order = await Order.findByPk(id, {
             include: [User, ClockType, City, Master]
         });
+        logger.info("Order has been updated successfully");
         res.status(200).send({
             id: order.id,
             date: order.date,
@@ -153,11 +131,8 @@ exports.update = async (req, res) => {
             master: order.Master.name
         });
     } catch (e) {
-        logger.info("Error updating order with id=" + id);
-        logger.info(e.message);
-        res.status(500).send({
-            message: "Error updating order with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -172,10 +147,7 @@ exports.delete = async (req, res) => {
         logger.info("Order was deleted successfully!");
         res.status(200).send({id: id});
     } catch (e) {
-        logger.info("Could not delete order with id=");
-        logger.info(e.message);
-        res.status(500).send({
-            message: "Could not delete order with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };

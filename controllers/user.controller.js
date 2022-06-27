@@ -1,6 +1,5 @@
 const logger = require("../utils/logger");
 const {User, Role, Sequelize} = require('../models');
-const bcrypt = require("bcryptjs");
 const {getBcryptedPassword} = require("../services/bcrypt.service");
 const Op = Sequelize.Op;
 
@@ -26,7 +25,9 @@ exports.findOne = async (req, res) => {
     const id = req.params.id;
     logger.info(`Finding user with id=${id}...`);
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id, {
+            attributes: {exclude: ['password']}
+        });
         user.roles = await user.getRoles();
         if (user) {
             logger.info('User found');
@@ -58,7 +59,9 @@ exports.update = async (req, res) => {
             where: {id: id}
         });
         logger.info('User updated, trying to findOne...')
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id, {
+            attributes: {exclude: ['password']}
+        });
         user.roles = await user.getRoles();
         logger.info("User was updated successfully");
         res.status(200).send(user);
@@ -115,52 +118,12 @@ exports.create = async (req, res) => {
         }
 
         logger.info('New user created');
-        const createdUserWithRoles = await User.findByPk(user.id);
+        const createdUserWithRoles = await User.findByPk(user.id, {
+            attributes: {exclude: ['password']}
+        });
         res.status(200).send(createdUserWithRoles);
     } catch (e) {
         logger.info('Error in signup');
         res.status(500).send({message: e.message});
     }
 }
-
-exports.findUserOrCreate = async (req, res) => {
-    // Save User to Database
-    logger.info('Finding user...');
-    const userToFind = {
-        username: req.body.username,
-        email: req.body.email,
-        password: getBcryptedPassword(req.body.password, 8)
-    }
-    try {
-        const userObj = await User.findOrCreate({
-            where: {
-                username: req.body.username,
-                email: req.body.email,
-            },
-            defaults: userToFind
-        });
-        const [user, isUserCreated] = userObj;
-        if (!isUserCreated) {
-            logger.info('User has been found!...');
-            res.status(200).send(userObj);
-            return;
-        }
-        logger.info('User has not been found! Creating new one...');
-        const passwordIsValid = bcrypt.compareSync(
-            req.body.password,
-            user.password
-        );
-        logger.info('Password is matching? ' + passwordIsValid);
-        if (passwordIsValid) {
-            res.status(500).send({message: 'Password is not correct'});
-            return
-        }
-        await user.setRoles([1]);
-        logger.info('New user created');
-        const createdUserWithRoles = await User.findByPk(user.id);
-        res.status(200).send([createdUserWithRoles, true]);
-    } catch (e) {
-        logger.info('Error in signup');
-        res.status(500).send({message: e.message});
-    }
-};

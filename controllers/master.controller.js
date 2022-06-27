@@ -12,17 +12,7 @@ exports.create = async (req, res) => {
     };
     try {
         // Save in the database
-        const masterObj = await Master.findOrCreate({
-            where: newMaster,
-            defaults: newMaster
-        })
-        const [master, isMasterCreated] = masterObj;
-        if (!isMasterCreated) {
-            res.status(500).send({
-                message: 'Master is already exist'
-            });
-            return;
-        }
+        const master = await Master.create(newMaster);
         const cities = await City.findAll({
             where: {
                 name: {
@@ -31,45 +21,38 @@ exports.create = async (req, res) => {
             }
         })
         await master.setCities(cities);
-        const createdMaster = {
+        logger.info('Master created');
+        res.status(201).send({
             id: master.id,
             name: master.name,
             rating: master.rating,
             cities: req.body.cities
-        }
-        res.status(201).send([createdMaster, true]);
-    } catch (e) {
-        logger.info('Master add failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while creating new master."
         });
+    } catch (e) {
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
 // Retrieve all from the database.
 exports.findAll = async (req, res) => {
+    logger.info('Retrieving all masters...');
     try {
-        logger.info('Retrieving all masters...');
         const masters = await Master.findAll({
             include: [City],
         });
         logger.info('Masters retrieved');
-        if (masters) {
-            const mastersList = masters.map(master => {
-                return {
-                    id: master.id,
-                    name: master.name,
-                    rating: master.rating,
-                    cities: master.Cities.map(city => city.name),
-                }
-            });
-            res.status(200).send(mastersList);
-        }
+        res.status(200).send(masters.map(master => {
+            return {
+                id: master.id,
+                name: master.name,
+                rating: master.rating,
+                cities: master.Cities.map(city => city.name),
+            }
+        }));
     } catch (e) {
-        logger.info('Master find all: failure');
-        res.status(500).send({
-            message: e.message || "Some error occurred while retrieving masters."
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -80,26 +63,19 @@ exports.findOne = async (req, res) => {
     try {
         const master = await Master.findByPk(id);
         const cities = await master.getCities();
-        master.cities = cities.map(city => {
-            return {
-                id: city.id,
-                name: city.name
-            }
-        });
-        if (master) {
-            logger.info('Master found');
-            res.status(200).send(master);
-        } else {
-            logger.info(`Cannot find master with id=${id}`);
+        master.cities = cities.map(city => city.name);
+        if (!master) {
+            logger.error(`Cannot find master with id=${id}`);
             res.status(404).send({
                 message: `Cannot find master with id=${id}.`
             });
+            return;
         }
+        logger.info('Master has been found');
+        res.status(200).send(master);
     } catch (e) {
-        logger.info("Error retrieving master with id=" + id);
-        res.status(500).send({
-            message: "Error retrieving master with id=" + id
-        });
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -127,12 +103,9 @@ exports.update = async (req, res) => {
             rating: master.rating,
             cities: cities.map(city => city.name),
         });
-    } catch (err) {
-        logger.info("Error updating master with id=" + id);
-        logger.info(err.message);
-        res.status(500).send({
-            message: "Error updating master with id=" + id
-        });
+    } catch (e) {
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 };
 
@@ -144,15 +117,11 @@ exports.delete = async (req, res) => {
         await Master.destroy({
             where: {id: id}
         });
-        logger.info("Master was deleted successfully!");
+        logger.info("Master was deleted successfully");
         res.status(200).send({id: id});
-    } catch
-        (e) {
-        logger.info("Could not delete master with id=");
-        logger.info(e.message);
-        res.status(500).send({
-            message: e.message || "Could not delete master with id=" + id
-        });
+    } catch (e) {
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 }
 
@@ -224,14 +193,11 @@ exports.findAllMastersAvailable = async (req, res) => {
                 busyMasters.push(order.Master.name);
             }
         }
-
         const availableMasters = masters.filter((master) => !busyMasters.includes(master.name));
+        logger.info('All available masters have been retrieved');
         res.status(200).send(availableMasters);
-    } catch (err) {
-        logger.info("Error retrieving all available masters");
-        logger.info(err.message);
-        res.status(500).send({
-            message: "Error retrieving all available masters"
-        });
+    } catch (e) {
+        logger.error(e.message);
+        res.status(500).send({message: e.message});
     }
 }
