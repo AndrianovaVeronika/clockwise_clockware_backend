@@ -50,9 +50,9 @@ exports.findOne = async (req, res) => {
 exports.update = async (req, res) => {
     const id = req.params.id;
     logger.info(`Updating user with id=${id}...`);
-    const userUpdateValues = {
-        ...req.body,
-        password: req.body.password ? getBcryptedPassword(req.body.password, 8) : undefined
+    const userUpdateValues = req.body;
+    if (userUpdateValues.password) {
+        userUpdateValues.password = getBcryptedPassword(req.body.password, 8);
     }
     try {
         await User.update(userUpdateValues, {
