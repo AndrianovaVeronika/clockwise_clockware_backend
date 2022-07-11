@@ -6,24 +6,19 @@ const Order = db.Order;
 
 ifDateTimeAppropriate = async (req, res, next) => {
     logger.info('Verifying if date and time are correct...');
-    // if (!req.body) {
-    //     res.status(400).send({message: 'Order add err: body undefined'});
-    //     return;
-    // }
-    //check date
     const minAllowedDate = new Date();
     const incomeDate = new Date(req.body.date);
     if (incomeDate <= minAllowedDate) {
-        logger.info('Error: The date exceeds min date');
-        res.status(500).send({message: 'Error: The date exceeds min date'});
+        logger.error('The date exceeds min date.');
+        res.status(500).send({message: 'The date exceeds min date.'});
         return;
     }
     const minTime = 10;
     const maxTime = 18;
     const time = parseTimeStringToInt(req.body.time);
     if ((time < minTime) || (time > maxTime)) {
-        logger.info('Error: The time exceeds work hours');
-        res.status(500).send({message: 'Error: The time exceeds work hours'});
+        logger.error('The time exceeds work hours.');
+        res.status(500).send({message: 'The time exceeds work hours.'});
         return;
     }
     logger.info('Date and time are correct. Heading next...');
@@ -51,17 +46,13 @@ ifUserCreated = async (req, res, next) => {
         req.body.userId = user.id;
         next();
     } catch (e) {
-        logger.info('IfOrderExistError:');
-        logger.info(e);
-        res.status(500).send({message: e.message});
+        logger.error(e.message + ': Check user credentials.');
+        res.status(500).send({message: e.message + ': Check user credentials.'});
     }
 }
 
-ifOrderExist = async (req, res, next) => {
-    logger.info('Verifying if order exist');
-    for (const bodyKey in req.body) {
-        logger.info(bodyKey + ": " + req.body[bodyKey])
-    }
+ifOrderCanBePlaced = async (req, res, next) => {
+    logger.info('Verifying order credentials...');
     const timeInNum = parseInt(req.body.time.substring(0, 2));
     //check if order exist
     try {
@@ -78,22 +69,18 @@ ifOrderExist = async (req, res, next) => {
             const orders = await Order.findAll({
                 where: objToCompare
             });
-            logger.info('date: ' + req.body.date + '; '
-                + 'time: ' + (timeInNum + i) + ':00:00' + '; '
-                + 'cityId: ' + req.body.cityId + '; '
-                + 'masterId: ' + req.body.masterId);
             if (orders.length > 0) {
-                logger.info('Error: Order can`t be placed.');
-                res.status(400).send({message: 'Error: Order can`t be placed.'});
+                logger.error('Order interrogates with other orders. Try to change date or time and pick master one more time.');
+                res.status(500).send({message: 'Order interrogates with other orders. Try to change date or time and pick master one more time.'});
                 return;
             }
         }
+        logger.info('Order credentials have been verified. Heading next...')
         next();
     } catch (e) {
-        logger.info('IfOrderExistError:');
-        logger.info(e);
-        res.status(500).send({message: e.message});
+        logger.error(e.message + ': Check order credentials.');
+        res.status(500).send({message: e.message + ': Check order credentials.'});
     }
 }
 
-module.exports = [ifDateTimeAppropriate, ifUserCreated, ifOrderExist];
+module.exports = [ifDateTimeAppropriate, ifUserCreated, ifOrderCanBePlaced];

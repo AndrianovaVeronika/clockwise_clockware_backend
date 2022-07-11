@@ -180,14 +180,13 @@ exports.findAllMastersAvailable = async (req, res) => {
         logger.info('Starting retrieving busy masters...')
         const busyMasters = [];
         for (const order of orders) {
-            logger.info('newOrder id =' + newOrder.cityId + ' existing order id =' + order.City.id)
+            logger.info('newOrder city id =' + newOrder.cityId + ' existing order city id =' + order.City.id)
             logger.info('newOrder date =' + newOrder.date + ' existing order date =' + order.date)
             if (newOrder.cityId !== order.City.id
                 || moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
                 continue;
             }
 
-            logger.info(ifOrdersInterogates(newOrder.time, newOrder.clockTypeId, order.time, getRepairingHours(order.ClockType.name)))
             //if chosed time interogates with existing order time add master to busy masters list
             if (ifOrdersInterogates(newOrder.time, newOrder.clockTypeId, order.time, getRepairingHours(order.ClockType.name))) {
                 busyMasters.push(order.Master.name);
