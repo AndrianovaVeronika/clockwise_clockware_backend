@@ -75,14 +75,14 @@ exports.signin = async (req, res) => {
     }
 };
 
-exports.userBoard = async (req, res) => {
+exports.userAccess = async (req, res) => {
     const id = req.userId;
     logger.info(`Finding user with id=${id}...`);
     try {
         const user = await User.findByPk(id);
         if (!user) {
-            logger.error('User has not been found');
-            return res.status(404).send({message: "User has not been found"});
+            logger.error('User has not been found.');
+            return res.status(400).send({message: "User has not been found."});
         }
         logger.info('User has been found');
         const authorities = [];
@@ -90,7 +90,7 @@ exports.userBoard = async (req, res) => {
         for (let i = 0; i < roles.length; i++) {
             authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
-        logger.info('Authenticated successfully');
+        logger.info("Authenticated successfully");
         res.status(200).send({
             id: user.id,
             username: user.username,
@@ -102,7 +102,3 @@ exports.userBoard = async (req, res) => {
         res.status(500).send({message: e.message});
     }
 };
-
-// exports.adminBoard = (req, res) => {
-//     res.status(200).send("admin access");
-// };

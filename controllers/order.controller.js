@@ -18,10 +18,6 @@ exports.create = async (req, res) => {
         clockTypeId: req.body.clockTypeId,
         masterId: req.body.masterId
     };
-    // logger.info('New order: ');
-    // for (const orderKey in newOrder) {
-    //     logger.info(orderKey + ': ' + newOrder[orderKey]);
-    // }
     try {
         const order = await Order.create(newOrder);
         logger.info('Order have been created');
@@ -69,7 +65,7 @@ exports.findAll = async (req, res) => {
         const orders = await Order.findAll({
             include: [User, ClockType, City, Master]
         });
-        logger.info('Orders retrieved');
+        logger.info('Orders retrieved!');
         res.status(200).send(orders.map(order => {
             return {
                 id: order?.id,
@@ -100,7 +96,7 @@ exports.findOne = async (req, res) => {
                 message: `Cannot find order with id=${id}.`
             });
         }
-        logger.info('Order have been found');
+        logger.info('Order have been found!');
         res.status(200).send(order);
     } catch (e) {
         logger.error(e.message);
@@ -119,7 +115,7 @@ exports.update = async (req, res) => {
         const order = await Order.findByPk(id, {
             include: [User, ClockType, City, Master]
         });
-        logger.info("Order has been updated successfully");
+        logger.info("Order has been updated successfully!");
         res.status(200).send({
             id: order.id,
             date: order.date,

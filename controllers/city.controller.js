@@ -1,18 +1,14 @@
-const {City, Order} = require('../models');
+const {City} = require("../models");
 const logger = require("../utils/logger");
 
 exports.create = async (req, res) => {
-    logger.info('Creating city...');
+    logger.info("Creating city...");
     const newCity = {
         name: req.body.name
     };
-    // logger.info('New City: ');
-    // for (const cityKey in newCity) {
-    //     logger.info(cityKey + ': ' + newCity[cityKey]);
-    // }
     try {
         const city = await City.create(newCity);
-        logger.info('City created');
+        logger.info("City created!");
         res.status(201).send(city);
     } catch (e) {
         logger.error(e.message);
@@ -22,10 +18,10 @@ exports.create = async (req, res) => {
 
 // Retrieve all from the database.
 exports.findAll = async (req, res) => {
-    logger.info('Retrieving all cities...');
+    logger.info("Retrieving all cities...");
     try {
         const cities = await City.findAll()
-        logger.info('Cities retrieved');
+        logger.info("Cities retrieved!");
         res.status(200).send(cities);
     } catch (e) {
         logger.error(e.message);
@@ -40,12 +36,12 @@ exports.findOne = async (req, res) => {
     try {
         const city = await City.findByPk(id);
         if (!city) {
-            logger.error(`Cannot find City with id=${id}`);
-            res.status(404).send({
+            logger.error(`Cannot find City with id=${id}.`);
+            res.status(400).send({
                 message: `Cannot find City with id=${id}.`
             });
         }
-        logger.info('City found');
+        logger.info("City found!");
         res.status(200).send(city);
     } catch (e) {
         logger.error(e.message);
@@ -62,7 +58,7 @@ exports.update = async (req, res) => {
             where: {id: id}
         });
         const city = await City.findByPk(id);
-        logger.info("City has been updated successfully");
+        logger.info("City has been updated successfully.");
         res.status(200).send(city);
     } catch (e) {
         logger.error(e.message);
@@ -78,7 +74,7 @@ exports.delete = async (req, res) => {
         await City.destroy({
             where: {id: id}
         });
-        logger.info("City has been deleted successfully");
+        logger.info("City has been deleted successfully.");
         res.status(200).send({id: id});
     } catch (e) {
         logger.error(e.message);

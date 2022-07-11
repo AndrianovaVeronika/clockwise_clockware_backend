@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
             }
         })
         await master.setCities(cities);
-        logger.info('Master created');
+        logger.info('Master created!');
         res.status(201).send({
             id: master.id,
             name: master.name,
@@ -41,7 +41,7 @@ exports.findAll = async (req, res) => {
         const masters = await Master.findAll({
             include: [City],
         });
-        logger.info('Masters retrieved');
+        logger.info('Masters retrieved!');
         res.status(200).send(masters.map(master => {
             return {
                 id: master.id,
@@ -71,7 +71,7 @@ exports.findOne = async (req, res) => {
             });
             return;
         }
-        logger.info('Master has been found');
+        logger.info('Master has been found!');
         res.status(200).send(master);
     } catch (e) {
         logger.error(e.message);
@@ -96,7 +96,7 @@ exports.update = async (req, res) => {
             }
         })
         await master.setCities(cities);
-        logger.info("Master was updated successfully");
+        logger.info("Master was updated successfully!");
         res.status(200).send({
             id: master.id,
             name: master.name,
@@ -117,7 +117,7 @@ exports.delete = async (req, res) => {
         await Master.destroy({
             where: {id: id}
         });
-        logger.info("Master was deleted successfully");
+        logger.info("Master was deleted successfully!");
         res.status(200).send({id: id});
     } catch (e) {
         logger.error(e.message);
@@ -180,8 +180,6 @@ exports.findAllMastersAvailable = async (req, res) => {
         logger.info('Starting retrieving busy masters...')
         const busyMasters = [];
         for (const order of orders) {
-            logger.info('newOrder city id =' + newOrder.cityId + ' existing order city id =' + order.City.id)
-            logger.info('newOrder date =' + newOrder.date + ' existing order date =' + order.date)
             if (newOrder.cityId !== order.City.id
                 || moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
                 continue;
@@ -193,7 +191,7 @@ exports.findAllMastersAvailable = async (req, res) => {
             }
         }
         const availableMasters = masters.filter((master) => !busyMasters.includes(master.name));
-        logger.info('All available masters have been retrieved');
+        logger.info('All available masters have been retrieved!');
         res.status(200).send(availableMasters);
     } catch (e) {
         logger.error(e.message);
