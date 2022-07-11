@@ -10,7 +10,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
     const incomeDate = new Date(req.body.date);
     if (incomeDate <= minAllowedDate) {
         logger.error('The date exceeds min date.');
-        res.status(500).send({message: 'The date exceeds min date.'});
+        res.status(400).send({message: 'The date exceeds min date.'});
         return;
     }
     const minTime = 10;
@@ -18,7 +18,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
     const time = parseTimeStringToInt(req.body.time);
     if ((time < minTime) || (time > maxTime)) {
         logger.error('The time exceeds work hours.');
-        res.status(500).send({message: 'The time exceeds work hours.'});
+        res.status(400).send({message: 'The time exceeds work hours.'});
         return;
     }
     logger.info('Date and time are correct. Heading next...');
@@ -47,7 +47,7 @@ ifUserCreated = async (req, res, next) => {
         next();
     } catch (e) {
         logger.error(e.message + ': Check user credentials.');
-        res.status(500).send({message: e.message + ': Check user credentials.'});
+        res.status(400).send({message: e.message + ': Check user credentials.'});
     }
 }
 
@@ -71,7 +71,7 @@ ifOrderCanBePlaced = async (req, res, next) => {
             });
             if (orders.length > 0) {
                 logger.error('Order interrogates with other orders. Try to change date or time and pick master one more time.');
-                res.status(500).send({message: 'Order interrogates with other orders. Try to change date or time and pick master one more time.'});
+                res.status(400).send({message: 'Order interrogates with other orders. Try to change date or time and pick master one more time.'});
                 return;
             }
         }

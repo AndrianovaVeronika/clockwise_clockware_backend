@@ -3,7 +3,7 @@ const cityController = require('../../controllers/city.controller');
 const masterController = require("../../controllers/master.controller");
 const orderController = require("../../controllers/order.controller");
 const userController = require("../../controllers/user.controller");
-const ifOrderAssignedTo = require("../../validators/ifOrderAssignedTo");
+const ifOrderAssignedTo = require("../../validators/ifObjectAssignedToOrder");
 
 router.delete("/cities/:id", [ifOrderAssignedTo.city], cityController.delete);
 

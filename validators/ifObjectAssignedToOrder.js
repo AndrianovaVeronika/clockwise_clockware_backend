@@ -1,19 +1,19 @@
 const logger = require("../utils/logger");
-const {Order} = require('../models');
+const {Order} = require("../models");
 
-const ifObjectAssignedToOrder = async (model, id) => {
-    const ifExist = await Order.findOne({
+const getOrderDependingOnModelId = async (model, id) => {
+    return await Order.findOne({
         where: {[model + 'Id']: id}
     });
-    return ifExist;
 };
 
 const getModelValidator = (model) => {
     return async (req, res, next) => {
         const id = req.params.id;
         logger.info('Checking if ' + model + ' with id=' + id + ' can be deleted...');
-        if (await ifObjectAssignedToOrder(model, id)) {
-            res.status(403).send({
+        if (await getOrderDependingOnModelId(model, id)) {
+            logger.error(model[0].toUpperCase() + model.slice(1) + " is assigned to order. Delete can`t be complete");
+            res.status(400).send({
                 message: model[0].toUpperCase() + model.slice(1) + " is assigned to order. Delete can`t be complete"
             });
             return;
@@ -22,10 +22,10 @@ const getModelValidator = (model) => {
     };
 };
 
-const ifOrderAssignedTo = {
+const ifObjectAssignedToOrder = {
     city: getModelValidator('city'),
     master: getModelValidator('master'),
     user: getModelValidator('user')
 };
 
-module.exports = ifOrderAssignedTo;
+module.exports = ifObjectAssignedToOrder;

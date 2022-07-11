@@ -1,0 +1,10 @@
+HTTP responce codes
+2xx-------------------
+200 - OK
+201 - Created
+4xx-------------------
+400 - Bad Request
+401 - Unauthorized
+403 - Forbidden
+5xx-------------------
+500 - Server Error
