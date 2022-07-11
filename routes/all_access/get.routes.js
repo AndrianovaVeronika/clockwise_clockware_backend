@@ -13,7 +13,7 @@ router.get("/clocktypes", clockTypeController.findAll);
 router.get("/masters", masterController.findAll);
 router.get("/masters/:id", masterController.findOne);
 
-router.get('/auth/checktocken', [authJwt.verifyToken], controller.userBoard);
+router.get('/auth/checktocken', [authJwt.verifyToken], controller.userAccess);
 
 
 module.exports = router;
