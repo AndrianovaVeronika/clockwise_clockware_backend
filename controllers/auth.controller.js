@@ -29,7 +29,7 @@ exports.signup = async (req, res) => {
 };
 
 exports.signin = async (req, res) => {
-    logger.info('Signing in...');
+    logger.info("Signing in...");
     try {
         const user = await User.findOne({
             where: {
@@ -37,17 +37,21 @@ exports.signin = async (req, res) => {
             }
         });
         if (!user) {
-            logger.error('User has not been found');
-            return res.status(404).send({message: "User has not been found"});
+            logger.error("User has not been found.");
+            return res.status(400).send({message: "User has not been found."});
         }
-        logger.info('User has been found');
+        logger.info('User has been found!');
+        if (!req.body.password) {
+            logger.error("No password provided.");
+            return res.status(500).send({message: "No password provided."});
+        }
         const passwordIsValid = bcrypt.compareSync(
             req.body.password,
             user.password
         );
         if (!passwordIsValid) {
-            logger.error('Password is not valid');
-            return res.status(401).send({
+            logger.error("Password is not valid");
+            return res.status(400).send({
                 accessToken: null,
                 message: "Invalid Password!"
             });
