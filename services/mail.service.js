@@ -6,15 +6,6 @@ const transporter = nodemailer.createTransport(config);
 
 exports.sendMail = (data) => {
     logger.info('Retrieving email data...');
-    // for (const configKey in config) {
-    //     if(configKey === 'auth'){
-    //         for (const authKey in config[configKey]) {
-    //             logger.info(authKey + ': ' + config.auth[authKey]);
-    //         }
-    //     }
-    //     logger.info(configKey + ': ' + config[configKey]);
-    // }
-
     if (!data) {
         logger.info('Mail data is empty');
     }

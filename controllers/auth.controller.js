@@ -37,14 +37,15 @@ exports.signin = async (req, res) => {
             }
         });
         if (!user) {
-            logger.error("User has not been found.");
-            return res.status(400).send({message: "User has not been found."});
+            logger.error("Email is not registered.");
+            return res.status(400).send({message: "Email is not registered."});
         }
         logger.info('User has been found!');
         if (!req.body.password) {
             logger.error("No password provided.");
             return res.status(500).send({message: "No password provided."});
         }
+        logger.info(req.body.password + ' = ' + user.password)
         const passwordIsValid = bcrypt.compareSync(
             req.body.password,
             user.password
@@ -75,7 +76,7 @@ exports.signin = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        res.status(500).send({message: "Check your credential: email or password could not be right"});
     }
 };
 
