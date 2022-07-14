@@ -37,13 +37,12 @@ exports.signin = async (req, res) => {
             }
         });
         if (!user) {
-            logger.error("Email is not registered.");
-            return res.status(400).send({message: "Email is not registered."});
+            logger.error("Check your credential: email or password could not be right");
+            return res.status(401).send({message: "Check your credential: email or password could not be right"});
         }
-        logger.info('User has been found!');
         if (!req.body.password) {
             logger.error("No password provided.");
-            return res.status(500).send({message: "No password provided."});
+            return res.status(401).send({message: "No password provided."});
         }
         logger.info(req.body.password + ' = ' + user.password)
         const passwordIsValid = bcrypt.compareSync(
@@ -51,13 +50,12 @@ exports.signin = async (req, res) => {
             user.password
         );
         if (!passwordIsValid) {
-            logger.error("Password is not valid");
-            return res.status(400).send({
+            logger.error("Check your credential: email or password could not be right");
+            return res.status(401).send({
                 accessToken: null,
-                message: "Invalid Password!"
+                message: "Check your credential: email or password could not be right"
             });
         }
-        logger.info('Password is valid');
         const token = jwt.sign({id: user.id}, config.secret, {
             expiresIn: 86400 // 24 hours
         });
@@ -76,7 +74,7 @@ exports.signin = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: "Check your credential: email or password could not be right"});
+        res.status(401).send({message: e.message || "Check your credential: email or password could not be right"});
     }
 };
 
