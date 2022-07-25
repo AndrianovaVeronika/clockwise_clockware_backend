@@ -9,10 +9,10 @@ exports.create = async (req, res) => {
     try {
         const city = await City.create(newCity);
         logger.info("City created!");
-        res.status(201).send(city);
+        return res.status(201).send(city);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -22,10 +22,10 @@ exports.findAll = async (req, res) => {
     try {
         const cities = await City.findAll()
         logger.info("Cities retrieved!");
-        res.status(200).send(cities);
+        return res.status(200).send(cities);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -37,15 +37,15 @@ exports.findOne = async (req, res) => {
         const city = await City.findByPk(id);
         if (!city) {
             logger.error(`Cannot find City with id=${id}.`);
-            res.status(400).send({
+            return res.status(400).send({
                 message: `Cannot find City with id=${id}.`
             });
         }
         logger.info("City found!");
-        res.status(200).send(city);
+        return res.status(200).send(city);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -59,10 +59,10 @@ exports.update = async (req, res) => {
         });
         const city = await City.findByPk(id);
         logger.info("City has been updated successfully.");
-        res.status(200).send(city);
+        return res.status(200).send(city);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -75,9 +75,9 @@ exports.delete = async (req, res) => {
             where: {id: id}
         });
         logger.info("City has been deleted successfully.");
-        res.status(200).send({id: id});
+        return res.status(200).send({id: id});
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };

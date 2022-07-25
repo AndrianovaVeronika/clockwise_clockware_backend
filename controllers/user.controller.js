@@ -11,10 +11,10 @@ exports.findAll = async (req, res) => {
             attributes: {exclude: ['password']}
         });
         logger.info('Users retrieved!');
-        res.status(200).send(users);
+        return res.status(200).send(users);
     } catch (e) {
         logger.error("Some error occurred while retrieving users");
-        res.status(500).send({
+        return res.status(500).send({
             message: e.message || "Some error occurred while retrieving users"
         });
     }
@@ -31,16 +31,16 @@ exports.findOne = async (req, res) => {
         user.roles = await user.getRoles();
         if (user) {
             logger.info('User found!');
-            res.status(200).send(user);
+            return res.status(200).send(user);
         } else {
             logger.info(`Cannot find user with id=${id}`);
-            res.status(404).send({
+            return res.status(400).send({
                 message: `Cannot find user with id=${id}.`
             });
         }
     } catch (e) {
         logger.info("Error retrieving user with id=" + id + ".");
-        res.status(500).send({
+        return res.status(500).send({
             message: "Error retrieving user with id=" + id + "."
         });
     }
@@ -64,11 +64,11 @@ exports.update = async (req, res) => {
         });
         user.roles = await user.getRoles();
         logger.info("User was updated successfully!");
-        res.status(200).send(user);
+        return res.status(200).send(user);
     } catch (e) {
         logger.info("Error updating user with id=" + id);
         logger.info(e.message);
-        res.status(500).send({
+        return res.status(500).send({
             message: "Error updating user with id=" + id
         });
     }
@@ -84,11 +84,11 @@ exports.delete = async (req, res) => {
             where: {id: id}
         });
         logger.info("User was deleted successfully!");
-        res.status(200).send({id: id});
+        return res.status(200).send({id: id});
     } catch (e) {
         logger.info("Could not delete user with id=" + ".");
         logger.info(e.message);
-        res.status(500).send({
+        return res.status(500).send({
             message: "Could not delete user with id=" + id + "."
         });
     }
@@ -121,9 +121,9 @@ exports.create = async (req, res) => {
         const createdUserWithRoles = await User.findByPk(user.id, {
             attributes: {exclude: ['password']}
         });
-        res.status(200).send(createdUserWithRoles);
+        return res.status(200).send(createdUserWithRoles);
     } catch (e) {
         logger.info('Error in signup');
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 }

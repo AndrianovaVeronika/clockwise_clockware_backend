@@ -4,8 +4,7 @@ validateIfBodyUndefined = async (req, res, next) => {
     logger.info("Validating body if undefined...");
     if (!req?.body) {
         logger.error("Body undefined!");
-        res.status(400).send({message: "Body undefined!"});
-        return;
+        return res.status(400).send({message: "Body undefined!"});
     }
     logger.info("Body is defined. Heading next...");
     next();

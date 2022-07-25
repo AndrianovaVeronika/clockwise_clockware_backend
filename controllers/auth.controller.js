@@ -21,10 +21,10 @@ exports.signup = async (req, res) => {
             attributes: {exclude: ['password']}
         });
         logger.info('New user created');
-        res.status(200).send(createdUserWithRoles);
+        return res.status(200).send(createdUserWithRoles);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -65,7 +65,7 @@ exports.signin = async (req, res) => {
             authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
         logger.info('Signed in successfully');
-        res.status(200).send({
+        return res.status(200).send({
             id: user.id,
             username: user.username,
             email: user.email,
@@ -74,7 +74,7 @@ exports.signin = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(401).send({message: e.message || "Check your credential: email or password could not be right"});
+        return res.status(401).send({message: "Check your credential: email or password could not be right"});
     }
 };
 
@@ -94,7 +94,7 @@ exports.userAccess = async (req, res) => {
             authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
         logger.info("Authenticated successfully");
-        res.status(200).send({
+        return res.status(200).send({
             id: user.id,
             username: user.username,
             email: user.email,
@@ -102,6 +102,6 @@ exports.userAccess = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };

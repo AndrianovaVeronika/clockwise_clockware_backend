@@ -46,7 +46,7 @@ exports.create = async (req, res) => {
             text: 'Your order:\n' + mail,
         })
         logger.info('Mail have been sent');
-        res.status(201).send({
+        return res.status(201).send({
             id: order?.id,
             date: order?.date,
             time: order?.time,
@@ -54,7 +54,7 @@ exports.create = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -66,7 +66,7 @@ exports.findAll = async (req, res) => {
             include: [User, ClockType, City, Master]
         });
         logger.info('Orders retrieved!');
-        res.status(200).send(orders.map(order => {
+        return res.status(200).send(orders.map(order => {
             return {
                 id: order?.id,
                 date: order?.date,
@@ -80,7 +80,7 @@ exports.findAll = async (req, res) => {
         }));
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -89,18 +89,31 @@ exports.findOne = async (req, res) => {
     const id = req.params.id;
     logger.info(`Finding order with id=${id}...`);
     try {
-        const order = await Order.findByPk(id);
+        const order = await Order.findByPk(id, {
+            include: [User]
+        });
         if (!order) {
             logger.error(`Cannot find order with id=${id}`);
-            res.status(404).send({
+            return res.status(400).send({
                 message: `Cannot find order with id=${id}.`
             });
         }
+        order.username = order.User.username;
+        order.email = order.User.email;
         logger.info('Order have been found!');
-        res.status(200).send(order);
+        return res.status(200).send({
+            id: order?.id,
+            date: order?.date,
+            time: order?.time,
+            username: order?.User?.username,
+            email: order?.User?.email,
+            clockTypeId: order?.clockTypeId,
+            cityId: order?.cityId,
+            masterId: order?.masterId
+        });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -116,7 +129,7 @@ exports.update = async (req, res) => {
             include: [User, ClockType, City, Master]
         });
         logger.info("Order has been updated successfully!");
-        res.status(200).send({
+        return res.status(200).send({
             id: order.id,
             date: order.date,
             time: order.time,
@@ -128,7 +141,7 @@ exports.update = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -141,9 +154,9 @@ exports.delete = async (req, res) => {
             where: {id: id}
         });
         logger.info("Order was deleted successfully!");
-        res.status(200).send({id: id});
+        return res.status(200).send({id: id});
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };

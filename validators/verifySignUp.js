@@ -11,10 +11,9 @@ checkDuplicateUsernameOrEmail = async (req, res, next) => {
     });
     if (user) {
         logger.error("Username is already in use!");
-        res.status(400).send({
+        return res.status(400).send({
             message: "Username is already in use!"
         });
-        return;
     }
     // Email
     logger.info("Checking email for duplicates...");
@@ -25,10 +24,9 @@ checkDuplicateUsernameOrEmail = async (req, res, next) => {
     });
     if (userWithSameEmail) {
         logger.error("Email is already in use!");
-        res.status(400).send({
+        return res.status(400).send({
             message: "Email is already in use!"
         });
-        return;
     }
     logger.info("Username and email dont repeat. Heading next...");
     next();
@@ -40,10 +38,9 @@ checkRolesExisted = (req, res, next) => {
         for (let i = 0; i < req.body.roles.length; i++) {
             if (!ROLES.includes(req.body.roles[i])) {
                 logger.error("Role does not exist - " + req.body.roles[i] + ".");
-                res.status(400).send({
+                return res.status(400).send({
                     message: "Role does not exist - " + req.body.roles[i] + "."
                 });
-                return;
             }
         }
     }

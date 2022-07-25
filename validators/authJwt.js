@@ -44,7 +44,7 @@ isAdmin = async (req, res, next) => {
         }
     }
     logger.info("Require Admin Role!");
-    res.status(403).send({message: "Require Admin Role!"});
+    return res.status(403).send({message: "Require Admin Role!"});
 };
 
 const authJwt = {

@@ -7,9 +7,9 @@ exports.findAll = async (req, res) => {
     try {
         const clockTypes = await ClockType.findAll();
         logger.info("Clocktypes retrieved!");
-        res.status(200).send(clockTypes);
+        return res.status(200).send(clockTypes);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };

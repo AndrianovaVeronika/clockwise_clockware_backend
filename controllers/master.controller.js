@@ -22,7 +22,7 @@ exports.create = async (req, res) => {
         })
         await master.setCities(cities);
         logger.info('Master created!');
-        res.status(201).send({
+        return res.status(201).send({
             id: master.id,
             name: master.name,
             rating: master.rating,
@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -42,7 +42,7 @@ exports.findAll = async (req, res) => {
             include: [City],
         });
         logger.info('Masters retrieved!');
-        res.status(200).send(masters.map(master => {
+        return res.status(200).send(masters.map(master => {
             return {
                 id: master.id,
                 name: master.name,
@@ -52,7 +52,7 @@ exports.findAll = async (req, res) => {
         }));
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -66,16 +66,15 @@ exports.findOne = async (req, res) => {
         master.cities = cities.map(city => city.name);
         if (!master) {
             logger.error(`Cannot find master with id=${id}`);
-            res.status(404).send({
+            return res.status(400).send({
                 message: `Cannot find master with id=${id}.`
             });
-            return;
         }
         logger.info('Master has been found!');
-        res.status(200).send(master);
+        return res.status(200).send(master);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -97,7 +96,7 @@ exports.update = async (req, res) => {
         })
         await master.setCities(cities);
         logger.info("Master was updated successfully!");
-        res.status(200).send({
+        return res.status(200).send({
             id: master.id,
             name: master.name,
             rating: master.rating,
@@ -105,7 +104,7 @@ exports.update = async (req, res) => {
         });
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 };
 
@@ -118,10 +117,10 @@ exports.delete = async (req, res) => {
             where: {id: id}
         });
         logger.info("Master was deleted successfully!");
-        res.status(200).send({id: id});
+        return res.status(200).send({id: id});
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 }
 
@@ -192,9 +191,9 @@ exports.findAllMastersAvailable = async (req, res) => {
         }
         const availableMasters = masters.filter((master) => !busyMasters.includes(master.name));
         logger.info('All available masters have been retrieved!');
-        res.status(200).send(availableMasters);
+        return res.status(200).send(availableMasters);
     } catch (e) {
         logger.error(e.message);
-        res.status(500).send({message: e.message});
+        return res.status(500).send({message: e.message});
     }
 }

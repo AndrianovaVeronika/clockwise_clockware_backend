@@ -13,10 +13,9 @@ const getModelValidator = (model) => {
         logger.info('Checking if ' + model + ' with id=' + id + ' can be deleted...');
         if (await getOrderDependingOnModelId(model, id)) {
             logger.error(model[0].toUpperCase() + model.slice(1) + " is assigned to order. Delete can`t be complete");
-            res.status(400).send({
+            return res.status(400).send({
                 message: model[0].toUpperCase() + model.slice(1) + " is assigned to order. Delete can`t be complete"
             });
-            return;
         }
         next();
     };
