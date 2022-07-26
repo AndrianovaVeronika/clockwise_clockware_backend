@@ -61,9 +61,9 @@ exports.findOne = async (req, res) => {
     const id = req.params.id;
     logger.info(`Finding master with id=${id}...`);
     try {
-        const master = await Master.findByPk(id);
-        const cities = await master.getCities();
-        master.cities = cities.map(city => city.name);
+        const master = await Master.findByPk(id, {
+            include: [City],
+        });
         if (!master) {
             logger.error(`Cannot find master with id=${id}`);
             return res.status(400).send({
@@ -71,7 +71,12 @@ exports.findOne = async (req, res) => {
             });
         }
         logger.info('Master has been found!');
-        return res.status(200).send(master);
+        return res.status(200).send({
+            id: master.id,
+            name: master.name,
+            rating: master.rating,
+            cities: master.Cities.map(city => city.name),
+        });
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
