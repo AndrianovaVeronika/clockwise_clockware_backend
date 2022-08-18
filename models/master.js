@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Master.hasMany(models.Order, {foreignKey: 'masterId'});
             Master.belongsToMany(models.City, {through: 'MasterCities'});
+            Master.belongsTo(models.User, {foreignKey: 'userId'});
         }
     }
 

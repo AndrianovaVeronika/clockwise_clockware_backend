@@ -1,10 +1,15 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const User = db.User;
+const Order = db.Order;
+const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
 const {getBcryptedPassword} = require("../services/bcrypt.service");
+const {Master, City} = require("../models");
+const _ = require("lodash");
+const {sendMail} = require("../services/mail.service");
 
 exports.signup = async (req, res) => {
     // Save User to Database
@@ -22,6 +27,69 @@ exports.signup = async (req, res) => {
         });
         logger.info('New user created');
         return res.status(200).send(createdUserWithRoles);
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+};
+
+//Creates master account
+exports.createMasterAccount = async (req, res) => {
+    logger.info('Creating master account...')
+    const newUser = {
+        username: req.body.username,
+        email: req.body.email,
+        password: getBcryptedPassword(req.body.password, 8)
+    }
+    const newMaster = {
+        name: req.body.name
+    }
+    try {
+        logger.info('Finding or creating master...');
+        let [master, isNew] = await Master.findOrCreate({
+            where: {name: newMaster.name},
+            defaults: newMaster
+        });
+        const cities = await City.findAll({
+            where: {
+                name: {
+                    [Op.or]: req.body.cities
+                }
+            }
+        })
+        if (isNew) {
+            logger.info('New master has been created! Setting cities...');
+            await master.setCities(cities);
+        } else {
+            logger.info('Master may exist. Checking...');
+            const citiesToCompare = await master.getCities();
+
+            if ((!citiesToCompare || !_.isEqual(citiesToCompare.map(city => ({id: city.id, name: city.name})),
+                cities.map(city => ({id: city.id, name: city.name})))) && !master.userId) {
+                logger.info('Master is not the right one! Creating new...');
+                master = await Master.create(newMaster);
+                await master.setCities(cities);
+            }
+        }
+        logger.info('Creating new user...')
+        const user = await User.create(newUser);
+        await user.setRoles([1, 3]);
+        logger.info('User has been created with id=' + user.id);
+        await Master.update({userId: user.id}, {where: {id: master.id}});
+        const createdUserWithRoles = await User.findByPk(user.id, {
+            attributes: {exclude: ['password']}
+        });
+        logger.info('New master account created');
+        logger.info('Sending mail to prove email...');
+        await sendMail({
+            to: user.email,
+            subject: 'Email confirmation',
+            link: process.env.EMAIL_CONFIRMATION_PAGE_LINK
+        });
+        return res.status(200).send({
+            user: createdUserWithRoles,
+            master: master
+        });
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -105,3 +173,18 @@ exports.userAccess = async (req, res) => {
         return res.status(500).send({message: e.message});
     }
 };
+
+exports.checkEmailVerificationCode = async (req, res) => {
+    try {
+        const storedVerificationCode = sessionStorage.getItem('verificationCode');
+        if (req.body.verificationCode === storedVerificationCode) {
+            await Order.update({emailChecked: true}, {where: {username: req.body.username}});
+            return res.status(200).send({isEmailValid: true});
+        } else {
+            return res.status(200).send({isEmailValid: false});
+        }
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+}

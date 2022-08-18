@@ -44,7 +44,7 @@ exports.create = async (req, res) => {
             to: mailData.email,
             subject: 'Order `ve been registered successfully',
             text: 'Your order:\n' + mail,
-        })
+        });
         logger.info('Mail have been sent');
         return res.status(201).send({
             id: order?.id,

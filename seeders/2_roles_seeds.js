@@ -14,6 +14,12 @@ module.exports = {
                 name: 'admin',
                 createdAt: new Date(),
                 updatedAt: new Date()
+            },
+            {
+                id: 3,
+                name: 'master',
+                createdAt: new Date(),
+                updatedAt: new Date()
             }
         ]);
     },

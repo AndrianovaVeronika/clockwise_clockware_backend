@@ -14,6 +14,16 @@ router.post(
     ],
     controller.signup
 );
+
+router.post(
+    "/auth/registrate_master",
+    [
+        verifySignUp.checkDuplicateUsernameOrEmail,
+        verifySignUp.checkRolesExisted
+    ],
+    controller.createMasterAccount
+)
+
 router.post("/auth/signin", controller.signin);
 
 router.post("/orders", orderValidators, orderController.create);
