@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             User.hasMany(models.Order, {foreignKey: 'userId'});
             User.belongsToMany(models.Role, {through: 'UserRoles'});
             User.hasOne(models.Master, {foreignKey: 'userId'});
+            User.hasOne(models.Code, {foreignKey: 'userId'});
         }
     }
 
@@ -21,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
                 unique: true
             },
             password: DataTypes.STRING,
+            emailChecked: {
+                type: DataTypes.BOOLEAN,
+                default: false
+            }
         },
         {
             sequelize,

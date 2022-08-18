@@ -2,6 +2,7 @@ const db = require("../models");
 const config = require("../config/auth.config");
 const User = db.User;
 const Order = db.Order;
+const Code = db.Code;
 const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -10,6 +11,8 @@ const {getBcryptedPassword} = require("../services/bcrypt.service");
 const {Master, City} = require("../models");
 const _ = require("lodash");
 const {sendMail} = require("../services/mail.service");
+const {generateShortCode} = require("../services/shortCode.service");
+const moment = require("moment");
 
 exports.signup = async (req, res) => {
     // Save User to Database
@@ -63,7 +66,6 @@ exports.createMasterAccount = async (req, res) => {
         } else {
             logger.info('Master may exist. Checking...');
             const citiesToCompare = await master.getCities();
-
             if ((!citiesToCompare || !_.isEqual(citiesToCompare.map(city => ({id: city.id, name: city.name})),
                 cities.map(city => ({id: city.id, name: city.name})))) && !master.userId) {
                 logger.info('Master is not the right one! Creating new...');
@@ -81,10 +83,13 @@ exports.createMasterAccount = async (req, res) => {
         });
         logger.info('New master account created');
         logger.info('Sending mail to prove email...');
+        const shortCode = generateShortCode();
+        await Code.create({verificationCode: shortCode, userId: user.id});
+        const link = process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode;
         await sendMail({
             to: user.email,
             subject: 'Email confirmation',
-            link: process.env.EMAIL_CONFIRMATION_PAGE_LINK
+            html: '<p>Click <a href={link}>here</a> to prove your email</p>'
         });
         return res.status(200).send({
             user: createdUserWithRoles,
@@ -176,13 +181,38 @@ exports.userAccess = async (req, res) => {
 
 exports.checkEmailVerificationCode = async (req, res) => {
     try {
-        const storedVerificationCode = sessionStorage.getItem('verificationCode');
-        if (req.body.verificationCode === storedVerificationCode) {
-            await Order.update({emailChecked: true}, {where: {username: req.body.username}});
-            return res.status(200).send({isEmailValid: true});
-        } else {
-            return res.status(200).send({isEmailValid: false});
+        const codeRecord = await Code.findOne({
+            where: {
+                verificationCode: req.params.code
+            }
+        });
+        const recordUpdateTime = moment(codeRecord.updatedAt);
+        const now = new moment();
+        if (now.diff(recordUpdateTime, 'minutes') > 10) {
+            logger.info('Code has been expired...')
+            const user = await codeRecord.getUser();
+            logger.info('Sending mail to prove email...');
+            const shortCode = generateShortCode();
+            await Code.update({verificationCode: shortCode}, {
+                where: {
+                    userId: user.id
+                }
+            });
+            const link = process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode;
+            await sendMail({
+                to: user.email,
+                subject: 'Email confirmation',
+                html: '<p>Click <a href={link}>here</a> to prove your email</p>'
+            });
+            return res.status(200).send({
+                isEmailValid: false,
+                message: 'Code is expired! We have sent you new one on your email.'
+            });
         }
+        logger.info('Enabling email state to checked...');
+        logger.info(codeRecord.userId)
+        await User.update({emailChecked: true}, {where: {id: codeRecord.userId}});
+        return res.status(200).send({isEmailValid: true, message: 'Email has been proved successfully'});
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
