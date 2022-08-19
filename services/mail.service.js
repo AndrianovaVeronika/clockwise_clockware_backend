@@ -1,10 +1,11 @@
 const nodemailer = require('nodemailer');
 const logger = require("../utils/logger");
 const config = require("../config/mail.config.js");
+const {sendMail} = require("./mail.service");
 
 const transporter = nodemailer.createTransport(config);
 
-exports.sendMail = (data) => {
+const sendStandartMail = (data) => {
     logger.info('Retrieving email data...');
     if (!data) {
         logger.info('Mail data is empty');
@@ -29,4 +30,21 @@ exports.sendMail = (data) => {
             logger.info('Mail `ve been sent');
         }
     });
+}
+
+const sendEmailConfirmationMail = async (shortCode, to) => {
+    console.log('Sending email verification mail...');
+    const link = '"' + process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode + '"';
+    const html = '<p>Click <a href=' + link + '>here</a> to prove your email. P.S. If link doesn`t work use it manually: ' + link + '</p>';
+    logger.info(html)
+    await sendStandartMail({
+        to: to,
+        subject: 'Email confirmation',
+        html: html
+    });
+}
+
+module.exports = {
+    sendStandartMail,
+    sendEmailConfirmationMail
 }

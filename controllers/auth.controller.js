@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
 const {getBcryptedPassword} = require("../services/bcrypt.service");
 const {Master, City} = require("../models");
 const _ = require("lodash");
-const {sendMail} = require("../services/mail.service");
+const {sendMail, sendEmailConfirmationMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
 
@@ -29,6 +29,9 @@ exports.signup = async (req, res) => {
             attributes: {exclude: ['password']}
         });
         logger.info('New user created');
+        logger.info('Sending mail to prove email...');
+        const shortCode = generateShortCode();
+        await sendEmailConfirmationMail(shortCode, user.email);
         return res.status(200).send(createdUserWithRoles);
     } catch (e) {
         logger.error(e.message);
@@ -85,12 +88,7 @@ exports.createMasterAccount = async (req, res) => {
         logger.info('Sending mail to prove email...');
         const shortCode = generateShortCode();
         await Code.create({verificationCode: shortCode, userId: user.id});
-        const link = process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode;
-        await sendMail({
-            to: user.email,
-            subject: 'Email confirmation',
-            html: '<p>Click <a href={link}>here</a> to prove your email</p>'
-        });
+        await sendEmailConfirmationMail(shortCode, user.email);
         return res.status(200).send({
             user: createdUserWithRoles,
             master: master
@@ -143,6 +141,7 @@ exports.signin = async (req, res) => {
             username: user.username,
             email: user.email,
             roles: authorities,
+            emailChecked: user.emailChecked,
             accessToken: token
         });
     } catch (e) {
@@ -171,7 +170,8 @@ exports.userAccess = async (req, res) => {
             id: user.id,
             username: user.username,
             email: user.email,
-            roles: authorities
+            roles: authorities,
+            emailChecked: user.emailChecked,
         });
     } catch (e) {
         logger.error(e.message);
@@ -198,12 +198,7 @@ exports.checkEmailVerificationCode = async (req, res) => {
                     userId: user.id
                 }
             });
-            const link = process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode;
-            await sendMail({
-                to: user.email,
-                subject: 'Email confirmation',
-                html: '<p>Click <a href={link}>here</a> to prove your email</p>'
-            });
+            await sendEmailConfirmationMail(shortCode, user.email);
             return res.status(200).send({
                 isEmailValid: false,
                 message: 'Code is expired! We have sent you new one on your email.'
