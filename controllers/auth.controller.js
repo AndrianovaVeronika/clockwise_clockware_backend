@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
 const {getBcryptedPassword} = require("../services/bcrypt.service");
 const {Master, City} = require("../models");
 const _ = require("lodash");
-const {sendMail, sendEmailConfirmationMail} = require("../services/mail.service");
+const {sendEmailConfirmationMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
 
@@ -29,8 +29,8 @@ exports.signup = async (req, res) => {
             attributes: {exclude: ['password']}
         });
         logger.info('New user created');
-        logger.info('Sending mail to prove email...');
         const shortCode = generateShortCode();
+        await Code.create({verificationCode: shortCode, userId: user.id});
         await sendEmailConfirmationMail(shortCode, user.email);
         return res.status(200).send(createdUserWithRoles);
     } catch (e) {
@@ -85,7 +85,6 @@ exports.createMasterAccount = async (req, res) => {
             attributes: {exclude: ['password']}
         });
         logger.info('New master account created');
-        logger.info('Sending mail to prove email...');
         const shortCode = generateShortCode();
         await Code.create({verificationCode: shortCode, userId: user.id});
         await sendEmailConfirmationMail(shortCode, user.email);

@@ -33,10 +33,9 @@ const sendStandartMail = (data) => {
 }
 
 const sendEmailConfirmationMail = async (shortCode, to) => {
-    console.log('Sending email verification mail...');
+    logger.info('Sending email verification mail...');
     const link = '"' + process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode + '"';
     const html = '<p>Click <a href=' + link + '>here</a> to prove your email. P.S. If link doesn`t work use it manually: ' + link + '</p>';
-    logger.info(html)
     await sendStandartMail({
         to: to,
         subject: 'Email confirmation',
