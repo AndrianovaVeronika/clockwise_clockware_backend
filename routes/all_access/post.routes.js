@@ -7,24 +7,24 @@ const controller = require("../../controllers/auth.controller");
 router.use(validateIfBodyUndefined);
 
 router.post(
-    "/auth/signup",
+    "/register/user",
     [
         verifySignUp.checkDuplicateEmail,
         verifySignUp.checkRolesExisted
     ],
-    controller.signup
+    controller.registerUser
 );
 
 router.post(
-    "/auth/registrate_master",
+    "/register/master",
     [
         verifySignUp.checkDuplicateEmail,
         verifySignUp.checkRolesExisted
     ],
-    controller.createMasterAccount
+    controller.registerMaster
 )
 
-router.post("/auth/signin", controller.signin);
+router.post("/signin", controller.signin);
 
 router.post("/orders", orderValidators, orderController.create);
 router.post("/masters/available", masterController.findAllMastersAvailable);
