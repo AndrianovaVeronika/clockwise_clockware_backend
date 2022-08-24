@@ -1,20 +1,7 @@
 const {User, ROLES} = require("../models");
 const logger = require("../utils/logger");
 
-checkDuplicateUsernameOrEmail = async (req, res, next) => {
-    // Username
-    logger.info("Checking username for duplicates...");
-    const user = await User.findOne({
-        where: {
-            username: req.body.username
-        }
-    });
-    if (user) {
-        logger.error("Username is already in use!");
-        return res.status(400).send({
-            message: "Username is already in use!"
-        });
-    }
+checkDuplicateEmail = async (req, res, next) => {
     // Email
     logger.info("Checking email for duplicates...");
     const userWithSameEmail = await User.findOne({
@@ -28,7 +15,7 @@ checkDuplicateUsernameOrEmail = async (req, res, next) => {
             message: "Email is already in use!"
         });
     }
-    logger.info("Username and email dont repeat. Heading next...");
+    logger.info("Email doesnt repeat. Heading next...");
     next();
 };
 
@@ -49,7 +36,7 @@ checkRolesExisted = (req, res, next) => {
 };
 
 const verifySignUp = {
-    checkDuplicateUsernameOrEmail: checkDuplicateUsernameOrEmail,
+    checkDuplicateEmail: checkDuplicateEmail,
     checkRolesExisted: checkRolesExisted
 };
 

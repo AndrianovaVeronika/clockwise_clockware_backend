@@ -1,38 +1,25 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const User = db.User;
-const Order = db.Order;
 const Code = db.Code;
-const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
-const {getBcryptedPassword} = require("../services/bcrypt.service");
-const {Master, City} = require("../models");
 const _ = require("lodash");
 const {sendEmailConfirmationMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
+const {createUserAccount, createMasterAccount} = require("../services/account.service");
 
-exports.signup = async (req, res) => {
-    // Save User to Database
-    logger.info('Signing up...');
-    const newUser = {
-        username: req.body.username,
-        email: req.body.email,
-        password: getBcryptedPassword(req.body.password, 8)
-    }
+//Creates user account
+exports.registerUser = async (req, res) => {
+    logger.info('Creating user account...');
     try {
-        const user = await User.create(newUser);
-        await user.setRoles([1]);
-        const createdUserWithRoles = await User.findByPk(user.id, {
-            attributes: {exclude: ['password']}
-        });
-        logger.info('New user created');
+        const createdUser = await createUserAccount(req.body);
         const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: user.id});
-        await sendEmailConfirmationMail(shortCode, user.email);
-        return res.status(200).send(createdUserWithRoles);
+        await Code.create({verificationCode: shortCode, userId: createdUser.id});
+        await sendEmailConfirmationMail(shortCode, req.body.email);
+        return res.status(200).send(createdUser);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -40,58 +27,14 @@ exports.signup = async (req, res) => {
 };
 
 //Creates master account
-exports.createMasterAccount = async (req, res) => {
-    logger.info('Creating master account...')
-    const newUser = {
-        username: req.body.username,
-        email: req.body.email,
-        password: getBcryptedPassword(req.body.password, 8)
-    }
-    const newMaster = {
-        name: req.body.name
-    }
+exports.registerMaster = async (req, res) => {
+    logger.info('Creating master account...');
     try {
-        logger.info('Finding or creating master...');
-        let [master, isNew] = await Master.findOrCreate({
-            where: {name: newMaster.name},
-            defaults: newMaster
-        });
-        const cities = await City.findAll({
-            where: {
-                name: {
-                    [Op.or]: req.body.cities
-                }
-            }
-        })
-        if (isNew) {
-            logger.info('New master has been created! Setting cities...');
-            await master.setCities(cities);
-        } else {
-            logger.info('Master may exist. Checking...');
-            const citiesToCompare = await master.getCities();
-            if ((!citiesToCompare || !_.isEqual(citiesToCompare.map(city => ({id: city.id, name: city.name})),
-                cities.map(city => ({id: city.id, name: city.name})))) && !master.userId) {
-                logger.info('Master is not the right one! Creating new...');
-                master = await Master.create(newMaster);
-                await master.setCities(cities);
-            }
-        }
-        logger.info('Creating new user...')
-        const user = await User.create(newUser);
-        await user.setRoles([1, 3]);
-        logger.info('User has been created with id=' + user.id);
-        await Master.update({userId: user.id}, {where: {id: master.id}});
-        const createdUserWithRoles = await User.findByPk(user.id, {
-            attributes: {exclude: ['password']}
-        });
-        logger.info('New master account created');
+        const createdMasterAccount = await createMasterAccount(req.body);
         const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: user.id});
-        await sendEmailConfirmationMail(shortCode, user.email);
-        return res.status(200).send({
-            user: createdUserWithRoles,
-            master: master
-        });
+        await Code.create({verificationCode: shortCode, userId: createdMasterAccount.user.id});
+        await sendEmailConfirmationMail(shortCode, createdMasterAccount.user.email);
+        return res.status(200).send(createdMasterAccount);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -137,7 +80,7 @@ exports.signin = async (req, res) => {
         logger.info('Signed in successfully');
         return res.status(200).send({
             id: user.id,
-            username: user.username,
+            name: user.name,
             email: user.email,
             roles: authorities,
             emailChecked: user.emailChecked,
@@ -167,7 +110,7 @@ exports.userAccess = async (req, res) => {
         logger.info("Authenticated successfully");
         return res.status(200).send({
             id: user.id,
-            username: user.username,
+            name: user.name,
             email: user.email,
             roles: authorities,
             emailChecked: user.emailChecked,
@@ -188,7 +131,7 @@ exports.checkEmailVerificationCode = async (req, res) => {
         const recordUpdateTime = moment(codeRecord.updatedAt);
         const now = new moment();
         if (now.diff(recordUpdateTime, 'minutes') > 10) {
-            logger.info('Code has been expired...')
+            logger.info('Code has been expired...');
             const user = await codeRecord.getUser();
             logger.info('Sending mail to prove email...');
             const shortCode = generateShortCode();
@@ -204,7 +147,6 @@ exports.checkEmailVerificationCode = async (req, res) => {
             });
         }
         logger.info('Enabling email state to checked...');
-        logger.info(codeRecord.userId)
         await User.update({emailChecked: true}, {where: {id: codeRecord.userId}});
         return res.status(200).send({isEmailValid: true, message: 'Email has been proved successfully'});
     } catch (e) {

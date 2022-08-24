@@ -9,7 +9,7 @@ router.use(validateIfBodyUndefined);
 router.post(
     "/auth/signup",
     [
-        verifySignUp.checkDuplicateUsernameOrEmail,
+        verifySignUp.checkDuplicateEmail,
         verifySignUp.checkRolesExisted
     ],
     controller.signup
@@ -18,7 +18,7 @@ router.post(
 router.post(
     "/auth/registrate_master",
     [
-        verifySignUp.checkDuplicateUsernameOrEmail,
+        verifySignUp.checkDuplicateEmail,
         verifySignUp.checkRolesExisted
     ],
     controller.createMasterAccount

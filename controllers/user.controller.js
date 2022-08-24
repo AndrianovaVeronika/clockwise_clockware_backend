@@ -1,6 +1,9 @@
 const logger = require("../utils/logger");
-const {User, Role, Sequelize} = require('../models');
+const {User, Role, Sequelize, Code} = require('../models');
 const {getBcryptedPassword} = require("../services/bcrypt.service");
+const {createUserAccount} = require("../services/account.service");
+const {generateShortCode} = require("../services/shortCode.service");
+const {sendTemporaryPasswordMail} = require("../services/mail.service");
 const Op = Sequelize.Op;
 
 // Find all users
@@ -96,32 +99,15 @@ exports.delete = async (req, res) => {
 
 //Creates user with specified roles, such as 'admin'
 exports.create = async (req, res) => {
-    logger.info('Creating user with specified roles...')
-    const newUser = {
-        username: req.body.username,
-        email: req.body.email,
-        password: getBcryptedPassword(req.body.password, 8)
-    }
+    logger.info('Creating user with specified roles...');
     try {
-        const user = await User.create(newUser);
-        if (req.body.roles) {
-            const roles = await Role.findAll({
-                where: {
-                    name: {
-                        [Op.or]: req.body.roles
-                    }
-                }
-            });
-            await user.setRoles(roles);
-        } else {
-            await user.setRoles([1]);
-        }
-
-        logger.info('New user created!');
-        const createdUserWithRoles = await User.findByPk(user.id, {
-            attributes: {exclude: ['password']}
-        });
-        return res.status(200).send(createdUserWithRoles);
+        logger.info('Creating new user...');
+        const createdUser = await createUserAccount(req.body);
+        const shortCode = generateShortCode();
+        await Code.create({verificationCode: shortCode, userId: createdUser.id});
+        await sendTemporaryPasswordMail(shortCode, createdUser.email);
+        logger.info('New user has been created');
+        return res.status(200).send(createdUser);
     } catch (e) {
         logger.info('Error in signup');
         return res.status(500).send({message: e.message});

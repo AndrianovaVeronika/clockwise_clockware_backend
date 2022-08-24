@@ -1,7 +1,7 @@
 const logger = require("../utils/logger");
 const db = require('../models');
 const {User} = require("../models");
-const {parseTimeStringToInt, parseIntToTimeString} = require("../services/time.service");
+const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
 const Order = db.Order;
 
 ifDateTimeAppropriate = async (req, res, next) => {
@@ -26,7 +26,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
 ifUserCreated = async (req, res, next) => {
     logger.info('Verifying if such user already exist...');
     const userToFind = {
-        username: req.body.username,
+        name: req.body.name,
         email: req.body.email
     }
     try {

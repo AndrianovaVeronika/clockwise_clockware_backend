@@ -1,33 +1,21 @@
-const {User, ClockType, Master, City, Order, Sequelize} = require('../models');
+const {User, Code, ClockType, Master, City, Order, Sequelize} = require('../models');
 const logger = require("../utils/logger");
 const moment = require("moment");
+const {createMasterAccount} = require("../services/account.service");
+const {generateShortCode} = require("../services/shortCode.service");
+const {sendTemporaryPasswordMail} = require("../services/mail.service");
 const Op = Sequelize.Op;
 
+//Creates master with account
 exports.create = async (req, res) => {
-// Validate request
-    logger.info('Creating master...');
-    const newMaster = {
-        name: req.body.name,
-        rating: req.body.rating
-    };
+    logger.info('Creating new master...');
     try {
-        // Save in the database
-        const master = await Master.create(newMaster);
-        const cities = await City.findAll({
-            where: {
-                name: {
-                    [Op.or]: req.body.cities
-                }
-            }
-        })
-        await master.setCities(cities);
-        logger.info('Master created!');
-        return res.status(201).send({
-            id: master.id,
-            name: master.name,
-            rating: master.rating,
-            cities: req.body.cities
-        });
+        const createdMaster = await createMasterAccount(req.body);
+        const shortCode = generateShortCode();
+        await Code.create({verificationCode: shortCode, userId: createdMaster.user.id});
+        await sendTemporaryPasswordMail(shortCode,createdMaster.user.email);
+        logger.info('New master has been created');
+        return res.status(201).send(createdMaster);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
