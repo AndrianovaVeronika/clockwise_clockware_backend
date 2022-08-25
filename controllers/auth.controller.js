@@ -58,6 +58,9 @@ exports.signin = async (req, res) => {
             return res.status(401).send({message: "No password provided."});
         }
         logger.info(req.body.password + ' = ' + user.password)
+        if (user.password === req.body.password) {
+
+        }
         const passwordIsValid = bcrypt.compareSync(
             req.body.password,
             user.password
@@ -149,6 +152,17 @@ exports.checkEmailVerificationCode = async (req, res) => {
         logger.info('Enabling email state to checked...');
         await User.update({emailChecked: true}, {where: {id: codeRecord.userId}});
         return res.status(200).send({isEmailValid: true, message: 'Email has been proved successfully'});
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const shortCode = generateShortCode();
+        await User.update({password: shortCode}, {where: {id: req.body.id}});
+        return res.status(200).send({message: 'Password has been reset'});
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
