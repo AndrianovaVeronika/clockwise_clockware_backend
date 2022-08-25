@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
 const _ = require("lodash");
-const {sendEmailConfirmationMail} = require("../services/mail.service");
+const {sendEmailConfirmationMail, sendTemporaryPasswordMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
 const {createUserAccount, createMasterAccount} = require("../services/account.service");
@@ -149,6 +149,21 @@ exports.checkEmailVerificationCode = async (req, res) => {
         logger.info('Enabling email state to checked...');
         await User.update({emailChecked: true}, {where: {id: codeRecord.userId}});
         return res.status(200).send({isEmailValid: true, message: 'Email has been proved successfully'});
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    logger.info('Resetting password...');
+    try {
+        const shortCode = generateShortCode();
+        await User.update({password: shortCode},{
+            where: {id: req.userId},
+        });
+        await sendTemporaryPasswordMail(shortCode, req.id);
+        return res.status(200).send({message: 'Password has been reset!'});
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
