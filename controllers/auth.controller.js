@@ -6,10 +6,11 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
 const _ = require("lodash");
-const {sendEmailConfirmationMail} = require("../services/mail.service");
+const {sendEmailConfirmationMail, sendTemporaryPasswordMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
 const {createUserAccount, createMasterAccount} = require("../services/account.service");
+const {getBcryptedPassword} = require("../services/bcrypt.service");
 
 //Creates user account
 exports.registerUser = async (req, res) => {
@@ -56,10 +57,6 @@ exports.signin = async (req, res) => {
         if (!req.body.password) {
             logger.error("No password provided.");
             return res.status(401).send({message: "No password provided."});
-        }
-        logger.info(req.body.password + ' = ' + user.password)
-        if (user.password === req.body.password) {
-
         }
         const passwordIsValid = bcrypt.compareSync(
             req.body.password,
@@ -159,9 +156,14 @@ exports.checkEmailVerificationCode = async (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
+    logger.info('Resetting password...');
     try {
         const shortCode = generateShortCode();
-        await User.update({password: shortCode}, {where: {id: req.body.id}});
+        for (const recipientKey in req.body.recipient) {
+            logger.info(recipientKey + ': ' + req.body.recipient[recipientKey])
+        }
+        await User.update({password: getBcryptedPassword(shortCode)}, {where: {id: req.body.recipient.id}});
+        await sendTemporaryPasswordMail(shortCode, req.body.recipient.email);
         return res.status(200).send({message: 'Password has been reset'});
     } catch (e) {
         logger.error(e.message);
