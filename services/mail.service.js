@@ -46,12 +46,11 @@ const sendTemporaryPasswordMail = async (shortCode, recipientEmail) => {
     await sendStandardMail({
         to: recipientEmail,
         subject: 'Temporary password',
-        text: 'Your temporary password is ' + shortCode + '. Make sure to login and reset your password to change into your own one!'
+        html: '<p>Your temporary password is <b>' + shortCode + '</b>. Make sure to login and reset your password to change into your own one!</p>'
     });
 }
 
 module.exports = {
-    sendStandardMail,
     sendEmailConfirmationMail,
     sendTemporaryPasswordMail
 }

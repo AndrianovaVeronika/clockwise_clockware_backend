@@ -16,5 +16,4 @@ router.get("/masters/:id", masterController.findOne);
 router.get('/access/user', [authJwt.verifyToken], authController.userAccess);
 router.get('/verify/email/:code', authController.checkEmailVerificationCode);
 
-
 module.exports = router;

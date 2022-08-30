@@ -84,6 +84,7 @@ exports.signin = async (req, res) => {
             email: user.email,
             roles: authorities,
             emailChecked: user.emailChecked,
+            isPasswordTemporary: user.isPasswordTemporary,
             accessToken: token
         });
     } catch (e) {
@@ -113,6 +114,7 @@ exports.userAccess = async (req, res) => {
             name: user.name,
             email: user.email,
             roles: authorities,
+            isPasswordTemporary: user.isPasswordTemporary,
             emailChecked: user.emailChecked,
         });
     } catch (e) {
@@ -156,17 +158,27 @@ exports.checkEmailVerificationCode = async (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
-    logger.info('Resetting password...');
+    logger.info('Resetting pass word...');
     try {
+        const user = await User.findByPk(req.params.id);
         const shortCode = generateShortCode();
-        for (const recipientKey in req.body.recipient) {
-            logger.info(recipientKey + ': ' + req.body.recipient[recipientKey])
-        }
-        await User.update({password: getBcryptedPassword(shortCode)}, {where: {id: req.body.recipient.id}});
-        await sendTemporaryPasswordMail(shortCode, req.body.recipient.email);
+        await User.update({password: getBcryptedPassword(shortCode)}, {where: {id: user.id}});
+        await sendTemporaryPasswordMail(shortCode, user.email);
+        logger.info('Password has been reset');
         return res.status(200).send({message: 'Password has been reset'});
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
     }
 }
+
+// exports.changePassword = async (req, res) => {
+//     logger.info('Changing password...');
+//     try {
+//         const user = await User.findByPk(req.params.id);
+//         await User.update({password: getBcryptedPassword(req.password)}, {where: {id: user.id}});
+//     } catch (e) {
+//         logger.error(e.message);
+//         return res.status(500).send({message: e.message});
+//     }
+// }

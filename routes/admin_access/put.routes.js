@@ -13,6 +13,6 @@ router.put("/masters/:id", masterController.update);
 router.put("/orders/:id", orderController.update);
 router.put("/users/:id", userController.update);
 
-router.put("/reset/password", authController.resetPassword);
+router.put("/reset/password/:id", authController.resetPassword);
 
 module.exports = router;

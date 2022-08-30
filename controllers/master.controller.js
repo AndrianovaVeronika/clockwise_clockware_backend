@@ -10,8 +10,8 @@ const Op = Sequelize.Op;
 exports.create = async (req, res) => {
     logger.info('Creating new master...');
     try {
-        const createdMaster = await createMasterAccount(req.body);
         const shortCode = generateShortCode();
+        const createdMaster = await createMasterAccount({...req.body, password: shortCode, isPasswordTemporary: true});
         await Code.create({verificationCode: shortCode, userId: createdMaster.user.id});
         await sendTemporaryPasswordMail(shortCode,createdMaster.user.email);
         logger.info('New master has been created');

@@ -4,7 +4,7 @@ const {Master, City} = require("../models");
 const User = db.User;
 const Op = db.Sequelize.Op;
 
-const createAccount = async (name, email, password, rolesNames) => {
+const createAccount = async (name, email, password, rolesNames, isPasswordTemporary) => {
     const roles = [];
     for (const rolesKey in db.ROLES) {
         if (rolesNames.includes(db.ROLES[rolesKey])) {
@@ -14,7 +14,8 @@ const createAccount = async (name, email, password, rolesNames) => {
     const newUser = {
         name: name,
         email: email,
-        password: getBcryptedPassword(password, 8)
+        password: getBcryptedPassword(password, 8),
+        isPasswordTemporary
     }
     const user = await User.create(newUser);
     await user.setRoles(roles);
@@ -23,12 +24,12 @@ const createAccount = async (name, email, password, rolesNames) => {
     });
 };
 
-exports.createUserAccount = async ({name, email, password}) => {
-    return await createAccount(name, email, password, ['user']);
+exports.createUserAccount = async ({name, email, password, isPasswordTemporary}) => {
+    return await createAccount(name, email, password, ['user'], isPasswordTemporary);
 };
 
-exports.createMasterAccount = async ({name, email, cities, password, rating}) => {
-    const createdUser = await createAccount(name, email, password, ['master']);
+exports.createMasterAccount = async ({name, email, cities, password, rating, isPasswordTemporary}) => {
+    const createdUser = await createAccount(name, email, password, ['master'], isPasswordTemporary);
     const master = await Master.create({name: name, rating: rating, userId: createdUser.id});
     const masterCities = await City.findAll({
         where: {
@@ -37,7 +38,7 @@ exports.createMasterAccount = async ({name, email, cities, password, rating}) =>
             }
         }
     });
-    master.setCities(masterCities);
+    await master.setCities(masterCities);
     return {user: createdUser, master: {...master, cities}};
 };
 

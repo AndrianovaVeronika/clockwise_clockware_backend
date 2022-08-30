@@ -51,11 +51,12 @@ exports.findOne = async (req, res) => {
 
 // Update a user by the id in the request
 exports.update = async (req, res) => {
-    const id = req.params.id;
+    const id = req.userId || req.params.id;
     logger.info(`Updating user with id=${id}...`);
     const userUpdateValues = req.body;
     if (userUpdateValues.password) {
         userUpdateValues.password = getBcryptedPassword(req.body.password, 8);
+        userUpdateValues.isPasswordTemporary = false;
     }
     try {
         await User.update(userUpdateValues, {
@@ -102,7 +103,7 @@ exports.create = async (req, res) => {
     logger.info('Creating user with specified roles...');
     try {
         logger.info('Creating new user...');
-        const createdUser = await createUserAccount(req.body);
+        const createdUser = await createUserAccount({...req.body, isPasswordTemporary: true});
         const shortCode = generateShortCode();
         await Code.create({verificationCode: shortCode, userId: createdUser.id});
         await sendTemporaryPasswordMail(shortCode, createdUser.email);
