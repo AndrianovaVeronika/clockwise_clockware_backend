@@ -4,6 +4,7 @@ const validateIfBodyUndefined = require("./validateIfBodyUndefined");
 const ifObjectAssignedToOrder = require("./ifObjectAssignedToOrder");
 const orderValidators = require("./orderValidators");
 const priceValidators = require("./priceValidators");
+const checkUserData = require("./checkUserData");
 
 module.exports = {
     authJwt,
@@ -11,5 +12,6 @@ module.exports = {
     orderValidators,
     validateIfBodyUndefined,
     ifObjectAssignedToOrder,
-    priceValidators
+    priceValidators,
+    checkUserData
 };
