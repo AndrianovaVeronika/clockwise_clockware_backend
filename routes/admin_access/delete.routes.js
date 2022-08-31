@@ -3,6 +3,7 @@ const cityController = require('../../controllers/city.controller');
 const masterController = require("../../controllers/master.controller");
 const orderController = require("../../controllers/order.controller");
 const userController = require("../../controllers/user.controller");
+const priceController = require("../../controllers/price.controller");
 const ifOrderAssignedTo = require("../../validators/ifObjectAssignedToOrder");
 
 router.delete("/cities/:id", [ifOrderAssignedTo.city], cityController.delete);
@@ -12,5 +13,7 @@ router.delete("/masters/:id", [ifOrderAssignedTo.master], masterController.delet
 router.delete("/orders/:id", orderController.delete);
 
 router.delete("/users/:id", [ifOrderAssignedTo.user], userController.delete);
+
+router.delete("/prices/:id", priceController.delete);
 
 module.exports = router;
