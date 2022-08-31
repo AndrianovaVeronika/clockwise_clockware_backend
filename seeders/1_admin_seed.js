@@ -5,9 +5,10 @@ module.exports = {
     async up(queryInterface, Sequelize) {
         return queryInterface.bulkInsert('Users', [
             {
-                "username": process.env.INITIAL_ADMIN_USERNAME,
-                "password": getBcryptedPassword(process.env.INITIAL_ADMIN_PASSWORD),
-                "email": process.env.INITIAL_ADMIN_EMAIL,
+                username: process.env.INITIAL_ADMIN_USERNAME,
+                password: getBcryptedPassword(process.env.INITIAL_ADMIN_PASSWORD),
+                email: process.env.INITIAL_ADMIN_EMAIL,
+                emailChecked: true,
                 createdAt: new Date(),
                 updatedAt: new Date()
             }

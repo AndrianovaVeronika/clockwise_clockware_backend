@@ -27,7 +27,7 @@ Object.keys(db).forEach(modelName => {
     }
 });
 
-db.ROLES = ["user", "admin", "master"];
+db.ROLES = {1: "user", 2: "admin", 3: "master"};
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

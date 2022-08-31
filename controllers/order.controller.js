@@ -25,9 +25,9 @@ exports.create = async (req, res) => {
         const city = await City.findByPk(newOrder.cityId);
         const clockType = await ClockType.findByPk(newOrder.clockTypeId);
         const master = await Master.findByPk(newOrder.masterId);
-        logger.info('Building up mail...')
+        logger.info('Building up mail...');
         const mailData = {
-            username: user.username,
+            name: user.name,
             email: user.email,
             clockType: clockType.name,
             master: master.name,
@@ -71,7 +71,7 @@ exports.findAll = async (req, res) => {
                 id: order?.id,
                 date: order?.date,
                 time: order?.time,
-                username: order?.User?.username,
+                name: order?.User?.name,
                 email: order?.User?.email,
                 clockType: order?.ClockType?.name,
                 city: order?.City?.name,
@@ -98,14 +98,14 @@ exports.findOne = async (req, res) => {
                 message: `Cannot find order with id=${id}.`
             });
         }
-        order.username = order.User.username;
+        order.name = order.User.name;
         order.email = order.User.email;
         logger.info('Order have been found!');
         return res.status(200).send({
             id: order?.id,
             date: order?.date,
             time: order?.time,
-            username: order?.User?.username,
+            name: order?.User?.name,
             email: order?.User?.email,
             clockTypeId: order?.clockTypeId,
             cityId: order?.cityId,
@@ -133,7 +133,7 @@ exports.update = async (req, res) => {
             id: order.id,
             date: order.date,
             time: order.time,
-            username: order.User.username,
+            name: order.User.name,
             email: order.User.email,
             clockType: order.ClockType.name,
             city: order.City.name,

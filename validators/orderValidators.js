@@ -1,7 +1,9 @@
 const logger = require("../utils/logger");
 const db = require('../models');
 const {User} = require("../models");
-const {parseTimeStringToInt, parseIntToTimeString} = require("../services/time.service");
+const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
+const jwt = require("jsonwebtoken");
+const config = require("../config/auth.config.js");
 const Order = db.Order;
 
 ifDateTimeAppropriate = async (req, res, next) => {
@@ -26,7 +28,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
 ifUserCreated = async (req, res, next) => {
     logger.info('Verifying if such user already exist...');
     const userToFind = {
-        username: req.body.username,
+        name: req.body.name,
         email: req.body.email
     }
     try {
@@ -39,7 +41,14 @@ ifUserCreated = async (req, res, next) => {
             await user.setRoles([1]);
             logger.info('User has been created as new. Heading next...');
         } else {
-            logger.info('User has been found. Heading next...');
+            const token = req.headers["x-access-token"];
+            if (!token) {
+                if (user.emailChecked) {
+                    return res.status(400).send({message: 'Log in before placing new order!'});
+                } else {
+                    return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter and log in'});
+                }
+            }
         }
         req.body.userId = user.id;
         next();
