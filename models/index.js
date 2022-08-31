@@ -19,6 +19,7 @@ db.Order = require('./order')(sequelize, Sequelize.DataTypes);
 db.Role = require('./role')(sequelize, Sequelize.DataTypes);
 db.User = require('./user')(sequelize, Sequelize.DataTypes);
 db.Code = require('./code')(sequelize, Sequelize.DataTypes);
+db.Price = require('./price')(sequelize, Sequelize.DataTypes);
 
 Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
