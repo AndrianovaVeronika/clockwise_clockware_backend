@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             City.hasMany(models.Order, {foreignKey: 'cityId'});
             City.belongsToMany(models.Master, {through: 'MasterCities'});
-            City.hasOne(models.Price, {foreignKey: 'cityId'});
         }
     }
 
@@ -15,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             unique: true
+        },
+        price: {
+            type: DataTypes.DOUBLE
         }
     }, {
         sequelize,
