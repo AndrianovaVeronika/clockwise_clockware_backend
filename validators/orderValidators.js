@@ -32,21 +32,24 @@ ifUserCreated = async (req, res, next) => {
         email: req.body.email
     }
     try {
-        const userObj = await User.findOrCreate({
+        const [user, isUserCreated] = await User.findOrCreate({
             where: userToFind,
             defaults: userToFind
         });
-        const [user, isUserCreated] = userObj;
         if (isUserCreated) {
             await user.setRoles([1]);
             logger.info('User has been created as new. Heading next...');
         } else {
             const token = req.headers["x-access-token"];
-            if (!token) {
+            logger.info(token)
+            if (!(token===null)) {
+                logger.info('User is not authorized');
                 if (user.emailChecked) {
+                    logger.error('Log in before placing new order!');
                     return res.status(400).send({message: 'Log in before placing new order!'});
                 } else {
-                    return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter and log in'});
+                    logger.error('Your email is unchecked. Please check your email for confirmation letter');
+                    return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter'});
                 }
             }
         }

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.User;
+const Master = db.Master;
 const logger = require("../utils/logger");
 
 verifyToken = (req, res, next) => {
@@ -57,9 +58,37 @@ isAdmin = async (req, res, next) => {
     }
 };
 
+isMaster = async (req, res, next) => {
+    try {
+        logger.info("Checking if user master...");
+        // if (req.headers['special_admin_key'] === process.env.SPECIAL_ADMIN_KEY) {
+        //     logger.info("User provided special admin key. Heading next...");
+        //     next();
+        //     return;
+        // }
+        const user = await User.findByPk(req.userId);
+        const roles = await user.getRoles();
+        for (let i = 0; i < roles.length; i++) {
+            if (roles[i].name === 'master') {
+                logger.info("User is master.");
+                const master = await Master.findOne({where: {userId: user.id}});
+                req.masterId = master.id;
+                next();
+                return;
+            }
+        }
+        logger.info("Require master Role!");
+        return res.status(403).send({message: "Require master Role!"});
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+};
+
 const authJwt = {
     verifyToken: verifyToken,
     isAdmin: isAdmin,
+    isMaster: isMaster
 };
 
 module.exports = authJwt;
