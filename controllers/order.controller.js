@@ -1,6 +1,7 @@
 const db = require('../models');
 const logger = require("../utils/logger");
-const {sendMail, sendOrderConfirmationMail} = require("../services/mail.service");
+const {sendOrderConfirmationMail} = require("../services/mail.service");
+const {countPrice} = require("../services/price.service");
 const Order = db.Order;
 const User = db.User;
 const City = db.City;
@@ -23,6 +24,7 @@ const getOrderNecessaryData = order => ({
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating order...');
+    const countedPrice = await countPrice(req.body.cityId, req.body.clockTypeId);
     const newOrder = {
         date: req.body.date,
         time: req.body.time,
@@ -30,7 +32,7 @@ exports.create = async (req, res) => {
         cityId: req.body.cityId,
         clockTypeId: req.body.clockTypeId,
         masterId: req.body.masterId,
-        price: req.body.price
+        price: countedPrice
     };
     try {
         const order = await Order.create(newOrder);

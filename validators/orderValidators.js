@@ -42,7 +42,7 @@ ifUserCreated = async (req, res, next) => {
         } else {
             const token = req.headers["x-access-token"];
             logger.info(token)
-            if (!(token===null)) {
+            if (token === null) {
                 logger.info('User is not authorized');
                 if (user.emailChecked) {
                     logger.error('Log in before placing new order!');
@@ -51,6 +51,16 @@ ifUserCreated = async (req, res, next) => {
                     logger.error('Your email is unchecked. Please check your email for confirmation letter');
                     return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter'});
                 }
+            } else {
+                jwt.verify(token, config.secret, async (err, decoded) => {
+                    if (err) {
+                        logger.error("Authorization error!");
+                        return res.status(401).send({message: "Authorization error!"});
+                    }
+                    if (decoded.id !== user.id) {
+                        res.status(400).send({message: "User authorized but name and email belong to another user"});
+                    }
+                });
             }
         }
         req.body.userId = user.id;
