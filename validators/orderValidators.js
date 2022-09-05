@@ -40,26 +40,26 @@ ifUserCreated = async (req, res, next) => {
             await user.setRoles([1]);
             logger.info('User has been created as new. Heading next...');
         } else {
+            logger.info('Such user has been found. Checking authorization...');
             const token = req.headers["x-access-token"];
-            logger.info(token)
-            if (token === null) {
-                logger.info('User is not authorized');
-                if (user.emailChecked) {
-                    logger.error('Log in before placing new order!');
-                    return res.status(400).send({message: 'Log in before placing new order!'});
-                } else {
-                    logger.error('Your email is unchecked. Please check your email for confirmation letter');
-                    return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter'});
+            const error = {};
+            jwt.verify(token, config.secret, async (err, decoded) => {
+                if (err) {
+                    logger.info('error');
+                    if (user.emailChecked) {
+                        error.message = 'Log in before placing new order!';
+                    } else {
+                        error.message = 'Your email is unchecked. Please check your email for confirmation letter';
+                    }
+                } else if (decoded?.id !== user.id) {
+                    error.message = "User authorized but name and email belong to another user";
                 }
-            } else {
-                jwt.verify(token, config.secret, async (err, decoded) => {
-                    if (err) {
-                        logger.error("Authorization error!");
-                        return res.status(401).send({message: "Authorization error!"});
-                    }
-                    if (decoded.id !== user.id) {
-                        res.status(400).send({message: "User authorized but name and email belong to another user"});
-                    }
+            });
+            if (error.message) {
+                logger.error(error.message);
+                return res.status(401).send({
+                    message: error.message,
+                    code: 401
                 });
             }
         }
