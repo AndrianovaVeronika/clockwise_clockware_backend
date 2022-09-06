@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         date: DataTypes.DATEONLY,
         time: DataTypes.TIME,
         price: DataTypes.DOUBLE,
-        isCompleted: DataTypes.BOOLEAN
+        isCompleted: DataTypes.BOOLEAN,
+        rating: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'Order',

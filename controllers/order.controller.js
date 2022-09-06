@@ -18,7 +18,8 @@ const getOrderNecessaryData = order => ({
     date: order.date,
     time: order.time,
     price: order.price,
-    isCompleted: order.isCompleted
+    isCompleted: order.isCompleted,
+    rating: order.rating
 });
 
 exports.create = async (req, res) => {
@@ -143,7 +144,7 @@ exports.findAllCurrentMasterOrders = async (req, res) => {
     const id = req.masterId;
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
-        const orders = await Order.findAll({where:{masterId: id}, include: [User, ClockType, City, Master]})
+        const orders = await Order.findAll({where: {masterId: id}, include: [User, ClockType, City, Master]})
         logger.info('Orders retrieved!');
         return res.status(200).send(orders.map(getOrderNecessaryData));
     } catch (e) {
@@ -151,3 +152,26 @@ exports.findAllCurrentMasterOrders = async (req, res) => {
         return res.status(500).send({message: e.message});
     }
 }
+
+exports.rateOrder = async (req, res) => {
+    logger.info('Rating order...');
+    try {
+        const id = req.params.id;
+        const targetOrder = await Order.findByPk(id, {include: [User, City, ClockType, Master]});
+        if (req.userId !== targetOrder.userId) {
+            logger.error('User has no access to update order');
+            res.status(400).send({message: 'Authorized user has no access to update order'});
+        }
+        const newRating = targetOrder.Master.rating ?
+            Math.round((req.body.rating + targetOrder.Master.rating) / 2) : req.body.rating;
+        await Master.update({rating: newRating}, {where: {id: targetOrder.masterId}});
+        await Order.update({rating: req.body.rating}, {where: {id: targetOrder.id}});
+        logger.info(newRating)
+        logger.info(req.body.rating)
+        logger.info('Order is rated. Master rating is updated.');
+        return res.status(200).send(getOrderNecessaryData({...targetOrder, rating: req.body.rating}));
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+};
