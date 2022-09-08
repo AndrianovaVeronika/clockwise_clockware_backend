@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const orderController = require("../../controllers/order.controller");
-const {validateIfBodyUndefined, authJwt} = require("../../validators");
+const {ifBodyUndefined, verifyTokenAndExtractUserId} = require("../../validators");
 
-router.use(validateIfBodyUndefined);
+router.use(ifBodyUndefined);
 
-router.get('/current_user/orders', [authJwt.verifyToken], orderController.findAllCurrentUserOrders);
+router.get('/current_user/orders',
+    [verifyTokenAndExtractUserId],
+    orderController.findAllCurrentUserOrders);
 
 module.exports = router;

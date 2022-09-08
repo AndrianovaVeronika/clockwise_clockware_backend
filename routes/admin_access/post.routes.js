@@ -2,13 +2,12 @@ const router = require('express').Router();
 const cityController = require('../../controllers/city.controller');
 const masterController = require("../../controllers/master.controller");
 const userController = require("../../controllers/user.controller");
-const priceController = require("../../controllers/price.controller");
-const {validateIfBodyUndefined, checkUserData, priceValidators} = require('../../validators');
+const {ifBodyUndefined, userValidator} = require('../../validators');
 
-router.use(validateIfBodyUndefined);
+router.use(ifBodyUndefined);
+
 router.post("/cities", cityController.create);
-router.post("/masters", [checkUserData.checkUserName, checkUserData.checkDuplicateEmail], masterController.create);
-router.post("/users", [checkUserData.checkDuplicateEmail, checkUserData.checkUserName, checkUserData.checkUserPassword], userController.create);
-router.post("/prices", [priceValidators.checkNewPriceValues], priceController.create);
+router.post("/masters", [userValidator.checkUserName, userValidator.checkDuplicateEmail], masterController.create);
+router.post("/users", [userValidator.checkDuplicateEmail, userValidator.checkUserName, userValidator.checkUserPassword], userController.create);
 
 module.exports = router;

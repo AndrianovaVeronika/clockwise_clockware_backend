@@ -1,7 +1,7 @@
 const logger = require("../utils/logger");
-const {Order, Master} = require("../models");
+const {Order} = require("../models");
 
-exports.ifOrderBelongToMaster = async (req, res, next) => {
+ifOrderBelongToMaster = async (req, res, next) => {
     try {
         logger.info("Checking if order belong to master...");
         const order = await Order.findByPk(req.params.id);
@@ -18,3 +18,5 @@ exports.ifOrderBelongToMaster = async (req, res, next) => {
         return res.status(500).send({message: e.message});
     }
 };
+
+module.exports = ifOrderBelongToMaster;

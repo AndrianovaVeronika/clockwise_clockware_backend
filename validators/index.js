@@ -1,17 +1,17 @@
-const authJwt = require("./authJwt");
-const verifySignUp = require("./checkUserData");
-const validateIfBodyUndefined = require("./validateIfBodyUndefined");
 const ifObjectAssignedToOrder = require("./ifObjectAssignedToOrder");
-const orderValidators = require("./orderValidators");
-const checkUserData = require("./checkUserData");
-const priceValidators = require("./priceValidators");
+const ifBodyUndefined = require("./ifBodyUndefined");
+const orderValidator = require("./order.validator");
+const userValidator = require("./user.validator");
+const roleValidator = require("./roles.validator");
+const verifyTokenAndExtractUserId = require("./verifyTokenAndExtractUserId");
+const ifOrderBelongToMaster = require("./ifOrderBelongToMaster");
 
 module.exports = {
-    authJwt,
-    verifySignUp,
-    orderValidators,
-    validateIfBodyUndefined,
+    verifyTokenAndExtractUserId,
+    orderValidator,
     ifObjectAssignedToOrder,
-    checkUserData,
-    priceValidators
+    ifOrderBelongToMaster,
+    ifBodyUndefined,
+    userValidator,
+    roleValidator
 };

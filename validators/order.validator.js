@@ -1,10 +1,6 @@
 const logger = require("../utils/logger");
-const db = require('../models');
-const {User} = require("../models");
+const {Order} = require("../models");
 const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
-const jwt = require("jsonwebtoken");
-const config = require("../config/auth.config.js");
-const Order = db.Order;
 
 ifDateTimeAppropriate = async (req, res, next) => {
     logger.info('Verifying if date and time are correct...');
@@ -25,7 +21,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
     next();
 }
 
-ifOrderCanBePlaced = async (req, res, next) => {
+ifOrderInterrogates = async (req, res, next) => {
     logger.info('Verifying order credentials...');
     const timeInNum = parseInt(req.body.time.substring(0, 2));
     //check if order exist
@@ -56,4 +52,7 @@ ifOrderCanBePlaced = async (req, res, next) => {
     }
 }
 
-module.exports = [ifDateTimeAppropriate, ifOrderCanBePlaced];
+module.exports = {
+    ifDateTimeAppropriate,
+    ifOrderInterrogates
+};

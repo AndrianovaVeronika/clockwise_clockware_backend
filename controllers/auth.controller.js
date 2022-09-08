@@ -5,7 +5,6 @@ const Code = db.Code;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
-const _ = require("lodash");
 const {sendEmailConfirmationMail, sendTemporaryPasswordMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
@@ -172,7 +171,7 @@ exports.resetPassword = async (req, res) => {
     }
 }
 
-exports.isUserCreated = async (req, res) => {
+exports.createUserOrFindIfAuthorized = async (req, res) => {
     logger.info('Verifying if such user already exist...');
     const userToFind = {
         name: req.body.name,
