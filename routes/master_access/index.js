@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const putRouter = require('./put.routes');
 const getRouter = require('./get.routes');
+const putRouter = require('./put.routes');
 
-router.use('/', putRouter);
 router.use('/', getRouter);
+router.use('/', putRouter);
 
 module.exports = router;

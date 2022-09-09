@@ -5,7 +5,6 @@ const Code = db.Code;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const logger = require('../utils/logger');
-const _ = require("lodash");
 const {sendEmailConfirmationMail, sendTemporaryPasswordMail} = require("../services/mail.service");
 const {generateShortCode} = require("../services/shortCode.service");
 const moment = require("moment");
@@ -169,6 +168,52 @@ exports.resetPassword = async (req, res) => {
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
+    }
+}
+
+exports.createUserOrFindIfAuthorized = async (req, res) => {
+    logger.info('Verifying if such user already exist...');
+    const userToFind = {
+        name: req.body.name,
+        email: req.body.email
+    }
+    try {
+        const [user, isUserCreated] = await User.findOrCreate({
+            where: userToFind,
+            defaults: userToFind
+        });
+        if (isUserCreated) {
+            await user.setRoles([1]);
+            logger.info('User has been created as new. Heading next...');
+        } else {
+            logger.info('Such user has been found. Checking authorization...');
+            const token = req.headers["x-access-token"];
+            const error = {};
+            jwt.verify(token, config.secret, async (err, decoded) => {
+                if (err) {
+                    logger.info('error');
+                    if (user.emailChecked) {
+                        error.message = 'Log in before placing new order!';
+                    } else {
+                        error.message = 'Your email is unchecked. Please check your email for confirmation letter';
+                    }
+                } else if (decoded?.id !== user.id) {
+                    error.message = "User authorized but name and email belong to another user";
+                }
+            });
+            if (error.message) {
+                logger.error(error.message);
+                return res.status(401).send({
+                    message: error.message,
+                    code: 401
+                });
+            }
+        }
+        logger.info('User authorized or created as new');
+        res.status(200);
+    } catch (e) {
+        logger.error(e.message + ': Check user credentials.');
+        return res.status(400).send({message: e.message + ': Check user credentials.'});
     }
 }
 

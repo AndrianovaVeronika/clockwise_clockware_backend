@@ -29,7 +29,24 @@ const sendStandardMail = (data) => {
             logger.info('Mail `ve been sent');
         }
     });
-}
+};
+
+const sendOrderConfirmationMail = async (mailData) => {
+    logger.info('Sending order confirmation mail...');
+    let mail = '';
+    for (const key in mailData) {
+        if (key === 'isCompleted') {
+            continue;
+        }
+        // logger.info(key + ': ' + mailData[key]);
+        mail += '\n' + key + ': ' + mailData[key];
+    }
+    await sendStandardMail({
+        to: mailData.email,
+        subject: 'Order `ve been registered successfully',
+        text: 'Your order:\n' + mail,
+    });
+};
 
 const sendEmailConfirmationMail = async (shortCode, recipientEmail) => {
     logger.info('Sending email verification mail...');
@@ -40,7 +57,7 @@ const sendEmailConfirmationMail = async (shortCode, recipientEmail) => {
         subject: 'Email confirmation',
         html: html
     });
-}
+};
 
 const sendTemporaryPasswordMail = async (shortCode, recipientEmail) => {
     await sendStandardMail({
@@ -48,9 +65,10 @@ const sendTemporaryPasswordMail = async (shortCode, recipientEmail) => {
         subject: 'Temporary password',
         html: '<p>Your temporary password is <b>' + shortCode + '</b>. Make sure to login and reset your password to change into your own one!</p>'
     });
-}
+};
 
 module.exports = {
     sendEmailConfirmationMail,
-    sendTemporaryPasswordMail
-}
+    sendTemporaryPasswordMail,
+    sendOrderConfirmationMail
+};

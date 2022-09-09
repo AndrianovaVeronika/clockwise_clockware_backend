@@ -21,10 +21,8 @@ const getModelValidator = (model) => {
     };
 };
 
-const ifObjectAssignedToOrder = {
+module.exports = {
     city: getModelValidator('city'),
     master: getModelValidator('master'),
     user: getModelValidator('user')
 };
-
-module.exports = ifObjectAssignedToOrder;
