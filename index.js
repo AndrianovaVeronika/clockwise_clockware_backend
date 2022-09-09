@@ -3,8 +3,10 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 const db = require("./models");
+const masterRoutes = require('./routes/master_access');
 const adminRoutes = require('./routes/admin_access');
 const allRoutes = require('./routes/all_access');
+const userRoutes = require('./routes/user_access');
 const logger = require('./utils/logger');
 require('dotenv').config();
 
@@ -26,6 +28,8 @@ app.get("/", (req, res) => {
 });
 
 app.use('/', allRoutes);
+app.use('/', userRoutes);
+app.use('/', masterRoutes);
 app.use('/', adminRoutes);
 
 // listen for requests

@@ -1,32 +1,32 @@
 const router = require('express').Router();
 const orderController = require("../../controllers/order.controller");
-const {validateIfBodyUndefined, orderValidators, verifySignUp} = require("../../validators");
+const {ifBodyUndefined, orderValidator, userValidator} = require("../../validators");
 const masterController = require("../../controllers/master.controller");
 const controller = require("../../controllers/auth.controller");
+const authController = require("../../controllers/auth.controller");
 
-router.use(validateIfBodyUndefined);
+router.use(ifBodyUndefined);
 
 router.post(
-    "/auth/signup",
-    [
-        verifySignUp.checkDuplicateUsernameOrEmail,
-        verifySignUp.checkRolesExisted
-    ],
-    controller.signup
+    "/register/user",
+    [userValidator.checkDuplicateEmail, userValidator.checkUserName, userValidator.checkUserPassword],
+    controller.registerUser
 );
 
 router.post(
-    "/auth/registrate_master",
-    [
-        verifySignUp.checkDuplicateUsernameOrEmail,
-        verifySignUp.checkRolesExisted
-    ],
-    controller.createMasterAccount
+    "/register/master",
+    [userValidator.checkDuplicateEmail, userValidator.checkUserName, userValidator.checkUserPassword],
+    controller.registerMaster
 )
 
-router.post("/auth/signin", controller.signin);
+router.post("/signin", controller.signin);
 
-router.post("/orders", orderValidators, orderController.create);
+router.post("/orders",
+    [orderValidator.ifDateTimeAppropriate, orderValidator.ifOrderInterrogates],
+    orderController.create);
+
 router.post("/masters/available", masterController.findAllMastersAvailable);
+
+router.post('/verify/user/created', authController.createUserOrFindIfAuthorized);
 
 module.exports = router;

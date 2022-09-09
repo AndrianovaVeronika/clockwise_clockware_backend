@@ -1,57 +1,51 @@
 const db = require('../models');
 const logger = require("../utils/logger");
-const {sendMail} = require("../services/mail.service");
+const {sendOrderConfirmationMail} = require("../services/mail.service");
+const {countPrice} = require("../services/price.service");
 const Order = db.Order;
 const User = db.User;
 const City = db.City;
 const ClockType = db.ClockType;
 const Master = db.Master;
 
+const getOrderNecessaryData = order => ({
+    id: order.id,
+    name: order.User.name,
+    email: order.User.email,
+    clockType: order.ClockType.name,
+    master: order.Master.name,
+    city: order.City.name,
+    date: order.date,
+    time: order.time,
+    price: order.price,
+    isCompleted: order.isCompleted,
+    rating: order.rating
+});
+
 exports.create = async (req, res) => {
 // Validate request
     logger.info('Creating order...');
+    const countedPrice = await countPrice(req.body.cityId, req.body.clockTypeId);
     const newOrder = {
         date: req.body.date,
         time: req.body.time,
         userId: req.body.userId,
         cityId: req.body.cityId,
         clockTypeId: req.body.clockTypeId,
-        masterId: req.body.masterId
+        masterId: req.body.masterId,
+        price: countedPrice
     };
     try {
         const order = await Order.create(newOrder);
         logger.info('Order have been created');
-        const user = await User.findByPk(newOrder.userId);
-        const city = await City.findByPk(newOrder.cityId);
-        const clockType = await ClockType.findByPk(newOrder.clockTypeId);
-        const master = await Master.findByPk(newOrder.masterId);
-        logger.info('Building up mail...')
-        const mailData = {
-            username: user.username,
-            email: user.email,
-            clockType: clockType.name,
-            master: master.name,
-            city: city.name,
-            date: newOrder.date,
-            time: newOrder.time
-        };
-        let mail = '';
-        for (const key in mailData) {
-            // logger.info(key + ': ' + mailData[key]);
-            mail += '\n' + key + ': ' + mailData[key];
-        }
-        await sendMail({
-            to: mailData.email,
-            subject: 'Order `ve been registered successfully',
-            text: 'Your order:\n' + mail,
+        const createdOrder = await Order.findByPk(order.id, {
+            include: [User, City, ClockType, Master]
         });
+        //sending mail
+        const orderData = getOrderNecessaryData(createdOrder);
+        await sendOrderConfirmationMail(orderData);
         logger.info('Mail have been sent');
-        return res.status(201).send({
-            id: order?.id,
-            date: order?.date,
-            time: order?.time,
-            ...mailData
-        });
+        return res.status(201).send(orderData);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -66,18 +60,7 @@ exports.findAll = async (req, res) => {
             include: [User, ClockType, City, Master]
         });
         logger.info('Orders retrieved!');
-        return res.status(200).send(orders.map(order => {
-            return {
-                id: order?.id,
-                date: order?.date,
-                time: order?.time,
-                username: order?.User?.username,
-                email: order?.User?.email,
-                clockType: order?.ClockType?.name,
-                city: order?.City?.name,
-                master: order?.Master?.name
-            }
-        }));
+        return res.status(200).send(orders.map(getOrderNecessaryData));
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -90,7 +73,7 @@ exports.findOne = async (req, res) => {
     logger.info(`Finding order with id=${id}...`);
     try {
         const order = await Order.findByPk(id, {
-            include: [User]
+            include: [User, ClockType, City, Master]
         });
         if (!order) {
             logger.error(`Cannot find order with id=${id}`);
@@ -98,19 +81,8 @@ exports.findOne = async (req, res) => {
                 message: `Cannot find order with id=${id}.`
             });
         }
-        order.username = order.User.username;
-        order.email = order.User.email;
         logger.info('Order have been found!');
-        return res.status(200).send({
-            id: order?.id,
-            date: order?.date,
-            time: order?.time,
-            username: order?.User?.username,
-            email: order?.User?.email,
-            clockTypeId: order?.clockTypeId,
-            cityId: order?.cityId,
-            masterId: order?.masterId
-        });
+        return res.status(200).send(getOrderNecessaryData(order));
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -129,16 +101,7 @@ exports.update = async (req, res) => {
             include: [User, ClockType, City, Master]
         });
         logger.info("Order has been updated successfully!");
-        return res.status(200).send({
-            id: order.id,
-            date: order.date,
-            time: order.time,
-            username: order.User.username,
-            email: order.User.email,
-            clockType: order.ClockType.name,
-            city: order.City.name,
-            master: order.Master.name
-        });
+        return res.status(200).send(getOrderNecessaryData(order));
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -155,6 +118,58 @@ exports.delete = async (req, res) => {
         });
         logger.info("Order was deleted successfully!");
         return res.status(200).send({id: id});
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+};
+
+exports.findAllCurrentUserOrders = async (req, res) => {
+    const id = req.userId;
+    logger.info(`Retrieving all orders for user with id=${id}...`);
+    try {
+        const orders = await Order.findAll({
+            where: {userId: id},
+            include: [User, ClockType, City, Master],
+        });
+        logger.info('Orders retrieved!');
+        return res.status(200).send(orders.map(getOrderNecessaryData));
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+}
+
+exports.findAllCurrentMasterOrders = async (req, res) => {
+    const id = req.masterId;
+    logger.info(`Retrieving all orders for master with id=${id}...`);
+    try {
+        const orders = await Order.findAll({where: {masterId: id}, include: [User, ClockType, City, Master]})
+        logger.info('Orders retrieved!');
+        return res.status(200).send(orders.map(getOrderNecessaryData));
+    } catch (e) {
+        logger.error(e.message);
+        return res.status(500).send({message: e.message});
+    }
+}
+
+exports.rateOrder = async (req, res) => {
+    logger.info('Rating order...');
+    try {
+        const id = req.params.id;
+        const targetOrder = await Order.findByPk(id, {include: [User, City, ClockType, Master]});
+        if (req.userId !== targetOrder.userId) {
+            logger.error('User has no access to update order');
+            res.status(400).send({message: 'Authorized user has no access to update order'});
+        }
+        const newRating = targetOrder.Master.rating ?
+            Math.round((req.body.rating + targetOrder.Master.rating) / 2) : req.body.rating;
+        await Master.update({rating: newRating}, {where: {id: targetOrder.masterId}});
+        await Order.update({rating: req.body.rating}, {where: {id: targetOrder.id}});
+        logger.info(newRating)
+        logger.info(req.body.rating)
+        logger.info('Order is rated. Master rating is updated.');
+        return res.status(200).send(getOrderNecessaryData({...targetOrder, rating: req.body.rating}));
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});

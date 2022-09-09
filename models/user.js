@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     User.init({
-            username: {
+            name: {
                 type: DataTypes.STRING,
                 unique: true
             },
@@ -24,7 +24,11 @@ module.exports = (sequelize, DataTypes) => {
             password: DataTypes.STRING,
             emailChecked: {
                 type: DataTypes.BOOLEAN,
-                default: false
+                defaultValue: false
+            },
+            isPasswordTemporary: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
             }
         },
         {

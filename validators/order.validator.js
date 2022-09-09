@@ -1,8 +1,6 @@
 const logger = require("../utils/logger");
-const db = require('../models');
-const {User} = require("../models");
-const {parseTimeStringToInt, parseIntToTimeString} = require("../services/time.service");
-const Order = db.Order;
+const {Order} = require("../models");
+const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
 
 ifDateTimeAppropriate = async (req, res, next) => {
     logger.info('Verifying if date and time are correct...');
@@ -23,33 +21,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
     next();
 }
 
-ifUserCreated = async (req, res, next) => {
-    logger.info('Verifying if such user already exist...');
-    const userToFind = {
-        username: req.body.username,
-        email: req.body.email
-    }
-    try {
-        const userObj = await User.findOrCreate({
-            where: userToFind,
-            defaults: userToFind
-        });
-        const [user, isUserCreated] = userObj;
-        if (isUserCreated) {
-            await user.setRoles([1]);
-            logger.info('User has been created as new. Heading next...');
-        } else {
-            logger.info('User has been found. Heading next...');
-        }
-        req.body.userId = user.id;
-        next();
-    } catch (e) {
-        logger.error(e.message + ': Check user credentials.');
-        return res.status(400).send({message: e.message + ': Check user credentials.'});
-    }
-}
-
-ifOrderCanBePlaced = async (req, res, next) => {
+ifOrderInterrogates = async (req, res, next) => {
     logger.info('Verifying order credentials...');
     const timeInNum = parseInt(req.body.time.substring(0, 2));
     //check if order exist
@@ -80,4 +52,7 @@ ifOrderCanBePlaced = async (req, res, next) => {
     }
 }
 
-module.exports = [ifDateTimeAppropriate, ifUserCreated, ifOrderCanBePlaced];
+module.exports = {
+    ifDateTimeAppropriate,
+    ifOrderInterrogates
+};

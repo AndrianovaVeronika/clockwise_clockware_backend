@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node index.js",
     "migrate": "npx sequelize-cli db:migrate",
+    "migrate-undo": "npx sequelize-cli db:migrate:undo",
     "seed-all": "npx sequelize-cli db:seed:all",
     "drop-all": "node ./utils/dropTables.js",
     "migrate-initial": "npm run migrate && npm run seed-all"
