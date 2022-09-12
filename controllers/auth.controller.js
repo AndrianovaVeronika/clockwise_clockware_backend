@@ -184,6 +184,12 @@ exports.createUserOrFindIfAuthorized = async (req, res) => {
         });
         if (isUserCreated) {
             await user.setRoles([1]);
+            const shortCode = generateShortCode();
+            await sendTemporaryPasswordMail(shortCode, user.email);
+            await User.update({password: getBcryptedPassword(shortCode)}, {where: {id: user.id}});
+            const shortCode2 = generateShortCode();
+            await Code.create({verificationCode: shortCode2, userId: user.id});
+            await sendEmailConfirmationMail(shortCode2, user.email);
             logger.info('User has been created as new. Heading next...');
         } else {
             logger.info('Such user has been found. Checking authorization...');
@@ -210,7 +216,7 @@ exports.createUserOrFindIfAuthorized = async (req, res) => {
             }
         }
         logger.info('User authorized or created as new');
-        res.status(200);
+        res.status(200).send(user);
     } catch (e) {
         logger.error(e.message + ': Check user credentials.');
         return res.status(400).send({message: e.message + ': Check user credentials.'});
