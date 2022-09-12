@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer');
 const logger = require("../utils/logger");
 const config = require("../config/mail.config.js");
+const {generateShortCode} = require("./shortCode.service");
+const {Code, User} = require("../models");
+const {getBcryptedPassword} = require("../services/bcrypt.service");
 
 const transporter = nodemailer.createTransport(config);
 
@@ -48,23 +51,35 @@ const sendOrderConfirmationMail = async (mailData) => {
     });
 };
 
-const sendEmailConfirmationMail = async (shortCode, recipientEmail) => {
-    logger.info('Sending email verification mail...');
-    const link = '"' + process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + shortCode + '"';
-    const html = '<p>Click <a href=' + link + '>here</a> to prove your email. P.S. If link doesn`t work use it manually: ' + link + '</p>';
-    await sendStandardMail({
-        to: recipientEmail,
-        subject: 'Email confirmation',
-        html: html
-    });
+const sendEmailConfirmationMail = async (userId, userEmail) => {
+    try {
+        logger.info('Sending email verification mail...');
+        const code = generateShortCode();
+        await Code.create({verificationCode: code, userId: userId});
+        const link = '"' + process.env.EMAIL_CONFIRMATION_PAGE_LINK + '/' + code + '"';
+        const html = '<p>Click <a href=' + link + '>here</a> to prove your email. P.S. If link doesn`t work use it manually: ' + link + '</p>';
+        await sendStandardMail({
+            to: userEmail,
+            subject: 'Email confirmation',
+            html: html
+        });
+    } catch (err) {
+        logger.info('Send mail error: ', err);
+    }
 };
 
-const sendTemporaryPasswordMail = async (shortCode, recipientEmail) => {
-    await sendStandardMail({
-        to: recipientEmail,
-        subject: 'Temporary password',
-        html: '<p>Your temporary password is <b>' + shortCode + '</b>. Make sure to login and reset your password to change into your own one!</p>'
-    });
+const sendTemporaryPasswordMail = async (userId, userEmail) => {
+    try {
+        const code = generateShortCode();
+        await User.update({password: getBcryptedPassword(code), isPasswordTemporary: true}, {where: {id: userId}});
+        await sendStandardMail({
+            to: userEmail,
+            subject: 'Temporary password',
+            html: '<p>Your temporary password is <b>' + code + '</b>. Make sure to login and reset your password to change into your own one!</p>'
+        });
+    } catch (err) {
+        logger.info('Send mail error: ', err);
+    }
 };
 
 module.exports = {
