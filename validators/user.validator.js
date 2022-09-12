@@ -1,4 +1,4 @@
-const {User, ROLES} = require("../models");
+const {User} = require("../models");
 const logger = require("../utils/logger");
 
 checkDuplicateEmail = async (req, res, next) => {
@@ -35,10 +35,10 @@ checkUserPassword = (req, res, next) => {
     next();
 };
 
-const checkUserData = {
+const userValidator = {
     checkDuplicateEmail,
     checkUserName,
     checkUserPassword
 };
 
-module.exports = checkUserData;
+module.exports = userValidator;

@@ -4,7 +4,8 @@ const logger = require("../utils/logger");
 exports.create = async (req, res) => {
     logger.info("Creating city...");
     const newCity = {
-        name: req.body.name
+        name: req.body.name,
+        price: req.body.price
     };
     try {
         const city = await City.create(newCity);

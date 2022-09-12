@@ -80,20 +80,23 @@ exports.update = async (req, res) => {
             where: {id: id}
         });
         const master = await Master.findByPk(id);
-        const cities = await City.findAll({
-            where: {
-                name: {
-                    [Op.or]: req.body.cities
+        if (req.body.cities){
+            const cities = await City.findAll({
+                where: {
+                    name: {
+                        [Op.or]: req.body.cities
+                    }
                 }
-            }
-        })
-        await master.setCities(cities);
+            })
+            await master.setCities(cities);
+        }
+        const masterCities = await master.getCities();
         logger.info("Master was updated successfully!");
         return res.status(200).send({
             id: master.id,
             name: master.name,
             rating: master.rating,
-            cities: cities.map(city => city.name),
+            cities: masterCities.map(city => city.name),
         });
     } catch (e) {
         logger.error(e.message);

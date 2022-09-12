@@ -3,14 +3,14 @@ const cityController = require('../../controllers/city.controller');
 const masterController = require("../../controllers/master.controller");
 const orderController = require("../../controllers/order.controller");
 const userController = require("../../controllers/user.controller");
-const ifOrderAssignedTo = require("../../validators/ifObjectAssignedToOrder");
+const {ifObjectAssignedToOrder} = require("../../validators");
 
-router.delete("/cities/:id", [ifOrderAssignedTo.city], cityController.delete);
+router.delete("/cities/:id", [ifObjectAssignedToOrder.city], cityController.delete);
 
-router.delete("/masters/:id", [ifOrderAssignedTo.master], masterController.delete);
+router.delete("/masters/:id", [ifObjectAssignedToOrder.master], masterController.delete);
 
 router.delete("/orders/:id", orderController.delete);
 
-router.delete("/users/:id", [ifOrderAssignedTo.user], userController.delete);
+router.delete("/users/:id", [ifObjectAssignedToOrder.user], userController.delete);
 
 module.exports = router;

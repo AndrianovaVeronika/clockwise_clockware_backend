@@ -1,6 +1,6 @@
 const logger = require("../utils/logger");
 
-validateIfBodyUndefined = async (req, res, next) => {
+ifBodyUndefined = async (req, res, next) => {
     logger.info("Validating body if undefined...");
     if (!req?.body) {
         logger.error("Body undefined!");
@@ -10,4 +10,4 @@ validateIfBodyUndefined = async (req, res, next) => {
     next();
 }
 
-module.exports = validateIfBodyUndefined;
+module.exports = ifBodyUndefined;

@@ -1,10 +1,6 @@
 const logger = require("../utils/logger");
-const db = require('../models');
-const {User} = require("../models");
+const {Order} = require("../models");
 const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
-const jwt = require("jsonwebtoken");
-const config = require("../config/auth.config.js");
-const Order = db.Order;
 
 ifDateTimeAppropriate = async (req, res, next) => {
     logger.info('Verifying if date and time are correct...');
@@ -25,40 +21,7 @@ ifDateTimeAppropriate = async (req, res, next) => {
     next();
 }
 
-ifUserCreated = async (req, res, next) => {
-    logger.info('Verifying if such user already exist...');
-    const userToFind = {
-        name: req.body.name,
-        email: req.body.email
-    }
-    try {
-        const userObj = await User.findOrCreate({
-            where: userToFind,
-            defaults: userToFind
-        });
-        const [user, isUserCreated] = userObj;
-        if (isUserCreated) {
-            await user.setRoles([1]);
-            logger.info('User has been created as new. Heading next...');
-        } else {
-            const token = req.headers["x-access-token"];
-            if (!token) {
-                if (user.emailChecked) {
-                    return res.status(400).send({message: 'Log in before placing new order!'});
-                } else {
-                    return res.status(400).send({message: 'Your email is unchecked. Please check your email for confirmation letter and log in'});
-                }
-            }
-        }
-        req.body.userId = user.id;
-        next();
-    } catch (e) {
-        logger.error(e.message + ': Check user credentials.');
-        return res.status(400).send({message: e.message + ': Check user credentials.'});
-    }
-}
-
-ifOrderCanBePlaced = async (req, res, next) => {
+ifOrderInterrogates = async (req, res, next) => {
     logger.info('Verifying order credentials...');
     const timeInNum = parseInt(req.body.time.substring(0, 2));
     //check if order exist
@@ -89,4 +52,7 @@ ifOrderCanBePlaced = async (req, res, next) => {
     }
 }
 
-module.exports = [ifDateTimeAppropriate, ifUserCreated, ifOrderCanBePlaced];
+module.exports = {
+    ifDateTimeAppropriate,
+    ifOrderInterrogates
+};
