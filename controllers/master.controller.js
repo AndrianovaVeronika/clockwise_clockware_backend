@@ -10,12 +10,10 @@ const Op = Sequelize.Op;
 exports.create = async (req, res) => {
     logger.info('Creating new master...');
     try {
-        const shortCode = generateShortCode();
-        const createdMaster = await createMasterAccount({...req.body, password: shortCode, isPasswordTemporary: true});
-        await Code.create({verificationCode: shortCode, userId: createdMaster.user.id});
-        await sendTemporaryPasswordMail(shortCode,createdMaster.user.email);
+        const masterAccount = await createMasterAccount(req.body);
+        await sendTemporaryPasswordMail(masterAccount.user.id, masterAccount.user.email);
         logger.info('New master has been created');
-        return res.status(201).send(createdMaster);
+        return res.status(201).send(masterAccount);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -80,7 +78,7 @@ exports.update = async (req, res) => {
             where: {id: id}
         });
         const master = await Master.findByPk(id);
-        if (req.body.cities){
+        if (req.body.cities) {
             const cities = await City.findAll({
                 where: {
                     name: {

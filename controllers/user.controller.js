@@ -103,12 +103,10 @@ exports.create = async (req, res) => {
     logger.info('Creating user with specified roles...');
     try {
         logger.info('Creating new user...');
-        const createdUser = await createUserAccount({...req.body, isPasswordTemporary: true});
-        const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: createdUser.id});
-        await sendTemporaryPasswordMail(shortCode, createdUser.email);
+        const user = await createUserAccount(req.body);
+        await sendTemporaryPasswordMail(user.id, user.email);
         logger.info('New user has been created');
-        return res.status(200).send(createdUser);
+        return res.status(200).send(user);
     } catch (e) {
         logger.info('Error in signup');
         return res.status(500).send({message: e.message});

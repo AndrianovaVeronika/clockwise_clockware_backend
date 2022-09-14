@@ -9,17 +9,17 @@ const ClockType = db.ClockType;
 const Master = db.Master;
 
 const getOrderNecessaryData = order => ({
-    id: order.id,
-    name: order.User.name,
-    email: order.User.email,
-    clockType: order.ClockType.name,
-    master: order.Master.name,
-    city: order.City.name,
-    date: order.date,
-    time: order.time,
-    price: order.price,
-    isCompleted: order.isCompleted,
-    rating: order.rating
+    id: order?.id,
+    name: order?.User?.name,
+    email: order?.User?.email,
+    clockType: order?.ClockType?.name,
+    master: order?.Master?.name,
+    city: order?.City?.name,
+    date: order?.date,
+    time: order?.time,
+    price: order?.price,
+    isCompleted: order?.isCompleted,
+    rating: order?.rating
 });
 
 exports.create = async (req, res) => {

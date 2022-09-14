@@ -15,11 +15,9 @@ const {getBcryptedPassword} = require("../services/bcrypt.service");
 exports.registerUser = async (req, res) => {
     logger.info('Creating user account...');
     try {
-        const createdUser = await createUserAccount(req.body);
-        const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: createdUser.id});
-        await sendEmailConfirmationMail(shortCode, req.body.email);
-        return res.status(200).send(createdUser);
+        const user = await createUserAccount(req.body);
+        await sendEmailConfirmationMail(user.id, user.email);
+        return res.status(200).send(user);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -30,11 +28,9 @@ exports.registerUser = async (req, res) => {
 exports.registerMaster = async (req, res) => {
     logger.info('Creating master account...');
     try {
-        const createdMasterAccount = await createMasterAccount(req.body);
-        const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: createdMasterAccount.user.id});
-        await sendEmailConfirmationMail(shortCode, createdMasterAccount.user.email);
-        return res.status(200).send(createdMasterAccount);
+        const masterAccount = await createMasterAccount(req.body);
+        await sendEmailConfirmationMail(masterAccount.user.id, masterAccount.user.email);
+        return res.status(200).send(masterAccount);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -135,14 +131,9 @@ exports.checkEmailVerificationCode = async (req, res) => {
             logger.info('Code has been expired...');
             const user = await codeRecord.getUser();
             logger.info('Sending mail to prove email...');
-            const shortCode = generateShortCode();
-            await Code.update({verificationCode: shortCode}, {
-                where: {
-                    userId: user.id
-                }
-            });
-            await sendEmailConfirmationMail(shortCode, user.email);
-            return res.status(200).send({
+            await Code.destroy({where: {userId: user.id}});
+            await sendEmailConfirmationMail(user.id, user.email);
+            return res.status(400).send({
                 isEmailValid: false,
                 message: 'Code is expired! We have sent you new one on your email.'
             });
@@ -160,9 +151,7 @@ exports.resetPassword = async (req, res) => {
     logger.info('Resetting pass word...');
     try {
         const user = await User.findByPk(req.params.id);
-        const shortCode = generateShortCode();
-        await User.update({password: getBcryptedPassword(shortCode)}, {where: {id: user.id}});
-        await sendTemporaryPasswordMail(shortCode, user.email);
+        await sendTemporaryPasswordMail(user.id, user.email);
         logger.info('Password has been reset');
         return res.status(200).send({message: 'Password has been reset'});
     } catch (e) {
