@@ -160,7 +160,7 @@ exports.rateOrder = async (req, res) => {
         const targetOrder = await Order.findByPk(id, {include: [User, City, ClockType, Master]});
         if (req.userId !== targetOrder.userId) {
             logger.error('User has no access to update order');
-            res.status(400).send({message: 'Authorized user has no access to update order'});
+            return res.status(400).send({message: 'Authorized user has no access to update order'});
         }
         const newRating = targetOrder.Master.rating ?
             Math.round((req.body.rating + targetOrder.Master.rating) / 2) : req.body.rating;

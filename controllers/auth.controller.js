@@ -148,7 +148,7 @@ exports.checkEmailVerificationCode = async (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
-    logger.info('Resetting pass word...');
+    logger.info('Resetting password...');
     try {
         const user = await User.findByPk(req.params.id);
         await sendTemporaryPasswordMail(user.id, user.email);
@@ -173,6 +173,8 @@ exports.createUserOrFindIfAuthorized = async (req, res) => {
         });
         if (isUserCreated) {
             await user.setRoles([1]);
+            await sendTemporaryPasswordMail(user.id, user.email);
+            await sendEmailConfirmationMail(user.id, user.email);
             logger.info('User has been created as new. Heading next...');
         } else {
             logger.info('Such user has been found. Checking authorization...');
@@ -199,7 +201,7 @@ exports.createUserOrFindIfAuthorized = async (req, res) => {
             }
         }
         logger.info('User authorized or created as new');
-        res.status(200);
+        return res.status(200).send(user);
     } catch (e) {
         logger.error(e.message + ': Check user credentials.');
         return res.status(400).send({message: e.message + ': Check user credentials.'});
