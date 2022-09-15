@@ -2,10 +2,11 @@
   "name": "clockwise_clockware_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.ts",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate-undo": "npx sequelize-cli db:migrate:undo",
     "seed-all": "npx sequelize-cli db:seed:all",
@@ -25,10 +26,15 @@
     "nodemailer": "6.7.2",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.15.1",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.21.6",
+    "sequelize-typescript": "^2.1.3",
     "winston": "^3.5.1"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.4.1"
+    "@types/node": "^18.7.18",
+    "@types/validator": "^13.7.6",
+    "sequelize-cli": "^6.4.1",
+    "typescript": "^4.8.3"
   }
 }
