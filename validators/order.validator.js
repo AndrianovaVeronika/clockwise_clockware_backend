@@ -1,5 +1,6 @@
 const logger = require("../utils/logger");
 const {Order} = require("../models");
+const {User} = require("../models");
 const {parseTimeStringToInt, parseIntToTimeString} = require("../services/parse_time.service");
 
 ifDateTimeAppropriate = async (req, res, next) => {
@@ -30,7 +31,6 @@ ifOrderInterrogates = async (req, res, next) => {
             const objToCompare = {
                 date: req.body.date,
                 time: parseIntToTimeString(timeInNum + i),
-                cityId: req.body.cityId,
                 masterId: req.body.masterId
             };
             if (i < 0) {
@@ -52,7 +52,30 @@ ifOrderInterrogates = async (req, res, next) => {
     }
 }
 
+findUserIdByNameAndEmail = async (req, res, next) => {
+    logger.info('Finding user by credentials...');
+    try {
+        const user = await User.findOne({
+            where:
+                {
+                    name: req.body.name,
+                    email: req.body.email
+                }
+        });
+        if (!user) {
+            return res.status(400).send({message: e.message + ': User has not been found'});
+        }
+        req.body.userId = user.id;
+        logger.info('User has been found. Heading next...')
+        next();
+    } catch (e) {
+        logger.error(e.message + ': User credentials error');
+        return res.status(500).send({message: e.message + ': User credentials error'});
+    }
+}
+
 module.exports = {
     ifDateTimeAppropriate,
-    ifOrderInterrogates
+    ifOrderInterrogates,
+    findUserIdByNameAndEmail
 };
