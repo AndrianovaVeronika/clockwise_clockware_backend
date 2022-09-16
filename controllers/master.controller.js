@@ -173,8 +173,7 @@ exports.findAllMastersAvailable = async (req, res) => {
         logger.info('Starting retrieving busy masters...')
         const busyMasters = [];
         for (const order of orders) {
-            if (newOrder.cityId !== order.City.id
-                || moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
+            if (moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
                 continue;
             }
 
