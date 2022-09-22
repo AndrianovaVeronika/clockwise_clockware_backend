@@ -7,6 +7,7 @@ import Code from "./code";
 import Master from "./master";
 import Order from "./order";
 import Role from "./role";
+import User from "./user";
 
 const db = {
     models: {
@@ -15,18 +16,12 @@ const db = {
         Master,
         Order,
         Role,
-        // User,
+        User,
         Code
     },
     ROLES: {1: "user", 2: "admin", 3: "master"},
-    sequelize: sequelize,
-    Sequelize: Sequelize
+    sequelize,
+    Sequelize
 };
 
-Object.keys(db.models).forEach(modelName => {
-    if (db.models[modelName].associate) {
-        db.models[modelName].associate(db.models);
-    }
-});
-
-module.exports = db;
+export default db;

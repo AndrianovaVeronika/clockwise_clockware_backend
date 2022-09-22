@@ -1,18 +1,17 @@
 'use strict';
 import {DataTypes, Model} from "sequelize";
-import {IRole, RoleInput} from "./interfaces/role.interface";
-import sequelize from "../connections/db.connection";
+import {IRole, RoleInput} from "./role.interface";
+import sequelize from "../../connections/db.connection";
+import User from "../user";
 
 class Role extends Model<IRole, RoleInput> implements IRole {
     public id!: number;
     public name!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-
-    static associate(models) {
-        Role.belongsToMany(models.User, {through: 'UserRoles'});
-    }
 }
+
+Role.belongsToMany(User, {through: 'UserRoles'});
 
 Role.init({
     id: {

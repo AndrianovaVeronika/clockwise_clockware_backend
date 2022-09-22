@@ -1,18 +1,17 @@
 'use strict';
 import {DataTypes, Model} from 'sequelize';
-import {ICode, CodeInput} from "./interfaces/code.interface";
-import sequelize from "../connections/db.connection";
+import {ICode, CodeInput} from "./code.interface";
+import sequelize from "../../connections/db.connection";
+import User from "../user";
 
 class Code extends Model<ICode, CodeInput> implements ICode {
     public id!: number;
     public verificationCode!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-
-    static associate(models) {
-        Code.belongsTo(models.User, {foreignKey: 'userId'});
-    }
 }
+
+Code.belongsTo(User, {foreignKey: 'userId'});
 
 Code.init({
     id: {

@@ -1,8 +1,13 @@
 'use strict';
-import {DataTypes, Model} from "sequelize";
-import sequelize from "../connections/db.connection";
+import {DataTypes, HasManyGetAssociationsMixin, HasManySetAssociationsMixin, Model} from "sequelize";
+import sequelize from "../../connections/db.connection";
+import {IUser, UserInput} from "./user.interface";
+import Order from "../order";
+import Master from "../master";
+import Code from "../code";
+import Role from "../role";
 
-class User extends Model {
+class User extends Model<IUser, UserInput> implements IUser {
     public id!: number;
     public name!: string;
     public email!: string;
@@ -12,14 +17,14 @@ class User extends Model {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     public readonly deletedAt!: Date;
-
-    static associate(models) {
-        User.hasMany(models.Order, {foreignKey: 'userId'});
-        User.belongsToMany(models.Role, {through: 'UserRoles'});
-        User.hasOne(models.Master, {foreignKey: 'userId'});
-        User.hasOne(models.Code, {foreignKey: 'userId'});
-    }
+    declare setRoles: HasManySetAssociationsMixin<Role, string>;
+    declare getRoles: HasManyGetAssociationsMixin<Role>;
 }
+
+User.hasMany(Order, {foreignKey: 'userId'});
+User.belongsToMany(Role, {through: 'UserRoles'});
+User.hasOne(Master, {foreignKey: 'userId'});
+User.hasOne(Code, {foreignKey: 'userId'});
 
 User.init({
         id: {
@@ -51,7 +56,7 @@ User.init({
     {
         sequelize,
         modelName: 'User',
-        paranoid: true, //soft delete
+        paranoid: true, // soft delete
         timestamps: true
     }
 );

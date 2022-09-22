@@ -1,7 +1,9 @@
 'use strict';
 import {DataTypes, Model} from "sequelize";
-import {CityInput, ICity} from "./interfaces/city.interface";
-import sequelize from "../connections/db.connection";
+import {CityInput, ICity} from "./city.interface";
+import sequelize from "../../connections/db.connection";
+import Order from "../order";
+import Master from "../master";
 
 class City extends Model<ICity, CityInput> implements ICity {
     public id!: number;
@@ -10,12 +12,10 @@ class City extends Model<ICity, CityInput> implements ICity {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     public readonly deletedAt!: Date;
-
-    static associate(models) {
-        City.hasMany(models.Order, {foreignKey: 'cityId'});
-        City.belongsToMany(models.Master, {through: 'MasterCities'});
-    }
 }
+
+City.hasMany(Order, {foreignKey: 'cityId'});
+City.belongsToMany(Master, {through: 'MasterCities'});
 
 City.init({
     id: {
@@ -34,8 +34,8 @@ City.init({
     },
 }, {
     sequelize,
-    modelName: 'City',
-    paranoid: true, //soft delete
+    modelName: 'Index',
+    paranoid: true, // soft delete
     timestamps: true
 });
 
