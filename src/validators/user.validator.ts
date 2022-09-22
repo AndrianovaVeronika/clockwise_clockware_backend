@@ -1,13 +1,12 @@
-const {User} = require("../models");
-const logger = require("../utils/logger");
+import logger from "../utils/logger";
+import * as userService from "../services/user";
+import {NextFunction, Request, Response} from 'express';
 
-checkDuplicateEmail = async (req, res, next) => {
+export const checkDuplicateEmail = async (req: Request, res: Response, next: NextFunction) => {
     // Email
     logger.info("Checking email for duplicates...");
-    const userWithSameEmail = await User.findOne({
-        where: {
-            email: req.body.email
-        }
+    const userWithSameEmail = await userService.findOneWhere({
+        email: req.body.email
     });
     if (userWithSameEmail) {
         logger.error("Email is already in use!");
@@ -19,7 +18,7 @@ checkDuplicateEmail = async (req, res, next) => {
     next();
 };
 
-checkUserName = (req, res, next) => {
+export const checkUserName = (req: Request, res: Response, next: NextFunction) => {
     logger.info("Checking user name...");
     if (req.body.name.length < 3) {
         return res.status(400).send({message: 'Name is too short!'});
@@ -27,18 +26,10 @@ checkUserName = (req, res, next) => {
     next();
 };
 
-checkUserPassword = (req, res, next) => {
+export const checkUserPassword = (req: Request, res: Response, next: NextFunction) => {
     logger.info("Checking user password...");
     if (req.body.password.length < 8) {
         return res.status(400).send({message: 'Password is too short!'});
     }
     next();
 };
-
-const userValidator = {
-    checkDuplicateEmail,
-    checkUserName,
-    checkUserPassword
-};
-
-module.exports = userValidator;

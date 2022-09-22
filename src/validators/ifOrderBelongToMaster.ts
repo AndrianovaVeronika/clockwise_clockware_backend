@@ -1,12 +1,12 @@
-const logger = require("../utils/logger");
-const {Order} = require("../models");
+import logger from "../utils/logger";
+import {NextFunction, Request, Response} from 'express';
+import * as orderService from "../services/order";
 
-ifOrderBelongToMaster = async (req, res, next) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id, 10);
     try {
         logger.info("Checking if order belong to master...");
-        const order = await Order.findByPk(req.params.id);
-        logger.info(order.masterId)
-        logger.info(req.masterId)
+        const order = await orderService.findByPk(id);
         if (order.masterId !== req.masterId) {
             logger.error('Master has no access to change this order!');
             return res.status(400).send({message: 'You have no access to change this order!'});
@@ -18,5 +18,3 @@ ifOrderBelongToMaster = async (req, res, next) => {
         return res.status(500).send({message: e.message});
     }
 };
-
-module.exports = ifOrderBelongToMaster;

@@ -1,6 +1,7 @@
-const logger = require("../utils/logger");
+import logger from "../utils/logger";
+import {Request, Response, NextFunction} from 'express';
 
-ifBodyUndefined = async (req, res, next) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
     logger.info("Validating body if undefined...");
     if (!req?.body) {
         logger.error("Body undefined!");
@@ -9,5 +10,3 @@ ifBodyUndefined = async (req, res, next) => {
     logger.info("Body is defined. Heading next...");
     next();
 }
-
-module.exports = ifBodyUndefined;

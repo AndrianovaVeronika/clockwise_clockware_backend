@@ -1,15 +1,14 @@
-const logger = require("../utils/logger");
-const {Order} = require("../models");
+import logger from "../utils/logger";
+import * as orderService from "../services/order";
+import {NextFunction, Request, Response} from 'express';
 
-const getOrderDependingOnModelId = async (model, id) => {
-    return await Order.findOne({
-        where: {[model + 'Id']: id}
-    });
+const getOrderDependingOnModelId = async (model: string, id: number) => {
+    return await orderService.findOneWhere({[model + 'Id']: id});
 };
 
-const getModelValidator = (model) => {
-    return async (req, res, next) => {
-        const id = req.params.id;
+const getModelValidator = (model: string) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const id = parseInt(req.params.id, 10);
         logger.info('Checking if ' + model + ' with id=' + id + ' can be deleted...');
         if (await getOrderDependingOnModelId(model, id)) {
             logger.error(model[0].toUpperCase() + model.slice(1) + " is assigned to order. Delete can`t be complete");
@@ -21,7 +20,7 @@ const getModelValidator = (model) => {
     };
 };
 
-module.exports = {
+export default {
     city: getModelValidator('city'),
     master: getModelValidator('master'),
     user: getModelValidator('user')
