@@ -1,18 +1,17 @@
-const logger = require("../utils/logger");
-const {User, Role, Sequelize, Code} = require('../models');
-const {getBcryptedPassword} = require("../services/bcrypt.service");
-const {createUserAccount} = require("../services/account.service");
-const {generateShortCode} = require("../services/shortCode.service");
-const {sendTemporaryPasswordMail} = require("../services/mail.service");
-const Op = Sequelize.Op;
+import logger from "../../utils/logger";
+import * as userService from "../../services/user";
+import * as codeService from "../../services/code";
+import {getBcryptedPassword} from "../../services/bcrypt";
+import {createUserAccount} from "../../services/account";
+import generateShortCode from "../../services/shortCode";
+import {sendTemporaryPasswordMail} from "../../services/mail";
+import {Request, Response} from "express";
 
 // Find all users
-exports.findAll = async (req, res) => {
+export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all users...');
     try {
-        const users = await User.findAll({
-            attributes: {exclude: ['password']}
-        });
+        const users = await userService.findAll({excludePassword: true});
         logger.info('Users retrieved!');
         return res.status(200).send(users);
     } catch (e) {
@@ -24,14 +23,11 @@ exports.findAll = async (req, res) => {
 };
 
 // Find a user by the id in the request
-exports.findOne = async (req, res) => {
-    const id = req.params.id;
+export const findOne = async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
     logger.info(`Finding user with id=${id}...`);
     try {
-        const user = await User.findByPk(id, {
-            attributes: {exclude: ['password']}
-        });
-        user.roles = await user.getRoles();
+        const user = await userService.findByPk(id, {excludePassword: true});
         if (user) {
             logger.info('User found!');
             return res.status(200).send(user);
@@ -50,23 +46,18 @@ exports.findOne = async (req, res) => {
 };
 
 // Update a user by the id in the request
-exports.update = async (req, res) => {
-    const id = req.userId || req.params.id;
+export const update = async (req: Request, res: Response) => {
+    const id = req.userId || parseInt(req.params.id, 10);
     logger.info(`Updating user with id=${id}...`);
     const userUpdateValues = req.body;
     if (userUpdateValues.password) {
-        userUpdateValues.password = getBcryptedPassword(req.body.password, 8);
+        userUpdateValues.password = getBcryptedPassword(req.body.password);
         userUpdateValues.isPasswordTemporary = false;
     }
     try {
-        await User.update(userUpdateValues, {
-            where: {id: id}
-        });
+        await userService.updateWhere(userUpdateValues, {id});
         logger.info('User updated, trying to findOne...')
-        const user = await User.findByPk(id, {
-            attributes: {exclude: ['password']}
-        });
-        user.roles = await user.getRoles();
+        const user = await userService.findByPk(id, {excludePassword: true});
         logger.info("User was updated successfully!");
         return res.status(200).send(user);
     } catch (e) {
@@ -79,16 +70,13 @@ exports.update = async (req, res) => {
 };
 
 // Delete a user by the id in the request
-exports.delete = async (req, res) => {
-    const id = req.params.id;
+export const deleteByPk = async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
     logger.info(`Deleting user with id=${id}...`);
-
     try {
-        await User.destroy({
-            where: {id: id}
-        });
+        await userService.deleteByPk(id);
         logger.info("User was deleted successfully!");
-        return res.status(200).send({id: id});
+        return res.status(200).send({id});
     } catch (e) {
         logger.info("Could not delete user with id=" + ".");
         logger.info(e.message);
@@ -98,19 +86,19 @@ exports.delete = async (req, res) => {
     }
 };
 
-//Creates user with specified roles, such as 'admin'
-exports.create = async (req, res) => {
+// Creates user with specified roles, such as 'admin'
+export const create = async (req: Request, res: Response) => {
     logger.info('Creating user with specified roles...');
     try {
         logger.info('Creating new user...');
         const createdUser = await createUserAccount({...req.body, isPasswordTemporary: true});
         const shortCode = generateShortCode();
-        await Code.create({verificationCode: shortCode, userId: createdUser.id});
-        await sendTemporaryPasswordMail(shortCode, createdUser.email);
+        await codeService.create({verificationCode: shortCode, userId: createdUser.id});
+        await sendTemporaryPasswordMail(createdUser.id, createdUser.email);
         logger.info('New user has been created');
         return res.status(200).send(createdUser);
     } catch (e) {
         logger.info('Error in signup');
         return res.status(500).send({message: e.message});
     }
-}
+};

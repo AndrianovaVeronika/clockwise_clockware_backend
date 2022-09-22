@@ -1,11 +1,11 @@
-const logger = require("../utils/logger");
-const db = require("../models");
-const ClockType = db.ClockType;
+import {Request, Response} from 'express';
+import logger from "../../utils/logger";
+import * as clockTypeService from "../../services/clockType";
 
-exports.findAll = async (req, res) => {
+export const findAll = async (req: Request, res: Response) => {
     logger.info("Retrieving all clocktypes...");
     try {
-        const clockTypes = await ClockType.findAll();
+        const clockTypes = await clockTypeService.findAll();
         logger.info("Clocktypes retrieved!");
         return res.status(200).send(clockTypes);
     } catch (e) {
