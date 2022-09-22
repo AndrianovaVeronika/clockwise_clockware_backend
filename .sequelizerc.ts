@@ -1,8 +1,8 @@
 // .sequelizerc
 
-const path = require('path');
+import * as path from "path";
 
-module.exports = {
+export default {
     'config': path.resolve('config', 'db.config.ts'),
     'models-path': path.resolve('db', 'models'),
     'seeders-path': path.resolve('db', 'seeders'),
