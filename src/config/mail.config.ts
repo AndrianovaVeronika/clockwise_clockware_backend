@@ -1,6 +1,6 @@
-require('dotenv').config();
+import "dotenv";
 
-module.exports = {
+export default {
     port: 465,
     host: "smtp.gmail.com",
     auth: {
