@@ -1,17 +1,14 @@
 import express, {Request, Response} from 'express'
+import bodyParser from "body-parser";
+import cors from "cors";
+import masterRoutes from "./src/routes/master_access";
+import adminRoutes from "./src/routes/master_access";
+import "dotenv";
+import allRoutes from "./src/routes/all_access";
+import userRoutes from "./src/routes/user_access";
+import logger from "./src/utils/logger";
 
-const bodyParser = require("body-parser");
-const cors = require("cors");
 const app = express();
-const db = require("./models");
-const masterRoutes = require('./routes/master_access');
-const adminRoutes = require('./routes/admin_access');
-const allRoutes = require('./routes/all_access');
-const userRoutes = require('./routes/user_access');
-const logger = require('./utils/logger');
-require('dotenv').config();
-
-db.sequelize.sync();
 
 app.use(cors());
 
@@ -42,3 +39,5 @@ try {
 } catch (error) {
     logger.error(`Error occurred: ${error.message}`);
 }
+
+export {};
