@@ -45,6 +45,10 @@ exports.signin = async (req, res) => {
                 email: req.body.email
             }
         });
+        if (user.isPasswordTemporary) {
+            await user.update({emailChecked: true});
+            user.emailChecked = true;
+        }
         if (!user) {
             logger.error("Check your credential: email or password could not be right");
             return res.status(401).send({message: "Check your credential: email or password could not be right"});
@@ -174,7 +178,6 @@ exports.createUserOrFindIfAuthorized = async (req, res) => {
         if (isUserCreated) {
             await user.setRoles([1]);
             await sendTemporaryPasswordMail(user.id, user.email);
-            await sendEmailConfirmationMail(user.id, user.email);
             logger.info('User has been created as new. Heading next...');
         } else {
             logger.info('Such user has been found. Checking authorization...');
