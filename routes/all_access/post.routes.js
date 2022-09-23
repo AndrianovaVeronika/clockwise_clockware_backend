@@ -22,7 +22,9 @@ router.post(
 router.post("/signin", controller.signin);
 
 router.post("/orders",
-    [orderValidator.ifDateTimeAppropriate, orderValidator.ifOrderInterrogates, orderValidator.findUserIdByNameAndEmail],
+    [orderValidator.ifDateTimeAppropriate,
+        orderValidator.ifOrderInterrogates,
+        orderValidator.findUserIdByNameAndEmail],
     orderController.create);
 
 router.post("/masters/available", masterController.findAllMastersAvailable);

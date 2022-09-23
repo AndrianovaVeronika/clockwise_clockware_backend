@@ -2,6 +2,7 @@ const db = require('../models');
 const logger = require("../utils/logger");
 const {sendOrderConfirmationMail} = require("../services/mail.service");
 const {countPrice} = require("../services/price.service");
+const {countMasterNewRating} = require("../services/rating.service");
 const Order = db.Order;
 const User = db.User;
 const City = db.City;
@@ -162,12 +163,9 @@ exports.rateOrder = async (req, res) => {
             logger.error('User has no access to update order');
             return res.status(400).send({message: 'Authorized user has no access to update order'});
         }
-        const newRating = targetOrder.Master.rating ?
-            Math.round((req.body.rating + targetOrder.Master.rating) / 2) : req.body.rating;
+        const newRating = await countMasterNewRating(req.body.rating, targetOrder.masterId);
         await Master.update({rating: newRating}, {where: {id: targetOrder.masterId}});
         await Order.update({rating: req.body.rating}, {where: {id: targetOrder.id}});
-        logger.info(newRating)
-        logger.info(req.body.rating)
         logger.info('Order is rated. Master rating is updated.');
         return res.status(200).send(getOrderNecessaryData({...targetOrder, rating: req.body.rating}));
     } catch (e) {
