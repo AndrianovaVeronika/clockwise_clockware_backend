@@ -2,8 +2,6 @@
 import {DataTypes, Model} from "sequelize";
 import {CityInput, ICity} from "./city.interface";
 import sequelize from "../../connections/db.connection";
-import Order from "../order";
-import Master from "../master";
 
 class City extends Model<ICity, CityInput> implements ICity {
     public id!: number;
@@ -11,15 +9,18 @@ class City extends Model<ICity, CityInput> implements ICity {
     public price!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
-}
 
-City.hasMany(Order, {foreignKey: 'cityId'});
-City.belongsToMany(Master, {through: 'MasterCities'});
+    // public readonly deletedAt!: Date;
+
+    static associate(models: any) {
+        City.hasMany(models.Order, {foreignKey: 'cityId'});
+        City.belongsToMany(models.Master, {through: 'MasterCities'});
+    }
+}
 
 City.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },

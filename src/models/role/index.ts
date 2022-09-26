@@ -9,13 +9,15 @@ class Role extends Model<IRole, RoleInput> implements IRole {
     public name!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-}
 
-Role.belongsToMany(User, {through: 'UserRoles'});
+    static associate(models: any) {
+        Role.belongsToMany(models.User, {through: 'UserRoles'});
+    }
+}
 
 Role.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },

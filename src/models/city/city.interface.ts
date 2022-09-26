@@ -6,7 +6,7 @@ export interface ICity {
     price: number;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface CityInput extends Optional<ICity, 'id'> {

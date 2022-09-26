@@ -15,7 +15,7 @@ const userMapper = (user: UserInput): UserOutput => ({
     roles: user.roles,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    deletedAt: user.deletedAt
+    // deletedAt: user.deletedAt
 });
 
 export const findAll = async (filters?: UserFilters): Promise<UserOutput[]> => {

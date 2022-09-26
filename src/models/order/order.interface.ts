@@ -13,7 +13,7 @@ export interface IOrder {
     rating?: number;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface OrderInput extends Optional<IOrder, 'id'> {

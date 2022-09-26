@@ -1,7 +1,9 @@
-import "dotenv";
+import dotenv from "dotenv";
 import {Dialect} from "sequelize";
 
-const config = {
+dotenv.config();
+
+const dbConfig = {
     "development": {
         host: process.env.DB_HOST as string,
         username: process.env.DB_USER as string,
@@ -24,4 +26,4 @@ const config = {
     }
 };
 
-export default config;
+export default dbConfig;

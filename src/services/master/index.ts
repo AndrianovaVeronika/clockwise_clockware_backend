@@ -13,7 +13,7 @@ const masterMapper = (master: RawMaster): MasterOutput => ({
     userId: master.userId,
     createdAt: master.createdAt,
     updatedAt: master.updatedAt,
-    deletedAt: master.deletedAt
+    // deletedAt: master.deletedAt
 });
 
 export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> => {

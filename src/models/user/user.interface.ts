@@ -9,7 +9,7 @@ export interface IUser {
     isPasswordTemporary?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface UserInput extends Optional<IUser, 'id'> {

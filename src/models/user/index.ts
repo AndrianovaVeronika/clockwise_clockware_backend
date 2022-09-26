@@ -2,9 +2,6 @@
 import {DataTypes, HasManyGetAssociationsMixin, HasManySetAssociationsMixin, Model} from "sequelize";
 import sequelize from "../../connections/db.connection";
 import {IUser, UserInput} from "./user.interface";
-import Order from "../order";
-import Master from "../master";
-import Code from "../code";
 import Role from "../role";
 
 class User extends Model<IUser, UserInput> implements IUser {
@@ -16,19 +13,21 @@ class User extends Model<IUser, UserInput> implements IUser {
     public isPasswordTemporary!: boolean;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
     declare setRoles: HasManySetAssociationsMixin<Role, string>;
     declare getRoles: HasManyGetAssociationsMixin<Role>;
-}
 
-User.hasMany(Order, {foreignKey: 'userId'});
-User.belongsToMany(Role, {through: 'UserRoles'});
-User.hasOne(Master, {foreignKey: 'userId'});
-User.hasOne(Code, {foreignKey: 'userId'});
+    static associate(models: any) {
+        User.hasMany(models.Order, {foreignKey: 'userId'});
+        User.belongsToMany(models.Role, {through: 'UserRoles'});
+        User.hasOne(models.Master, {foreignKey: 'userId'});
+        User.hasOne(models.Code, {foreignKey: 'userId'});
+    }
+}
 
 User.init({
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },

@@ -24,4 +24,10 @@ const db = {
     Sequelize
 };
 
+Object.keys(db.models).forEach((modelName: any) => {
+    if (db.models[modelName as keyof typeof db.models].associate) {
+        db.models[modelName as keyof typeof db.models].associate(db.models);
+    }
+});
+
 export default db;

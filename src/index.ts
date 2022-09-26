@@ -1,12 +1,12 @@
-import express, {Request, Response} from 'express'
+import express, {Request, Response} from 'express';
 import bodyParser from "body-parser";
 import cors from "cors";
-import masterRoutes from "./src/routes/master_access";
-import adminRoutes from "./src/routes/master_access";
+import masterRoutes from "./routes/master_access";
+import adminRoutes from "./routes/master_access";
 import "dotenv";
-import allRoutes from "./src/routes/all_access";
-import userRoutes from "./src/routes/user_access";
-import logger from "./src/utils/logger";
+import allRoutes from "./routes/all_access";
+import userRoutes from "./routes/user_access";
+import logger from "./utils/logger";
 
 const app = express();
 

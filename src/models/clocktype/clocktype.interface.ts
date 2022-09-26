@@ -5,7 +5,7 @@ export interface IClockType {
     name: string;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface ClockTypeInput extends Optional<IClockType, 'id'> {

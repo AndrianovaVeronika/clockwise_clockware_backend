@@ -19,7 +19,7 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => ({
         rating: order.rating,
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
-        deletedAt: order.deletedAt,
+        // deletedAt: order.deletedAt,
         ...(withId && {
             userId: order.userId,
             masterId: order.masterId,

@@ -2,10 +2,6 @@
 import {DataTypes, Model} from "sequelize";
 import {IOrder, OrderInput} from "./order.interface";
 import sequelize from "../../connections/db.connection";
-import City from "../city";
-import ClockType from "../clocktype";
-import Master from "../master";
-import User from "../user";
 
 class Order extends Model<IOrder, OrderInput> implements IOrder {
     public id!: number;
@@ -16,17 +12,19 @@ class Order extends Model<IOrder, OrderInput> implements IOrder {
     public rating!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
-}
+    // public readonly deletedAt!: Date;
 
-Order.belongsTo(City, {foreignKey: 'cityId'});
-Order.belongsTo(ClockType, {foreignKey: 'clockTypeId'});
-Order.belongsTo(Master, {foreignKey: 'masterId'});
-Order.belongsTo(User, {foreignKey: 'userId'});
+    static associate(models: any) {
+        Order.belongsTo(models.City, {foreignKey: 'cityId'});
+        Order.belongsTo(models.ClockType, {foreignKey: 'clockTypeId'});
+        Order.belongsTo(models.Master, {foreignKey: 'masterId'});
+        Order.belongsTo(models.User, {foreignKey: 'userId'});
+    }
+}
 
 Order.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },

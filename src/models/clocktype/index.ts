@@ -2,21 +2,23 @@
 import {DataTypes, Model} from 'sequelize';
 import {ClockTypeInput, IClockType} from "./clocktype.interface";
 import sequelize from "../../connections/db.connection";
-import Order from "../order";
 
 class ClockType extends Model<IClockType, ClockTypeInput> implements IClockType {
     public id!: number;
     public name!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
-}
 
-ClockType.hasMany(Order, {foreignKey: 'clockTypeId'});
+    // public readonly deletedAt!: Date;
+
+    static associate(models: any) {
+        ClockType.hasMany(models.Order, {foreignKey: 'clockTypeId'});
+    }
+}
 
 ClockType.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
