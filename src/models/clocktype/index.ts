@@ -1,18 +1,20 @@
 'use strict';
-import {DataTypes, Model} from 'sequelize';
-import {ClockTypeInput, IClockType} from "./clocktype.interface";
+import {Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize';
 import sequelize from "../../connections/db.connection";
+import {IMaster} from "../master/master.interface";
+import Order from "../order";
 
-class ClockType extends Model<IClockType, ClockTypeInput> implements IClockType {
-    public id!: number;
-    public name!: string;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+class ClockType extends Model<InferAttributes<ClockType>, InferCreationAttributes<ClockType>>
+    implements IMaster {
+    declare id: CreationOptional<number>;
+    declare name: string;
 
-    // public readonly deletedAt!: Date;
+    declare readonly createdAt: CreationOptional<Date>;
+    declare readonly updatedAt: CreationOptional<Date>;
+    // declare readonly deletedAt!: CreationOptional<Date>;
 
-    static associate(models: any) {
-        ClockType.hasMany(models.Order, {foreignKey: 'clockTypeId'});
+    declare static associations: {
+        roles: Association<ClockType, Order>
     }
 }
 
@@ -26,12 +28,13 @@ ClockType.init({
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
 }, {
     sequelize,
-    modelName: 'Index',
-    paranoid: true, // soft delete
-    timestamps: true
+    modelName: 'ClockTypes',
+    // paranoid: true, // soft delete
 });
 
 export default ClockType;

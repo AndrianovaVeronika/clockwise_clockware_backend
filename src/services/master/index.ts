@@ -18,6 +18,7 @@ const masterMapper = (master: RawMaster): MasterOutput => ({
 
 export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> => {
     const masters = await Master.findAll({
+        include: [City],
         where: {
             ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
         },
@@ -27,7 +28,9 @@ export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> 
 };
 
 export const findByPk = async (id: number): Promise<MasterOutput> => {
-    const master = await Master.findByPk(id);
+    const master = await Master.findByPk(id, {
+        include: [City]
+    });
     if (!master) {
         throw new Error(`Cannot find city with id=${id}.`);
     }

@@ -10,10 +10,21 @@ import {checkDuplicateEmail, checkUserName, checkUserPassword} from "../../valid
 
 const router = Router();
 
-router.use(ifBodyUndefined);
+router.post("/cities", [
+    ifBodyUndefined
+], cityController.create);
 
-router.post("/cities", cityController.create);
-router.post("/masters", [checkUserName, checkDuplicateEmail], masterController.create);
-router.post("/users", [checkDuplicateEmail, checkUserName, checkUserPassword], userController.create);
+router.post("/masters", [
+    ifBodyUndefined,
+    checkUserName,
+    checkDuplicateEmail
+], masterController.create);
+
+router.post("/users", [
+    ifBodyUndefined,
+    checkDuplicateEmail,
+    checkUserName,
+    checkUserPassword
+], userController.create);
 
 export default router;

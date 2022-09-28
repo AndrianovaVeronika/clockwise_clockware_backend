@@ -5,16 +5,12 @@
 // import * as clockTypeController from "../../controllers/clockType";
 import * as orderController from "../../controllers/order";
 import {Router} from 'express';
-import verifyTokenAndExtractUserId from "../../validators/verifyTokenAndExtractUserId";
-import ifBodyUndefined from "../../validators/ifBodyUndefined";
 import {isMaster} from "../../validators/roles.validator";
 
 const router = Router();
 
-router.use(ifBodyUndefined);
-
 router.get('/current_master/orders',
-    [verifyTokenAndExtractUserId, isMaster],
+    [isMaster],
     orderController.findAllCurrentMasterOrders);
 
 export default router;

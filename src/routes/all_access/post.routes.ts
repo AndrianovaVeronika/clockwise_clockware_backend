@@ -11,28 +11,46 @@ import {ifDateTimeAppropriate, ifOrderInterrogates} from "../../validators/order
 
 const router = Router();
 
-router.use(ifBodyUndefined);
-
 router.post(
     "/register/user",
-    [checkDuplicateEmail, checkUserName, checkUserPassword],
+    [
+        ifBodyUndefined,
+        checkDuplicateEmail,
+        checkUserName,
+        checkUserPassword
+    ],
     authController.registerUser
 );
 
 router.post(
     "/register/master",
-    [checkDuplicateEmail, checkUserName, checkUserPassword],
+    [
+        ifBodyUndefined,
+        checkDuplicateEmail,
+        checkUserName,
+        checkUserPassword
+    ],
     authController.registerMaster
 )
 
-router.post("/signin", authController.signin);
+router.post("/signin", [
+    ifBodyUndefined
+], authController.signin);
 
 router.post("/orders",
-    [ifDateTimeAppropriate, ifOrderInterrogates],
+    [
+        ifBodyUndefined,
+        ifDateTimeAppropriate,
+        ifOrderInterrogates
+    ],
     orderController.create);
 
-router.post("/masters/available", masterController.findAllMastersAvailable);
+router.post("/masters/available", [
+    ifBodyUndefined
+], masterController.findAllMastersAvailable);
 
-router.post('/verify/user/created', authController.createUserOrFindIfAuthorized);
+router.post('/verify/user/created', [
+    ifBodyUndefined
+], authController.createUserOrFindIfAuthorized);
 
 export default router;

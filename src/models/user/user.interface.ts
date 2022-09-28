@@ -1,4 +1,5 @@
 import {Optional} from 'sequelize';
+import Role from "../role";
 
 export interface IUser {
     id: number;
@@ -18,4 +19,8 @@ export interface UserInput extends Optional<IUser, 'id'> {
 
 export interface UserOutput extends Required<IUser> {
     roles?: string[]
+}
+
+export interface UserRaw extends  Required<IUser> {
+    Roles?: Role[]
 }

@@ -1,23 +1,36 @@
 'use strict';
-import {DataTypes, HasManyGetAssociationsMixin, HasManySetAssociationsMixin, Model} from "sequelize";
-import {IMaster, MasterInput} from "./master.interface";
+import {
+    Association,
+    CreationOptional,
+    DataTypes,
+    HasManyGetAssociationsMixin,
+    HasManySetAssociationsMixin,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+    NonAttribute
+} from "sequelize";
+import {IMaster} from "./master.interface";
 import sequelize from "../../connections/db.connection";
 import City from "../city";
 
-class Master extends Model<IMaster, MasterInput> implements IMaster {
-    public id!: number;
-    public name!: string;
-    public rating!: number;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-    // public readonly deletedAt!: Date;
+class Master extends Model<InferAttributes<Master, { omit: 'cities' }>, InferCreationAttributes<Master, { omit: 'cities' }>>
+    implements IMaster {
+    declare id: CreationOptional<number>;
+    declare name: string;
+    declare rating: number;
+
+    declare readonly createdAt: CreationOptional<Date>;
+    declare readonly updatedAt: CreationOptional<Date>;
+    // declare readonly deletedAt!: CreationOptional<Date>;
+
     declare setCities: HasManySetAssociationsMixin<City, string>;
     declare getCities: HasManyGetAssociationsMixin<City>;
 
-    static associate(models: any) {
-        Master.hasMany(models.Order, {foreignKey: 'masterId'});
-        Master.belongsToMany(models.City, {through: 'MasterCities'});
-        Master.belongsTo(models.User, {foreignKey: 'userId'});
+    declare cities?: NonAttribute<string[]>;
+
+    declare static associations: {
+        roles: Association<Master, City>
     }
 }
 
@@ -32,12 +45,13 @@ Master.init({
     },
     rating: {
         type: DataTypes.INTEGER
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
 }, {
     sequelize,
     modelName: 'Master',
-    paranoid: true, // soft delete
-    timestamps: true
+    // paranoid: true, // soft delete
 });
 
 export default Master;

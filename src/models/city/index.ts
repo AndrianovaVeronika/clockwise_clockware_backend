@@ -1,20 +1,31 @@
 'use strict';
-import {DataTypes, Model} from "sequelize";
-import {CityInput, ICity} from "./city.interface";
+import {
+    Association,
+    CreationOptional,
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+    NonAttribute
+} from "sequelize";
 import sequelize from "../../connections/db.connection";
+import {ICity} from "./city.interface";
+import Master from "../master";
 
-class City extends Model<ICity, CityInput> implements ICity {
-    public id!: number;
-    public name!: string;
-    public price!: number;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+class City extends Model<InferAttributes<City>, InferCreationAttributes<City>>
+    implements ICity {
+    declare id: CreationOptional<number>;
+    declare name: string;
+    declare price: number;
 
-    // public readonly deletedAt!: Date;
+    declare readonly createdAt: CreationOptional<Date>;
+    declare readonly updatedAt: CreationOptional<Date>;
+    // declare readonly deletedAt!: CreationOptional<Date>;
 
-    static associate(models: any) {
-        City.hasMany(models.Order, {foreignKey: 'cityId'});
-        City.belongsToMany(models.Master, {through: 'MasterCities'});
+    declare masters?: NonAttribute<string[]>;
+
+    declare static associations: {
+        masters: Association<City, Master>
     }
 }
 
@@ -33,11 +44,12 @@ City.init({
         type: DataTypes.DOUBLE,
         allowNull: false,
     },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
 }, {
     sequelize,
-    modelName: 'Index',
-    paranoid: true, // soft delete
-    timestamps: true
+    modelName: 'City',
+    // paranoid: true, // soft delete
 });
 
 export default City;
