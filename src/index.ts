@@ -1,11 +1,8 @@
 import express, {Request, Response} from 'express';
 import bodyParser from "body-parser";
 import cors from "cors";
-import masterRoutes from "./routes/master_access";
-import adminRoutes from "./routes/master_access";
 import "dotenv";
-import allRoutes from "./routes/all_access";
-import userRoutes from "./routes/user_access";
+import router from "./routes";
 import logger from "./utils/logger";
 
 const app = express();
@@ -25,11 +22,8 @@ app.get("/", async (req: Request, res: Response) => {
     return res.status(200).send({message: "Clockwise Clockware App"});
 });
 
-// connect routers
-app.use('/', allRoutes);
-app.use('/', userRoutes);
-app.use('/', masterRoutes);
-app.use('/', adminRoutes);
+// connect router
+app.use('/', router);
 
 // listen for requests
 try {

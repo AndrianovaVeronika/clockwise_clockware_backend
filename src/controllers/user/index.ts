@@ -23,7 +23,7 @@ export const findAll = async (req: Request, res: Response) => {
 };
 
 // Find a user by the id in the request
-export const findOne = async (req: Request, res: Response) => {
+export const findByPk = async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
     logger.info(`Finding user with id=${id}...`);
     try {
@@ -98,7 +98,7 @@ export const create = async (req: Request, res: Response) => {
         logger.info('New user has been created');
         return res.status(200).send(createdUser);
     } catch (e) {
-        logger.info('Error in signup');
+        logger.info('Error creating user');
         return res.status(500).send({message: e.message});
     }
 };

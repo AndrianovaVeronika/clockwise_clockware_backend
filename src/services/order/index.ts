@@ -31,11 +31,11 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => ({
 
 export const findAll = async (filters?: OrderFilters, where?: Partial<OrderInput>): Promise<OrderOutput[]> => {
     const rawOrders = await Order.findAll({
-        where: {
-            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
-            ...where
-        },
-        ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
+        // where: {
+        //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
+        //     ...where
+        // },
+        // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
         include: [User, City, ClockType, Master],
     });
     return rawOrders.map(order => orderMapper(order));

@@ -3,6 +3,7 @@ import putRouter from "./put.routes";
 import {Router} from 'express';
 
 const router = Router();
+
 router.use('/', getRouter);
 router.use('/', putRouter);
 

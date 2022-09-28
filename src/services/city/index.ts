@@ -7,10 +7,10 @@ const City = db.models.City;
 
 export const findAll = async (filters?: CityFilters): Promise<CityOutput[]> => {
     return await City.findAll({
-        where: {
-            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
-        },
-        ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
+        // where: {
+        //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
+        // },
+        // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
 };
 

@@ -1,16 +1,20 @@
 'use strict';
-import {DataTypes, Model} from 'sequelize';
-import {CodeInput, ICode} from "./code.interface";
+import {Association, CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize';
 import sequelize from "../../connections/db.connection";
+import User from "../user";
+import {ICode} from "./code.interface";
 
-class Code extends Model<ICode, CodeInput> implements ICode {
-    public id!: number;
+class Code extends Model<InferAttributes<Code>, InferCreationAttributes<Code>>
+    implements ICode {
+    declare id: CreationOptional<number>;
     public verificationCode!: string;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
 
-    static associate(models: any) {
-        Code.belongsTo(models.User, {foreignKey: 'userId'});
+    declare readonly createdAt: CreationOptional<Date>;
+    declare readonly updatedAt: CreationOptional<Date>;
+    // declare readonly deletedAt!: CreationOptional<Date>;
+
+    declare static associations: {
+        roles: Association<Code, User>
     }
 }
 
@@ -23,11 +27,12 @@ Code.init({
     verificationCode: {
         type: DataTypes.STRING,
         allowNull: false
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
 }, {
     sequelize,
     modelName: 'Code',
-    timestamps: true
 });
 
 export default Code;

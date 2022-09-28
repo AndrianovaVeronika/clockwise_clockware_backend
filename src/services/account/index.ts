@@ -1,18 +1,14 @@
 import * as userService from "../user";
 import * as masterService from "../master";
-import db from "../../models";
 import {MasterInput} from "../../models/master/master.interface";
 import {UserInput} from "../../models/user/user.interface";
+import logger from "../../utils/logger";
 
 const createAccount = async (userData: UserInput, roles: string[]) => {
-    const userRoles = [];
-    for (const rolesKey in db.ROLES) {
-        if (roles.includes(db.ROLES[rolesKey as unknown as keyof typeof db.ROLES])) {
-            userRoles.push(rolesKey);
-        }
-    }
-    const user = await userService.create(userData);
-    return await userService.findByPk(user.id, {excludePassword: true});
+    const user = await userService.create({...userData, roles}, {excludePassword: true});
+    logger.info('map??')
+    logger.info(user)
+    return user;
 };
 
 export const createUserAccount = async (userData: UserInput) => {
