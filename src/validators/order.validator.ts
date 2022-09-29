@@ -28,16 +28,16 @@ export const ifOrderInterrogates = async (req: Request, res: Response, next: Nex
     // check if order exist
     try {
         for (let i = -3, ct = 3; i <= req.body.clockTypeId; i++, ct--) {
-            const objToCompare = {
+            const objToCompare = (i < 0) ? {
                 date: req.body.date,
                 time: parseIntToTimeString(timeInNum + i),
-                cityId: req.body.cityId,
                 masterId: req.body.masterId,
-                clockTypeId: Number()
+                clockTypeId: ct
+            } : {
+                date: req.body.date,
+                time: parseIntToTimeString(timeInNum + i),
+                masterId: req.body.masterId
             };
-            if (i < 0) {
-                objToCompare.clockTypeId = ct;
-            }
             const orders = await orderService.findAll({}, objToCompare);
             if (orders.length > 0) {
                 logger.error('Order interrogates with other orders. Try to change date or time and pick master one more time.');
