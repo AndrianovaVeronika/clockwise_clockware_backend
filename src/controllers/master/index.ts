@@ -8,7 +8,7 @@ import * as orderService from "../../services/order";
 import {sendTemporaryPasswordMail} from "../../services/mail";
 import {parseTimeStringToInt} from "../../services/parseTime";
 
-// Creates master with account
+// Creates master with account from admin perspective
 export const create = async (req: Request, res: Response) => {
     logger.info('Creating new master...');
     try {
@@ -52,6 +52,12 @@ export const findByPk = async (req: Request, res: Response) => {
     logger.info(`Finding master with id=${id}...`);
     try {
         const master = await masterService.findByPk(id);
+        if (!master) {
+            logger.error(`Cannot find master with id=${id}`);
+            return res.status(400).send({
+                message: `Cannot find master with id=${id}.`
+            });
+        }
         logger.info('Master has been found!');
         return res.status(200).send(master);
     } catch (e) {
@@ -136,7 +142,7 @@ export const findAllMastersAvailable = async (req: Request, res: Response) => {
         }
 
         logger.info('Starting retrieving busy masters...')
-        const busyMasters = new Array<string>();
+        const busyMasters: string[] = [];
         for (const order of orders) {
             if (moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
                 continue;

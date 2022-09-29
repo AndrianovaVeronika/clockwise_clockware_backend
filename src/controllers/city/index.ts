@@ -21,6 +21,12 @@ export const findByPk = async (req: Request, res: Response) => {
     logger.info(`Finding city with id=${id}...`);
     try {
         const city = await cityService.findByPk(id);
+        if (!city) {
+            logger.error(`Cannot find City with id=${id}.`);
+            return res.status(400).send({
+                message: `Cannot find City with id=${id}.`
+            });
+        }
         logger.info("City has been found!");
         return res.status(200).send(city);
     } catch (e) {

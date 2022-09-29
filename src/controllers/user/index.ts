@@ -1,9 +1,7 @@
 import logger from "../../utils/logger";
 import * as userService from "../../services/user";
-import * as codeService from "../../services/code";
 import {getBcryptedPassword} from "../../services/bcrypt";
 import {createUserAccount} from "../../services/account";
-import generateShortCode from "../../services/shortCode";
 import {sendTemporaryPasswordMail} from "../../services/mail";
 import {Request, Response} from "express";
 
@@ -92,8 +90,6 @@ export const create = async (req: Request, res: Response) => {
     try {
         logger.info('Creating new user...');
         const createdUser = await createUserAccount({...req.body, isPasswordTemporary: true});
-        const shortCode = generateShortCode();
-        await codeService.create({verificationCode: shortCode, userId: createdUser.id});
         await sendTemporaryPasswordMail(createdUser.id, createdUser.email);
         logger.info('New user has been created');
         return res.status(200).send(createdUser);

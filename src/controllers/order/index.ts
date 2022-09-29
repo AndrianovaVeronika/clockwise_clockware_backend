@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all orders...');
     try {
-        const orders = await orderService.findAll({includeDeleted: false});
+        const orders = await orderService.findAll();
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -52,6 +52,12 @@ export const findOne = async (req: Request, res: Response) => {
     logger.info(`Finding order with id=${id}...`);
     try {
         const order = await orderService.findByPk(id);
+        if (!order) {
+            logger.error(`Cannot find order with id=${id}`);
+            return res.status(400).send({
+                message: `Cannot find order with id=${id}.`
+            });
+        }
         logger.info('Order has been found!');
         return res.status(200).send(order);
     } catch (e) {
@@ -95,7 +101,7 @@ export const findAllCurrentUserOrders = async (req: Request, res: Response) => {
     const id = req.userId;
     logger.info(`Retrieving all orders for user with id=${id}...`);
     try {
-        const orders = await orderService.findAll({includeDeleted: true}, {userId: id});
+        const orders = await orderService.findAll({}, {userId: id});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -108,7 +114,7 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     const id = req.masterId;
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
-        const orders = await orderService.findAll({includeDeleted: true}, {masterId: id})
+        const orders = await orderService.findAll({}, {masterId: id});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -121,12 +127,12 @@ export const rateOrder = async (req: Request, res: Response) => {
     logger.info('Rating order...');
     try {
         const id = parseInt(req.params.id, 10);
-        const targetOrder = await orderService.findByPk(id);
+        const targetOrder = await orderService.findByPk(id, {returnWithIds: true});
         if (req.userId !== targetOrder.userId) {
             logger.error('User has no access to update order');
-            res.status(400).send({message: 'Authorized user has no access to update order'});
+            return res.status(400).send({message: 'Authorized user has no access to update order'});
         }
-        const newRating = await ratingService.countMasterNewRating(req.body.rating, targetOrder.masterId);
+        const newRating = (await ratingService.countMasterNewRating(req.body.rating, targetOrder.masterId)).average;
         await masterService.updateWhere({id: targetOrder.masterId}, {rating: newRating});
         await orderService.updateWhere({id: targetOrder.id}, {rating: req.body.rating});
         logger.info('Order is rated. Master rating is updated.');
