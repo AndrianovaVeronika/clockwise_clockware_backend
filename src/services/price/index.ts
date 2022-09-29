@@ -1,10 +1,8 @@
 import logger from "../../utils/logger";
-import db from "../../models";
-
-const City = db.models.City;
+import * as cityService from "../city";
 
 export const countPrice = async (cityId: number, clockTypeId: number) => {
     logger.info('Counting order price...');
-    const city = await City.findByPk(cityId);
+    const city = await cityService.findByPk(cityId);
     return city.price * clockTypeId;
 };

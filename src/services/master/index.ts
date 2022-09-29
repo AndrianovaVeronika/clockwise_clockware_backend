@@ -31,21 +31,15 @@ export const findByPk = async (id: number): Promise<MasterOutput> => {
     const master = await Master.findByPk(id, {
         include: [City]
     });
-    if (!master) {
-        throw new Error(`Cannot find city with id=${id}.`);
-    }
     return masterMapper(master);
 };
 
 export const findOneWhere = async (where: Partial<MasterInput>): Promise<MasterOutput> => {
     const master = await Master.findOne({where});
-    if (!master) {
-        throw new Error(`Cannot find city.`);
-    }
     return masterMapper(master);
 };
 
-export const create = async (payload: MasterInput): Promise<MasterOutput> => {
+export const create = async (payload: MasterInput, filters?: MasterFilters): Promise<MasterOutput> => {
     const master = await Master.create(payload);
     const cities = await City.findAll({
         where: {
@@ -55,15 +49,14 @@ export const create = async (payload: MasterInput): Promise<MasterOutput> => {
         }
     });
     await master.setCities(cities);
-    const masterWithCities = await Master.findByPk(master.id);
+    const masterWithCities = await Master.findByPk(master.id, {
+        include: [City]
+    });
     return masterMapper(masterWithCities);
 };
 
 export const updateByPk = async (id: number, payload: Partial<MasterInput>): Promise<MasterOutput> => {
     const master = await Master.findByPk(id);
-    if (!master) {
-        throw new Error(`Cannot find city with id=${id}.`);
-    }
     await Master.update(payload, {where: {id}});
     if (payload.cities) {
         const cities = await City.findAll({
@@ -81,9 +74,6 @@ export const updateByPk = async (id: number, payload: Partial<MasterInput>): Pro
 
 export const updateWhere = async (where: Partial<MasterInput>, payload: Partial<MasterInput>): Promise<MasterOutput> => {
     const master = await Master.findOne({where});
-    if (!master) {
-        throw new Error(`Cannot find city.`);
-    }
     const updatedMaster = await master.update(payload)
     if (payload.cities) {
         const cities = await City.findAll({

@@ -16,9 +16,6 @@ export const findAll = async (filters?: CityFilters): Promise<CityOutput[]> => {
 
 export const findByPk = async (id: number): Promise<CityOutput> => {
     const city = await City.findByPk(id);
-    if (!city) {
-        throw new Error(`Cannot find city with id=${id}.`);
-    }
     return city;
 };
 
@@ -28,9 +25,6 @@ export const create = async (payload: CityInput): Promise<CityOutput> => {
 
 export const updateByPk = async (id: number, payload: Partial<CityInput>): Promise<CityOutput> => {
     const city = await City.findByPk(id);
-    if (!city) {
-        throw new Error(`Cannot find city with id=${id}.`);
-    }
     return await city.update(payload);
 };
 
