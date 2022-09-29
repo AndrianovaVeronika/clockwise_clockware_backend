@@ -1,7 +1,12 @@
 'use strict';
-import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
+import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute} from "sequelize";
 import {IOrder} from "./order.interface";
 import sequelize from "../../connections/db.connection";
+import {Association} from "sequelize";
+import Master from "../master";
+import User from "../user";
+import City from "../city";
+import ClockType from "../clocktype";
 
 class Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>>
     implements IOrder {
@@ -16,8 +21,22 @@ class Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>
     declare readonly updatedAt: CreationOptional<Date>;
     // declare readonly deletedAt!: CreationOptional<Date>;
 
-    declare static associations: {
+    declare masterId?: number;
+    declare userId?: number;
+    declare cityId?: number;
+    declare clockTypeId?: number;
+    declare Master?: Master;
+    declare User?: User;
+    declare City?: City;
+    declare ClockType?: ClockType;
 
+    declare average?: NonAttribute<number>;
+
+    declare static associations: {
+        Master: Association<Order, Master>,
+        User: Association<Order, User>,
+        City: Association<Order, City>,
+        ClockType: Association<Order, ClockType>
     }
 }
 
