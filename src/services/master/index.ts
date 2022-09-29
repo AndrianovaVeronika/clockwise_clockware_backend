@@ -35,7 +35,7 @@ export const findByPk = async (id: number): Promise<MasterOutput> => {
 };
 
 export const findOneWhere = async (where: Partial<MasterInput>): Promise<MasterOutput> => {
-    const master = await Master.findOne({where});
+    const master = await Master.findOne({where, include: [City]});
     return masterMapper(master);
 };
 

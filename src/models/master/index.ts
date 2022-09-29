@@ -28,6 +28,7 @@ class Master extends Model<InferAttributes<Master, { omit: 'cities' }>, InferCre
     declare getCities: HasManyGetAssociationsMixin<City>;
 
     declare cities?: NonAttribute<string[]>;
+    declare userId?: number;
 
     declare static associations: {
         roles: Association<Master, City>
