@@ -1,5 +1,4 @@
 import {Router} from 'express';
-import verifyTokenAndExtractUserId from "../../validators/verifyTokenAndExtractUserId";
 import {isAdmin} from "../../validators/roles.validator";
 import deleteRouter from "./delete.routes";
 import getRouter from "./get.routes";
