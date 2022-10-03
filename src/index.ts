@@ -1,7 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, {Request, Response} from 'express';
 import bodyParser from "body-parser";
 import cors from "cors";
-import "dotenv";
 import router from "./routes";
 import logger from "./utils/logger";
 
@@ -33,5 +34,3 @@ try {
 } catch (error) {
     logger.error(`Error occurred: ${error.message}`);
 }
-
-export {};

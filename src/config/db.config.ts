@@ -1,7 +1,4 @@
-import dotenv from "dotenv";
 import {Dialect} from "sequelize";
-
-dotenv.config();
 
 const dbConfig = {
     "development": {

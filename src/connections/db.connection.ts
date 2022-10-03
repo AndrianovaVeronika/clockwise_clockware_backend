@@ -1,7 +1,5 @@
 import {Sequelize} from "sequelize";
 import config from "../config/db.config";
-import dotenv from "dotenv";
-dotenv.config();
 
 const dbConfig = config[process.env.NODE_ENV as keyof typeof config];
 
