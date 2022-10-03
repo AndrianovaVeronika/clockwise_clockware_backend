@@ -3,10 +3,10 @@ import {CodeInput, CodeOutput} from "../../models/code/code.interface";
 
 const Code = db.models.Code;
 
-export const create = async (payload: CodeInput): Promise<CodeOutput> => {
-    return await Code.create(payload);
+export const create = (payload: CodeInput): Promise<CodeOutput> => {
+    return Code.create(payload);
 };
 
-export const findOneWhere = async (where: Partial<CodeInput>): Promise<CodeOutput> => {
-    return await Code.findOne({where});
+export const findOneWhere = (where: Partial<CodeInput>): Promise<CodeOutput> => {
+    return Code.findOne({where});
 };

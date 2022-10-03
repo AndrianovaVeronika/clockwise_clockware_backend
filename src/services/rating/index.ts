@@ -3,14 +3,14 @@ import sequelize from "../../connections/db.connection";
 
 const {Order, Master} = db.models;
 
-export const countMasterNewRating = async (orderRating: number, masterId: number): Promise<any> => {
+export const countMasterNewRating = async (orderRating: number, masterId: number): Promise<number> => {
     const data = await Order.findAll({
         where: {masterId, isCompleted: true},
         attributes: [
             [sequelize.fn("AVG", sequelize.col('rating')), 'average']
         ],
     });
-    return data[0];
+    return data[0].average;
 };
 
 // unbelievably outstanding mathematics method, that no one appreciated

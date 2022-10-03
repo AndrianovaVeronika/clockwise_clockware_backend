@@ -16,7 +16,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             return res.status(400).send({message: "No token provided!"});
         }
         if (typeof token === "string") {
-            jwt.verify(token, config.secret, async (err: Error, decoded: any) => {
+            jwt.verify(token, config.secret, async (err: Error, decoded: { id: number }) => {
                 if (err) {
                     logger.error(err);
                     return res.status(401).send({message: err});

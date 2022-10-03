@@ -1,11 +1,10 @@
 import {Request, Response} from 'express';
 import logger from "../../utils/logger";
-import generateShortCode from "../../services/shortCode";
 import {sendEmailConfirmationMail, sendTemporaryPasswordMail} from "../../services/mail";
 import {createMasterAccount, createUserAccount} from "../../services/account";
 import * as userService from "../../services/user";
 import * as codeService from "../../services/code";
-import {getBcryptedPassword, isPasswordValid} from "../../services/bcrypt";
+import {isPasswordValid} from "../../services/bcrypt";
 import moment from "moment";
 import jwt, {JwtPayload} from "jsonwebtoken";
 import config from "../../config/auth.config";
@@ -147,7 +146,9 @@ export const createUserOrFindIfAuthorized = async (req: Request, res: Response) 
         } else {
             logger.info('Such user has been found. Checking authorization...');
             const token = req.headers["x-access-token"];
-            const error: any = {};
+            const error: { message: string; } = {
+                message: ''
+            };
             if (typeof token === "string") {
                 jwt.verify(token, config.secret, async (err, decoded) => {
                     if (err) {
@@ -162,7 +163,7 @@ export const createUserOrFindIfAuthorized = async (req: Request, res: Response) 
                     }
                 });
             }
-            if (error.message) {
+            if (error.message.length > 0) {
                 logger.error(error.message);
                 return res.status(401).send({
                     message: error.message,
