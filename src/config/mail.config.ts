@@ -1,7 +1,5 @@
-import "dotenv";
-
 export default {
-    port: 465,
+    port: process.env.EMAIL_PORT,
     host: "smtp.gmail.com",
     auth: {
         user: process.env.EMAIL,
