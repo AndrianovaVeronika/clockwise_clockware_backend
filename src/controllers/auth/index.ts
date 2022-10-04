@@ -47,11 +47,11 @@ export const registerMaster = async (req: Request, res: Response) => {
 export const signin = async (req: Request, res: Response) => {
     logger.info("Signing in...");
     try {
-        const user = await userService.findOneWhere({email: req.body.email});
         if (!req.body.password) {
             logger.error("No password provided.");
             return res.status(401).send({message: "No password provided."});
         }
+        const user = await userService.findOneWhere({email: req.body.email});
         const passwordIsValid = isPasswordValid(req.body.password, user.password);
         if (!passwordIsValid) {
             logger.error("Check your credential: email or password could not be right");

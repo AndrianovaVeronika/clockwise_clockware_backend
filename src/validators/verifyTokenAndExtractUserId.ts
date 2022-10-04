@@ -11,7 +11,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             return next();
         }
         const token = req.headers["x-access-token"];
-        if (!token) {
+        if (!token || token === 'null') {
             logger.error("No token provided!");
             return res.status(400).send({message: "No token provided!"});
         }

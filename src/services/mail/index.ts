@@ -6,6 +6,7 @@ import generateShortCode from "../shortCode";
 import * as codeService from "../code";
 import {getBcryptedPassword} from "../bcrypt";
 import {OrderMailData} from "../../models/order/order.interface";
+import validator from "validator";
 
 const transporter = nodemailer.createTransport(mailConfig);
 

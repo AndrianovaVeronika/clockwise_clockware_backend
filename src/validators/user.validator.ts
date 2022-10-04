@@ -5,6 +5,11 @@ import {NextFunction, Request, Response} from 'express';
 export const checkDuplicateEmail = async (req: Request, res: Response, next: NextFunction) => {
     // Email
     logger.info("Checking email for duplicates...");
+    if (!req.body.email) {
+        return res.status(400).send({
+            message: "Email is not provided!"
+        });
+    }
     const userWithSameEmail = await userService.findOneWhere({
         email: req.body.email
     });
