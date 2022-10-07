@@ -132,7 +132,7 @@ export const rateOrder = async (req: Request, res: Response) => {
             logger.error('User has no access to update order');
             return res.status(400).send({message: 'Authorized user has no access to update order'});
         }
-        const newRating = (await ratingService.countMasterNewRating(req.body.rating, targetOrder.masterId));
+        const newRating = await ratingService.countMasterNewRating(req.body.rating, targetOrder.masterId);
         await masterService.updateWhere({id: targetOrder.masterId}, {rating: newRating});
         await orderService.updateWhere({id: targetOrder.id}, {rating: req.body.rating});
         logger.info('Order is rated. Master rating is updated.');
