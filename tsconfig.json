@@ -16,6 +16,7 @@
   },
   "include": [
     "src/**/*",
-    "./.sequelizerc"
+    "./.sequelizerc",
+    "./tslint.json"
   ]
 }
