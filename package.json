@@ -4,6 +4,10 @@
   "description": "",
   "main": "./dist",
   "license": "MIT",
+  "engines" : {
+    "npm" : "8.15.0",
+    "node" : "17.3.0"
+  },
   "scripts": {
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
