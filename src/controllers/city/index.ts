@@ -6,7 +6,7 @@ import * as cityService from "../../services/city";
 export const findAll = async (req: Request, res: Response) => {
     logger.info("Retrieving all cities...");
     try {
-        const cities = await cityService.findAll();
+        const cities = await cityService.findAll(req.query);
         logger.info("Cities retrieved!");
         return res.status(200).send(cities);
     } catch (e) {
@@ -82,3 +82,17 @@ export const deleteByPk = async (req: Request, res: Response) => {
         return res.status(500).send({message: e.message});
     }
 };
+
+//min and max from prices
+// export const getPricesExtremes = async (req: Request, res: Response) => {
+//     const id = parseInt(req.params.id, 10);
+//     logger.info(`Deleting city with id=${id}...`);
+//     try {
+//         await cityService.deleteByPk(id);
+//         logger.info("City has been deleted successfully.");
+//         return res.status(200).send({id});
+//     } catch (e) {
+//         logger.error(e.message);
+//         return res.status(500).send({message: e.message});
+//     }
+// };
