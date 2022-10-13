@@ -1,12 +1,14 @@
 import {Request, Response} from 'express';
 import logger from "../../utils/logger";
 import * as cityService from "../../services/city";
+import CityFilters from "../../services/city/city.filters";
 
 // Retrieve all cities from the database
 export const findAll = async (req: Request, res: Response) => {
     logger.info("Retrieving all cities...");
     try {
-        const cities = await cityService.findAll();
+        const filters: CityFilters = req.query;
+        const cities = await cityService.findAll(filters);
         logger.info("Cities retrieved!");
         return res.status(200).send(cities);
     } catch (e) {

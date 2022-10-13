@@ -5,6 +5,7 @@ import * as masterService from "../../services/master";
 import * as ratingService from "../../services/rating";
 import {sendOrderConfirmationMail} from "../../services/mail";
 import {Request, Response} from "express";
+import OrderFilters from "../../services/order/order.filters";
 
 export const create = async (req: Request, res: Response) => {
 // Validate request
@@ -37,7 +38,8 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all orders...');
     try {
-        const orders = await orderService.findAll();
+        const filters: OrderFilters = req.query;
+        const orders = await orderService.findAll(filters);
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -101,7 +103,8 @@ export const findAllCurrentUserOrders = async (req: Request, res: Response) => {
     const id = req.userId;
     logger.info(`Retrieving all orders for user with id=${id}...`);
     try {
-        const orders = await orderService.findAll({}, {userId: id});
+        const filters: OrderFilters = req.query;
+        const orders = await orderService.findAll({where: {userId: id}, ...filters});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -114,7 +117,8 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     const id = req.masterId;
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
-        const orders = await orderService.findAll({}, {masterId: id});
+        const filters: OrderFilters = req.query;
+        const orders = await orderService.findAll({where: {masterId: id}, ...filters});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
