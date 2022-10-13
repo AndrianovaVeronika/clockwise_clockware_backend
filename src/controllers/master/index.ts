@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all masters...');
     try {
-        const masters = await masterService.findAll();
+        const masters = await masterService.findAll(req.query);
         logger.info('Masters retrieved!');
         return res.status(200).send(masters);
     } catch (e) {

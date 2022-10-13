@@ -1,9 +1,9 @@
 import db from "../../models";
 import OrderFilters from "./order.filters";
 import {OrderInput, OrderOutput, RawOrder} from "../../models/order/order.interface";
-import logger from "../../utils/logger";
 
 const {Order, User, City, ClockType, Master} = db.models;
+const Op = db.Sequelize.Op;
 
 const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => order ? ({
     id: order.id,
@@ -28,11 +28,21 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => order ? 
     })
 }) : undefined;
 
-export const findAll = async (filters?: OrderFilters, where?: Partial<OrderInput>): Promise<OrderOutput[]> => {
+export const findAll = async (filters?: OrderFilters): Promise<OrderOutput[]> => {
     const rawOrders = await Order.findAll({
         where: {
             // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
-            ...where
+            ...filters?.where,
+            ...(filters?.priceRange && {
+                price: {
+                    [Op.between]: filters.priceRange
+                }
+            }),
+            ...(filters?.dateRange && {
+                date: {
+                    [Op.between]: filters.dateRange
+                }
+            }),
         },
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
         include: [User, City, ClockType, Master],

@@ -9,7 +9,7 @@ import {Request, Response} from "express";
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all users...');
     try {
-        const users = await userService.findAll({excludePassword: true});
+        const users = await userService.findAll({excludePassword: true, ...req.query});
         logger.info('Users retrieved!');
         return res.status(200).send(users);
     } catch (e) {

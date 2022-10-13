@@ -37,7 +37,7 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all orders...');
     try {
-        const orders = await orderService.findAll();
+        const orders = await orderService.findAll(req.query);
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -101,7 +101,7 @@ export const findAllCurrentUserOrders = async (req: Request, res: Response) => {
     const id = req.userId;
     logger.info(`Retrieving all orders for user with id=${id}...`);
     try {
-        const orders = await orderService.findAll({}, {userId: id});
+        const orders = await orderService.findAll({where: {userId: id}, ...req.query});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
@@ -114,7 +114,7 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     const id = req.masterId;
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
-        const orders = await orderService.findAll({}, {masterId: id});
+        const orders = await orderService.findAll({where: {masterId: id}, ...req.query});
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
