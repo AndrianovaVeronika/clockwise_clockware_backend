@@ -21,9 +21,10 @@ const userMapper = (user: UserRaw): UserOutput => user ? {
 
 export const findAll = async (filters?: UserFilters): Promise<UserOutput[]> => {
     const users = await User.findAll({
-        // where: {
-        //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
-        // },
+        where: {
+            // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
+            ...filters?.where,
+        },
         include: [Role],
         ...(filters?.excludePassword && {attributes: {exclude: ['password']}}),
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})

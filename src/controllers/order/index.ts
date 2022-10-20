@@ -6,6 +6,7 @@ import * as ratingService from "../../services/rating";
 import {sendOrderConfirmationMail} from "../../services/mail";
 import {Request, Response} from "express";
 import OrderFilters from "../../services/order/order.filters";
+import db from "../../models";
 
 export const create = async (req: Request, res: Response) => {
 // Validate request
@@ -118,7 +119,31 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
         const filters: OrderFilters = req.query;
-        const orders = await orderService.findAll({where: {masterId: id}, ...filters});
+        let user;
+        if (filters?.name || filters?.email) {
+            let or;
+            if (filters?.name && filters?.email) {
+                or = [{name: filters?.name}, {email: filters?.email}];
+            } else if (filters?.name) {
+                or = [{name: filters?.name}]
+            } else {
+                or = [{email: filters?.email}]
+            }
+            user = await db.models.User.findOne({
+                where: {
+                    [db.Sequelize.Op.or]: or
+                }
+            });
+        }
+        console.log(user)
+        const orders = await orderService.findAll({
+            where: {
+                masterId: id,
+                ...(user && {userId: user.id}),
+                ...filters.where
+            },
+            ...filters
+        });
         logger.info('Orders retrieved!');
         return res.status(200).send(orders);
     } catch (e) {
