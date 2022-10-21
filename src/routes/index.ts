@@ -11,7 +11,7 @@ router.use('/', allRoutes);
 
 router.use(verifyTokenAndExtractUserId);
 
-// routes
+//routes
 router.use('/', userRoutes);
 router.use('/', masterRoutes);
 router.use('/', adminRoutes);

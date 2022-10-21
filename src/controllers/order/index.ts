@@ -40,6 +40,7 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all orders...');
     try {
+        //making filters type
         const filters: OrderFilters = req.query;
         const orders = await orderService.findAll(filters);
         logger.info('Orders retrieved!');

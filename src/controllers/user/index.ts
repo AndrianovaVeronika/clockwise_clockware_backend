@@ -4,14 +4,12 @@ import {getBcryptedPassword} from "../../services/bcrypt";
 import {createUserAccount} from "../../services/account";
 import {sendTemporaryPasswordMail} from "../../services/mail";
 import {Request, Response} from "express";
-import UserFilters from "../../services/user/user.filters";
 
 // Find all users
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all users...');
     try {
-        const filters: UserFilters = req.query;
-        const users = await userService.findAll({excludePassword: true, ...filters});
+        const users = await userService.findAll({excludePassword: true});
         logger.info('Users retrieved!');
         return res.status(200).send(users);
     } catch (e) {

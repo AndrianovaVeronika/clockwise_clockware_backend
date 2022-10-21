@@ -7,7 +7,6 @@ import * as cityService from "../../services/city";
 import * as orderService from "../../services/order";
 import {sendTemporaryPasswordMail} from "../../services/mail";
 import {parseTimeStringToInt} from "../../services/parseTime";
-import MasterFilters from "../../services/master/master.filters";
 
 // Creates master with account from admin perspective
 export const create = async (req: Request, res: Response) => {
@@ -38,8 +37,7 @@ export const create = async (req: Request, res: Response) => {
 export const findAll = async (req: Request, res: Response) => {
     logger.info('Retrieving all masters...');
     try {
-        const filters: MasterFilters = req.query;
-        const masters = await masterService.findAll(filters);
+        const masters = await masterService.findAll();
         logger.info('Masters retrieved!');
         return res.status(200).send(masters);
     } catch (e) {
