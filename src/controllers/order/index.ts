@@ -7,6 +7,7 @@ import {sendOrderConfirmationMail} from "../../services/mail";
 import {Request, Response} from "express";
 import OrderFilters from "../../services/order/order.filters";
 import db from "../../models";
+import {Op} from "sequelize";
 
 export const create = async (req: Request, res: Response) => {
 // Validate request
@@ -119,7 +120,7 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     logger.info(`Retrieving all orders for master with id=${id}...`);
     try {
         const filters: OrderFilters = req.query;
-        let user;
+        let users;
         if (filters?.name || filters?.email) {
             let or;
             if (filters?.name && filters?.email) {
@@ -129,17 +130,16 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
             } else {
                 or = [{email: filters?.email}]
             }
-            user = await db.models.User.findOne({
+            users = await db.models.User.findAll({
                 where: {
                     [db.Sequelize.Op.or]: or
                 }
             });
         }
-        console.log(user)
         const orders = await orderService.findAll({
             where: {
                 masterId: id,
-                ...(user && {userId: user.id}),
+                ...(users && {[Op.or]: users.map(user => ({userId: user.id}))}),
                 ...filters.where
             },
             ...filters
