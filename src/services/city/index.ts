@@ -3,18 +3,9 @@ import db from "../../models";
 import CityFilters from "./city.filters";
 
 const City = db.models.City;
-const Op = db.Sequelize.Op;
 
 export const findAll = (filters?: CityFilters): Promise<CityOutput[]> => {
     return City.findAll({
-        where: {
-            ...filters?.where,
-            ...(filters?.priceRange && {
-                price: {
-                    [Op.between]: filters.priceRange
-                }
-            })
-        }
         // where: {
         //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
         // },
