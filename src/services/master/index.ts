@@ -20,7 +20,13 @@ export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> 
     const masters = await Master.findAll({
         include: [City],
         where: {
-            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
+            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
+            ...filters?.where,
+            ...(filters?.ratingRange && {
+                rating: {
+                    [Op.between]: filters.ratingRange
+                }
+            }),
         },
         ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
