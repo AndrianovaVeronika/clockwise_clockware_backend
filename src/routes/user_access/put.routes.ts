@@ -6,11 +6,13 @@ import * as userController from "../../controllers/user";
 import * as orderController from "../../controllers/order";
 import {Router} from 'express';
 import ifBodyUndefined from "../../validators/ifBodyUndefined";
+import validatePasswordChange from "../../validators/validatePasswordChange";
 
 const router = Router();
 
 router.put("/update/credentials", [
-    ifBodyUndefined
+    ifBodyUndefined,
+    validatePasswordChange
 ], userController.update);
 
 router.put("/rate/order/:id", [

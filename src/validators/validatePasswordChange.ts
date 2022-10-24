@@ -3,7 +3,7 @@ import logger from "../utils/logger";
 import * as bcryptService from "../services/bcrypt";
 import * as userService from "../services/user";
 
-const validatePasswordChange = async (req: Request, res: Response, next: NextFunction) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
     try {
         logger.info("Checking if changing password is possible...");
         if (req.body.currentPassword) {
@@ -26,5 +26,3 @@ const validatePasswordChange = async (req: Request, res: Response, next: NextFun
         return res.status(500).send({message: e.message});
     }
 };
-
-module.exports = validatePasswordChange;
