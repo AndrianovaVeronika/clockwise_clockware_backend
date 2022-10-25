@@ -2,7 +2,7 @@ import logger from "../utils/logger";
 import {NextFunction, Request, Response} from 'express';
 import * as orderService from "../services/order";
 
-export default async (req: Request, res: Response, next: NextFunction) => {
+const ifOrderBelongToMaster = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id, 10);
     try {
         logger.info("Checking if order belong to master...");
@@ -18,3 +18,5 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         return res.status(500).send({message: e.message});
     }
 };
+
+export default ifOrderBelongToMaster;

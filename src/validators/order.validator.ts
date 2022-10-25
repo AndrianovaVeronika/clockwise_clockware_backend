@@ -39,7 +39,7 @@ export const ifOrderInterrogates = async (req: Request, res: Response, next: Nex
                 masterId: req.body.masterId
             };
             const orders = await orderService.findAll({where: objToCompare});
-            if (orders.length > 0) {
+            if (orders.data.length > 0) {
                 logger.error('Order interrogates with other orders. Try to change date or time and pick master one more time.');
                 return res.status(400).send({message: 'Order interrogates with other orders. Try to change date or time and pick master one more time.'});
             }
