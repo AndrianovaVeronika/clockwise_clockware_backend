@@ -4,5 +4,7 @@ export default interface CityFilters {
     isDeleted?: boolean;
     includeDeleted?: boolean;
     where?: Partial<CityInput>;
-    priceRange?: number[]
+    priceRange?: number[];
+    limit?: number;
+    page?: number;
 };

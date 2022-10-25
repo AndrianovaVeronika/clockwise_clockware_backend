@@ -5,8 +5,8 @@ import CityFilters from "./city.filters";
 const City = db.models.City;
 const Op = db.Sequelize.Op;
 
-export const findAll = (filters?: CityFilters): Promise<CityOutput[]> => {
-    return City.findAll({
+export const findAll = async (filters?: CityFilters): Promise<{ total: number; data: CityOutput[] }> => {
+    const data = await City.findAndCountAll({
         where: {
             ...filters?.where,
             ...(filters?.priceRange && {
@@ -14,12 +14,15 @@ export const findAll = (filters?: CityFilters): Promise<CityOutput[]> => {
                     [Op.between]: filters.priceRange
                 }
             })
-        }
+        },
+        ...(filters?.page && {offset: filters.page * filters.limit}),
+        ...(filters?.limit && {limit: filters.limit}),
         // where: {
         //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
         // },
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
+    return {total: data.count, data: data.rows};
 };
 
 export const findByPk = (id: number): Promise<CityOutput> => {

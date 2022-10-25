@@ -108,7 +108,7 @@ export const findAllMastersAvailable = async (req: Request, res: Response) => {
         };
         const incomeMasters = await masterService.findAll();
         const city = await cityService.findByPk(newOrder.cityId);
-        const masters = incomeMasters.filter(master => master.cities.includes(city.name));
+        const masters = incomeMasters.data.filter(master => master.cities.includes(city.name));
         const orders = await orderService.findAll();
 
         const ifOrdersInterrogates = (
@@ -145,7 +145,7 @@ export const findAllMastersAvailable = async (req: Request, res: Response) => {
 
         logger.info('Starting retrieving busy masters...')
         const busyMasters: string[] = [];
-        for (const order of orders) {
+        for (const order of orders.data) {
             if (moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
                 continue;
             }

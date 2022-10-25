@@ -9,4 +9,6 @@ export default interface OrderFilters {
     email?: string;
     priceRange?: number[];
     dateRange?: number[];
+    limit?: number;
+    page?: number;
 };

@@ -5,4 +5,6 @@ export default interface UserFilters {
     includeDeleted?: boolean;
     excludePassword?: boolean;
     where?: Partial<OrderInput>;
+    limit?: number;
+    page?: number;
 };

@@ -19,17 +19,19 @@ const userMapper = (user: UserRaw): UserOutput => user ? {
     // deletedAt: user.deletedAt
 } : undefined;
 
-export const findAll = async (filters?: UserFilters): Promise<UserOutput[]> => {
-    const users = await User.findAll({
+export const findAll = async (filters?: UserFilters): Promise<{ total: number; data: UserOutput[]; }> => {
+    const data = await User.findAndCountAll({
         where: {
             // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...filters?.where,
         },
         include: [Role],
         ...(filters?.excludePassword && {attributes: {exclude: ['password']}}),
+        ...(filters?.page && {offset: filters.page * filters.limit}),
+        ...(filters?.limit && {limit: filters.limit}),
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
-    return users.map(userMapper);
+    return {total: data.count, data: data.rows.map(userMapper)};
 };
 
 export const findByPk = async (id: number, filters?: UserFilters): Promise<UserOutput> => {

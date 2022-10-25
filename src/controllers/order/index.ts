@@ -106,9 +106,9 @@ export const findAllCurrentUserOrders = async (req: Request, res: Response) => {
     logger.info(`Retrieving all orders for user with id=${id}...`);
     try {
         const filters: OrderFilters = req.query;
-        const orders = await orderService.findAll({where: {userId: id}, ...filters});
+        const data = await orderService.findAll({where: {userId: id}, ...filters});
         logger.info('Orders retrieved!');
-        return res.status(200).send(orders);
+        return res.status(200).send(data);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});

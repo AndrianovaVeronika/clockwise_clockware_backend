@@ -28,8 +28,8 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => order ? 
     })
 }) : undefined;
 
-export const findAll = async (filters?: OrderFilters): Promise<OrderOutput[]> => {
-    const rawOrders = await Order.findAll({
+export const findAll = async (filters?: OrderFilters): Promise<{ total: number; data: OrderOutput[] }> => {
+    const data = await Order.findAndCountAll({
         where: {
             // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...filters?.where,
@@ -46,8 +46,10 @@ export const findAll = async (filters?: OrderFilters): Promise<OrderOutput[]> =>
         },
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
         include: [User, City, ClockType, Master],
+        ...(filters?.page && {offset: filters.page * filters.limit}),
+        ...(filters?.limit && {limit: filters.limit}),
     });
-    return rawOrders.map(order => orderMapper(order, filters?.returnWithIds));
+    return {total: data.count, data: data.rows.map(order => orderMapper(order, filters?.returnWithIds))};
 };
 
 export const findByPk = async (id: number, filters?: OrderFilters): Promise<OrderOutput> => {

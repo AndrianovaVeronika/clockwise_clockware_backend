@@ -16,8 +16,8 @@ const masterMapper = (master: RawMaster): MasterOutput => ({
     // deletedAt: master.deletedAt
 });
 
-export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> => {
-    const masters = await Master.findAll({
+export const findAll = async (filters?: MasterFilters): Promise<{ total: number; data: MasterOutput[] }> => {
+    const data = await Master.findAndCountAll({
         include: [City],
         where: {
             ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
@@ -28,9 +28,11 @@ export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> 
                 }
             }),
         },
+        ...(filters?.page && {offset: filters.page * filters.limit}),
+        ...(filters?.limit && {limit: filters.limit}),
         ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
-    return masters.map(masterMapper);
+    return {total: data.count, data: data.rows.map(masterMapper)};
 };
 
 export const findByPk = async (id: number): Promise<MasterOutput> => {
