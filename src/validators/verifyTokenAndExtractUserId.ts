@@ -3,7 +3,7 @@ import {NextFunction, Request, Response} from 'express';
 import jwt from "jsonwebtoken";
 import config from "../config/auth.config";
 
-export default async (req: Request, res: Response, next: NextFunction) => {
+const verifyTokenAndExtractUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         logger.info("Verifying user token for access...");
         if (req.headers.special_admin_key === process.env.SPECIAL_ADMIN_KEY) {
@@ -30,3 +30,5 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         return res.status(500).send({message: e.message});
     }
 };
+
+export default verifyTokenAndExtractUserId;
