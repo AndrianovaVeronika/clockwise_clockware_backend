@@ -7,4 +7,5 @@ export default interface MasterFilters {
     ratingRange?: number[];
     limit?: number;
     page?: number;
+    order?: Array<any>;
 };

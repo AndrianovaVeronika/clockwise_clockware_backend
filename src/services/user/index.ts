@@ -29,6 +29,7 @@ export const findAll = async (filters?: UserFilters): Promise<{ total: number; d
         ...(filters?.excludePassword && {attributes: {exclude: ['password']}}),
         ...(filters?.page && {offset: filters.page * filters.limit}),
         ...(filters?.limit && {limit: filters.limit}),
+        ...(filters?.order && {order: filters.order}),
         // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
     return {total: data.count, data: data.rows.map(userMapper)};

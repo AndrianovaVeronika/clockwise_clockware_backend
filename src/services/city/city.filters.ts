@@ -7,4 +7,5 @@ export default interface CityFilters {
     priceRange?: number[];
     limit?: number;
     page?: number;
+    order?: Array<any>;
 };

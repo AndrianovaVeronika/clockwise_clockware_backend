@@ -17,6 +17,7 @@ export const findAll = async (filters?: CityFilters): Promise<{ total: number; d
         },
         ...(filters?.page && {offset: filters.page * filters.limit}),
         ...(filters?.limit && {limit: filters.limit}),
+        ...(filters?.order && {order: filters.order})
         // where: {
         //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
         // },

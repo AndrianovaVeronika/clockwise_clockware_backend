@@ -11,4 +11,5 @@ export default interface OrderFilters {
     dateRange?: number[];
     limit?: number;
     page?: number;
+    order?: Array<any>;
 };

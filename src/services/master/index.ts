@@ -30,6 +30,7 @@ export const findAll = async (filters?: MasterFilters): Promise<{ total: number;
         },
         ...(filters?.page && {offset: filters.page * filters.limit}),
         ...(filters?.limit && {limit: filters.limit}),
+        ...(filters?.order && {order: filters.order}),
         ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
     return {total: data.count, data: data.rows.map(masterMapper)};

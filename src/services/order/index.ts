@@ -48,6 +48,24 @@ export const findAll = async (filters?: OrderFilters): Promise<{ total: number; 
         include: [User, City, ClockType, Master],
         ...(filters?.page && {offset: filters.page * filters.limit}),
         ...(filters?.limit && {limit: filters.limit}),
+        ...(filters?.order && {
+            order: filters.order.map(option => {
+                switch (option[0]) {
+                    case 'master':
+                        return [Master, 'name', option[1]];
+                    case 'city':
+                        return [City, 'name', option[1]];
+                    case 'clockType':
+                        return ['clockTypeId', option[1]];
+                    case 'name':
+                        return [User, 'name', option[1]];
+                    case 'email':
+                        return [User, 'email', option[1]];
+                    default:
+                        return option;
+                }
+            })
+        })
     });
     return {total: data.count, data: data.rows.map(order => orderMapper(order, filters?.returnWithIds))};
 };

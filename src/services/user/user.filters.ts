@@ -7,4 +7,5 @@ export default interface UserFilters {
     where?: Partial<OrderInput>;
     limit?: number;
     page?: number;
+    order?: Array<any>;
 };
