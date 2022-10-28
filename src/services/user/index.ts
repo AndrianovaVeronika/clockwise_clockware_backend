@@ -20,17 +20,18 @@ const userMapper = (user: UserRaw): UserOutput => user ? {
 } : undefined;
 
 export const findAll = async (filters?: UserFilters): Promise<{ total: number; data: UserOutput[]; }> => {
+    const limit = filters?.limit || 100;
     const data = await User.findAndCountAll({
+        ...filters,
         where: {
-            // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...filters?.where,
+            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
         },
         include: [Role],
+        limit: limit,
+        ...(filters?.page && {offset: filters.page * limit}),
         ...(filters?.excludePassword && {attributes: {exclude: ['password']}}),
-        ...(filters?.page && {offset: filters.page * filters.limit}),
-        ...(filters?.limit && {limit: filters.limit}),
-        ...(filters?.order && {order: filters.order}),
-        // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
+        ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
     return {total: data.count, data: data.rows.map(userMapper)};
 };

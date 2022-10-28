@@ -6,22 +6,21 @@ const City = db.models.City;
 const Op = db.Sequelize.Op;
 
 export const findAll = async (filters?: CityFilters): Promise<{ total: number; data: CityOutput[] }> => {
+    const limit = filters?.limit || 100;
     const data = await City.findAndCountAll({
+        ...filters,
         where: {
             ...filters?.where,
+            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...(filters?.priceRange && {
                 price: {
                     [Op.between]: filters.priceRange
                 }
             })
         },
-        ...(filters?.page && {offset: filters.page * filters.limit}),
-        ...(filters?.limit && {limit: filters.limit}),
-        ...(filters?.order && {order: filters.order})
-        // where: {
-        //     ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}})
-        // },
-        // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
+        limit: limit,
+        ...(filters?.page && {offset: filters.page * limit}),
+        ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
     return {total: data.count, data: data.rows};
 };

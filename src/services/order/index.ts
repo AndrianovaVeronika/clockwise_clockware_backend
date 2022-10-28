@@ -29,10 +29,12 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => order ? 
 }) : undefined;
 
 export const findAll = async (filters?: OrderFilters): Promise<{ total: number; data: OrderOutput[] }> => {
+    const limit = filters?.limit || 100;
     const data = await Order.findAndCountAll({
+        ...filters,
         where: {
-            // ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...filters?.where,
+            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...(filters?.priceRange && {
                 price: {
                     [Op.between]: filters.priceRange
@@ -44,10 +46,10 @@ export const findAll = async (filters?: OrderFilters): Promise<{ total: number; 
                 }
             }),
         },
-        // ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
         include: [User, City, ClockType, Master],
-        ...(filters?.page && {offset: filters.page * filters.limit}),
-        ...(filters?.limit && {limit: filters.limit}),
+        limit: limit,
+        ...(filters?.page && {offset: filters.page * limit}),
+        ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true}),
         ...(filters?.order && {
             order: filters.order.map(option => {
                 switch (option[0]) {
