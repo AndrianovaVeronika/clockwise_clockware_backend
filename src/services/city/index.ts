@@ -1,12 +1,13 @@
 import {CityInput, CityOutput} from "../../models/city/city.interface";
 import db from "../../models";
 import CityFilters from "./city.filters";
+import defaultRowsNumberLimit from "../../constants/defaultRowsNumberLimit";
 
 const City = db.models.City;
 const Op = db.Sequelize.Op;
 
 export const findAll = async (filters?: CityFilters): Promise<{ total: number; data: CityOutput[] }> => {
-    const limit = filters?.limit || 100;
+    const limit = filters?.limit || defaultRowsNumberLimit;
     const data = await City.findAndCountAll({
         ...filters,
         where: {

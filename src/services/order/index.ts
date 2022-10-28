@@ -1,6 +1,7 @@
 import db from "../../models";
 import OrderFilters from "./order.filters";
 import {OrderInput, OrderOutput, RawOrder} from "../../models/order/order.interface";
+import defaultRowsNumberLimit from "../../constants/defaultRowsNumberLimit";
 
 const {Order, User, City, ClockType, Master} = db.models;
 const Op = db.Sequelize.Op;
@@ -29,7 +30,7 @@ const orderMapper = (order: RawOrder, withId?: boolean): OrderOutput => order ? 
 }) : undefined;
 
 export const findAll = async (filters?: OrderFilters): Promise<{ total: number; data: OrderOutput[] }> => {
-    const limit = filters?.limit || 100;
+    const limit = filters?.limit || defaultRowsNumberLimit;
     const data = await Order.findAndCountAll({
         ...filters,
         where: {

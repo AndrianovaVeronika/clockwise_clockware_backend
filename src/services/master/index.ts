@@ -4,6 +4,7 @@ import {Op} from 'sequelize';
 import MasterFilters from "./master.filters";
 import {OrderInput} from "../../models/order/order.interface";
 import {parseIntToTimeString, parseTimeStringToInt} from "../parseTime";
+import defaultRowsNumberLimit from "../../constants/defaultRowsNumberLimit";
 
 const {Master, City, Order} = db.models;
 
@@ -19,7 +20,7 @@ const masterMapper = (master: RawMaster): MasterOutput => ({
 });
 
 export const findAll = async (filters?: MasterFilters): Promise<{ total: number; data: MasterOutput[] }> => {
-    const limit = filters?.limit || 100;
+    const limit = filters?.limit || defaultRowsNumberLimit;
     const data = await Master.findAndCountAll({
         ...filters,
         include: [City],
