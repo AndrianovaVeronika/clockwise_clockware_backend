@@ -110,9 +110,6 @@ export const deleteByPk = async (id: number): Promise<boolean> => {
 
 export const findAvailable = async (newOrder: Partial<OrderInput>, filters?: MasterFilters): Promise<{ total: number; data: any }> => {
     const newOrderTime = parseTimeStringToInt(newOrder.time);
-    console.log(newOrder)
-    console.log(typeof newOrder.clockTypeId)
-    console.log(filters)
     const interrogatingOrders = await Order.findAll({
         attributes: ['masterId'],
         where: {
@@ -135,7 +132,6 @@ export const findAvailable = async (newOrder: Partial<OrderInput>, filters?: Mas
             ]
         }
     });
-    console.log('interogating orders are ok')
     const interrogatingOrdersMastersId = interrogatingOrders.map(order => order.masterId);
     const availableMasters = await Master.findAndCountAll({
         ...filters,
