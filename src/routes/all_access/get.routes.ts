@@ -6,6 +6,7 @@ import * as clockTypeController from "../../controllers/clockType";
 // import * as orderController from "../../controllers/order";
 import {Router} from 'express';
 import verifyTokenAndExtractUserId from "../../validators/verifyTokenAndExtractUserId";
+import ifBodyUndefined from "../../validators/ifBodyUndefined";
 
 const router = Router();
 
@@ -13,9 +14,11 @@ router.get("/cities", cityController.findAll);
 router.get("/cities/:id", cityController.findByPk);
 
 router.get("/clocktypes", clockTypeController.findAll);
+router.get("/clockTypes/:id", clockTypeController.findByPk)
 
 router.get("/masters", masterController.findAll);
 router.get("/masters/:id", masterController.findByPk);
+router.get("/available/masters", masterController.findAllMastersAvailable);
 
 router.get('/access/user', [verifyTokenAndExtractUserId], authController.userAccess);
 router.get('/verify/email/:code', authController.checkEmailVerificationCode);

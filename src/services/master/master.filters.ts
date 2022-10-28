@@ -5,4 +5,7 @@ export default interface MasterFilters {
     includeDeleted?: boolean;
     where?: Partial<MasterInput>;
     ratingRange?: number[];
+    limit?: number;
+    page?: number;
+    order?: Array<any>;
 };

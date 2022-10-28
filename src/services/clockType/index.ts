@@ -6,3 +6,7 @@ const ClockType = db.models.ClockType;
 export const findAll = (): Promise<ClockTypeOutput[]> => {
     return ClockType.findAll();
 };
+
+export const findByPk = (id: number): Promise<ClockTypeOutput> => {
+    return ClockType.findByPk(id);
+};

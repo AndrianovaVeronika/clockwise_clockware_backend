@@ -106,9 +106,9 @@ export const findAllCurrentUserOrders = async (req: Request, res: Response) => {
     logger.info(`Retrieving all orders for user with id=${id}...`);
     try {
         const filters: OrderFilters = req.query;
-        const orders = await orderService.findAll({where: {userId: id}, ...filters});
+        const data = await orderService.findAll({where: {userId: id}, ...filters});
         logger.info('Orders retrieved!');
-        return res.status(200).send(orders);
+        return res.status(200).send(data);
     } catch (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
@@ -121,18 +121,10 @@ export const findAllCurrentMasterOrders = async (req: Request, res: Response) =>
     try {
         const filters: OrderFilters = req.query;
         let users;
-        if (filters?.name || filters?.email) {
-            let or;
-            if (filters?.name && filters?.email) {
-                or = [{name: filters?.name}, {email: filters?.email}];
-            } else if (filters?.name) {
-                or = [{name: filters?.name}]
-            } else {
-                or = [{email: filters?.email}]
-            }
+        if (filters?.login) {
             users = await db.models.User.findAll({
                 where: {
-                    [db.Sequelize.Op.or]: or
+                    [db.Sequelize.Op.or]: [{name: filters.login}, {email: filters.login}]
                 }
             });
         }
