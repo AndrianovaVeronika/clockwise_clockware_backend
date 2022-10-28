@@ -2,8 +2,11 @@ import {MasterInput, MasterOutput, RawMaster} from "../../models/master/master.i
 import db from "../../models";
 import {Op} from 'sequelize';
 import MasterFilters from "./master.filters";
+import {OrderInput} from "../../models/order/order.interface";
+import {parseIntToTimeString, parseTimeStringToInt} from "../parseTime";
+import defaultRowsNumberLimit from "../../constants/defaultRowsNumberLimit";
 
-const {Master, City} = db.models;
+const {Master, City, Order} = db.models;
 
 const masterMapper = (master: RawMaster): MasterOutput => ({
     id: master.id,
@@ -16,21 +19,25 @@ const masterMapper = (master: RawMaster): MasterOutput => ({
     // deletedAt: master.deletedAt
 });
 
-export const findAll = async (filters?: MasterFilters): Promise<MasterOutput[]> => {
-    const masters = await Master.findAll({
+export const findAll = async (filters?: MasterFilters): Promise<{ total: number; data: MasterOutput[] }> => {
+    const limit = filters?.limit || defaultRowsNumberLimit;
+    const data = await Master.findAndCountAll({
+        ...filters,
         include: [City],
         where: {
-            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...filters?.where,
+            ...(filters?.isDeleted && {deletedAt: {[Op.not]: null}}),
             ...(filters?.ratingRange && {
                 rating: {
                     [Op.between]: filters.ratingRange
                 }
             }),
         },
+        limit: limit,
+        ...(filters?.page && {offset: filters.page * limit}),
         ...((filters?.isDeleted || filters?.includeDeleted) && {paranoid: true})
     });
-    return masters.map(masterMapper);
+    return {total: data.count, data: data.rows.map(masterMapper)};
 };
 
 export const findByPk = async (id: number): Promise<MasterOutput> => {
@@ -99,4 +106,45 @@ export const deleteByPk = async (id: number): Promise<boolean> => {
         where: {id}
     });
     return !!deletedMasterCount;
+};
+
+export const findAvailable = async (newOrder: Partial<OrderInput>, filters?: MasterFilters): Promise<{ total: number; data: any }> => {
+    const newOrderTime = parseTimeStringToInt(newOrder.time);
+    const interrogatingOrders = await Order.findAll({
+        attributes: ['masterId'],
+        where: {
+            date: newOrder.date,
+            [Op.or]: [
+                {
+                    time: {
+                        [Op.between]: [parseIntToTimeString(newOrderTime - 1),
+                            parseIntToTimeString(newOrderTime + newOrder.clockTypeId)]
+                    }
+                },
+                {
+                    time: parseIntToTimeString(newOrderTime - 2),
+                    clockTypeId: {[Op.or]: [2, 3]}
+                },
+                {
+                    time: parseIntToTimeString(newOrderTime - 3),
+                    clockTypeId: 3
+                }
+            ]
+        }
+    });
+    const interrogatingOrdersMastersId = interrogatingOrders.map(order => order.masterId);
+    const availableMasters = await Master.findAndCountAll({
+        ...filters,
+        include: {
+            model: City, /*through: {attributes: ['name']}*/ where: {
+                id: newOrder.cityId
+            }
+        },
+        where: {
+            id: {
+                [Op.notIn]: interrogatingOrdersMastersId
+            }
+        }
+    });
+    return {total: availableMasters.count, data: availableMasters.rows.map(masterMapper)};
 };

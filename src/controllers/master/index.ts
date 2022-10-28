@@ -1,13 +1,12 @@
 import {Request, Response} from 'express';
 import logger from "../../utils/logger";
-import moment from "moment";
 import * as accountService from "../../services/account";
 import * as masterService from "../../services/master";
-import * as cityService from "../../services/city";
-import * as orderService from "../../services/order";
 import {sendTemporaryPasswordMail} from "../../services/mail";
-import {parseTimeStringToInt} from "../../services/parseTime";
 import MasterFilters from "../../services/master/master.filters";
+import db from "../../models";
+
+const Op = db.Sequelize.Op;
 
 // Creates master with account from admin perspective
 export const create = async (req: Request, res: Response) => {
@@ -100,65 +99,25 @@ export const deleteByPk = async (req: Request, res: Response) => {
 export const findAllMastersAvailable = async (req: Request, res: Response) => {
     logger.info('Filtering all available masters...');
     try {
-        const newOrder = {
-            date: req.body.date,
-            time: req.body.time,
-            cityId: req.body.cityId,
-            clockTypeId: req.body.clockTypeId
-        };
-        const incomeMasters = await masterService.findAll();
-        const city = await cityService.findByPk(newOrder.cityId);
-        const masters = incomeMasters.filter(master => master.cities.includes(city.name));
-        const orders = await orderService.findAll();
-
-        const ifOrdersInterrogates = (
-            newOrderStartTime: string,
-            newOrderRepairingTime: number,
-            existingOrderStartTime: string,
-            existingOrderRepairingTime: number
-        ) => {
-            const existingOrderStartTimeInNum = parseTimeStringToInt(existingOrderStartTime);
-            const newOrderStartTimeInNum = parseTimeStringToInt(newOrderStartTime);
-            if (newOrderStartTimeInNum < existingOrderStartTimeInNum) {
-                if ((newOrderStartTimeInNum + newOrderRepairingTime) < existingOrderStartTimeInNum) {
-                    return false;
-                }
-            } else {
-                if (existingOrderStartTimeInNum + existingOrderRepairingTime < newOrderStartTimeInNum) {
-                    return false;
-                }
-            }
-            return true;
+        const {newOrder, filters}: {
+            newOrder?: {
+                cityId: string;
+                clockTypeId: string;
+                date: string;
+                time: string;
+            }, filters?: MasterFilters
+        } = req.query;
+        const orderToPlace = {
+            cityId: parseInt(newOrder.cityId),
+            clockTypeId: parseInt(newOrder.clockTypeId),
+            date: newOrder.date,
+            time: newOrder.time
         }
-        const getRepairingHours = (type: string) => {
-            switch (type) {
-                case 'small':
-                    return 1;
-                case 'average':
-                    return 2;
-                case 'big':
-                    return 3;
-                default:
-                    return 0;
-            }
-        }
-
-        logger.info('Starting retrieving busy masters...')
-        const busyMasters: string[] = [];
-        for (const order of orders) {
-            if (moment(newOrder.date).format('MM-DD-YYYY') !== moment(order.date).format('MM-DD-YYYY')) {
-                continue;
-            }
-
-            // if chosen time interrogates with existing order time add master to busy masters list
-            if (ifOrdersInterrogates(newOrder.time, newOrder.clockTypeId, order.time, getRepairingHours(order.clockType))) {
-                busyMasters.push(order.master);
-            }
-        }
-        const availableMasters = masters.filter((master) => !busyMasters.includes(master.name));
+        const masters = await masterService.findAvailable(orderToPlace, filters);
         logger.info('All available masters have been retrieved!');
-        return res.status(200).send(availableMasters);
-    } catch (e) {
+        return res.status(200).send(masters);
+    } catch
+        (e) {
         logger.error(e.message);
         return res.status(500).send({message: e.message});
     }

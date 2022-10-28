@@ -1,5 +1,4 @@
 // import * as userController from "../../controllers/user";
-import * as masterController from "../../controllers/master";
 // import * as cityController from "../../controllers/city";
 import * as authController from "../../controllers/auth";
 // import * as clockTypeController from "../../controllers/clockType";
@@ -31,7 +30,7 @@ router.post(
         checkUserPassword
     ],
     authController.registerMaster
-)
+);
 
 router.post("/signin", [
     ifBodyUndefined
@@ -43,11 +42,8 @@ router.post("/orders",
         ifDateTimeAppropriate,
         ifOrderInterrogates
     ],
-    orderController.create);
-
-router.post("/masters/available", [
-    ifBodyUndefined
-], masterController.findAllMastersAvailable);
+    orderController.create
+);
 
 router.post('/verify/user/created', [
     ifBodyUndefined

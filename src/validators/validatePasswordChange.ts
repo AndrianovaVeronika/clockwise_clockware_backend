@@ -27,4 +27,4 @@ const validatePasswordChange = async (req: Request, res: Response, next: NextFun
     }
 };
 
-module.exports = validatePasswordChange;
+export default validatePasswordChange;

@@ -17,6 +17,7 @@ export interface IOrder {
 }
 
 export interface OrderInput extends Optional<IOrder, 'id'> {
+    date: string;
     name: string;
     email: number;
     userId?: number;

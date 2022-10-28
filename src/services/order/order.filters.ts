@@ -5,8 +5,10 @@ export default interface OrderFilters {
     includeDeleted?: boolean;
     returnWithIds?: boolean;
     where?: Partial<OrderInput>;
-    name?: string;
-    email?: string;
+    login?: string;
     priceRange?: number[];
     dateRange?: number[];
+    limit?: number;
+    page?: number;
+    order?: Array<any>;
 };
